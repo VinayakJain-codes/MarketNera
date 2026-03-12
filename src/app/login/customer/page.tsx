@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { ROUTES } from "@/constants/routes";
+import { getURL } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import Logo from "@/components/layout/Logo";
 
@@ -40,7 +41,7 @@ export default function CustomerLoginPage() {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: `${window.location.origin}${ROUTES.CUSTOMER_DASHBOARD}`,
+                redirectTo: `${getURL()}${ROUTES.CUSTOMER_DASHBOARD.substring(1)}`,
                 queryParams: {
                     access_type: "offline",
                     prompt: "consent",
