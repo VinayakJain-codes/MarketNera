@@ -1,0 +1,22 @@
+{
+    "name": "Marketnera",
+    "short_name": "Marketnera",
+    "description": "Empowering local shopkeepers in the digital age",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f6f8f6",
+    "theme_color": "#13ec5b",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "48x48",
+            "type": "image/x-icon"
+        }
+    ],
+    "categories": [
+        "business",
+        "shopping"
+    ],
+    "lang": "en-IN"
+}   

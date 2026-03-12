@@ -1,0 +1,152 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+
+
+//SYSTEM RULES — CODE ARCHITECTURE AND NON-HARDCODED DESIGN
+
+Follow these rules strictly while generating or modifying code.
+
+1. **No Hardcoded Secrets**
+
+   * Never hardcode API keys, tokens, database URLs, credentials, or service keys.
+   * Use environment variables.
+   * Provide a `.env.example` file listing required variables.
+
+2. **Environment-Based Configuration**
+
+   * All environment-dependent values must come from environment variables.
+   * Examples: API base URLs, analytics keys, payment keys, auth secrets.
+
+3. **Configuration Files for Adjustable Values**
+
+   * Store adjustable application settings inside a `config/` directory.
+   * Examples:
+
+     * site metadata
+     * pricing plans
+     * feature flags
+     * branding settings
+
+4. **Data-Driven UI**
+
+   * UI components must not contain embedded business content.
+   * Store marketing text, features, pricing, and structured content in data objects or content files.
+   * Components should render this data dynamically.
+
+5. **Reusable Components**
+
+   * Do not duplicate UI logic.
+   * Use reusable components such as:
+
+     * Button
+     * Card
+     * Navbar
+     * Footer
+     * Form elements
+
+6. **Constants for Repeated Values**
+
+   * All repeated strings or values must live in `constants/`.
+   * Examples:
+
+     * route paths
+     * role names
+     * numeric limits
+     * status labels
+
+7. **Dynamic Routing**
+
+   * Avoid creating separate files for similar pages.
+   * Use dynamic routing (`[slug]`, `[id]`) where applicable.
+
+8. **Separation of Concerns**
+
+   * UI components must not handle business logic directly.
+   * Place business logic in `lib/`, `services/`, or API layers.
+
+9. **Centralized API Layer**
+
+   * All API requests and external service calls must go through a centralized service layer.
+
+10. **Database Instead of Static Data**
+
+    * Do not store application data inside static arrays or objects within components.
+    * Fetch data from database, API, or content files.
+
+11. **Feature Flags**
+
+    * Implement feature toggles so functionality can be enabled or disabled without modifying core code.
+
+12. **Avoid Magic Numbers**
+
+    * Do not use unexplained numeric values.
+    * Define limits and thresholds in constants.
+
+13. **Modular Folder Structure**
+    Organize the project with the following structure:
+
+    src/
+    ├ app/
+    ├ components/
+    ├ config/
+    ├ constants/
+    ├ lib/
+    ├ hooks/
+    ├ utils/
+    ├ types/
+    ├ content/
+
+14. **SEO and Web Standards**
+    Ensure the project includes:
+
+    * robots.txt
+    * sitemap.xml
+    * favicon
+    * manifest.json
+    * metadata configuration
+
+15. **Maintainability First**
+
+    * The codebase must allow most changes through configuration, database, or content updates rather than editing core logic.
+    * The project should remain scalable and easy for new developers to understand.
+//
