@@ -1,0 +1,152 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/customer/dashboard",
+      "regex": "^/customer/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/customer/dashboard(?:/)?$"
+    },
+    {
+      "page": "/customer/profile",
+      "regex": "^/customer/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/customer/profile(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/login/customer",
+      "regex": "^/login/customer(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login/customer(?:/)?$"
+    },
+    {
+      "page": "/register",
+      "regex": "^/register(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/register(?:/)?$"
+    },
+    {
+      "page": "/register/customer",
+      "regex": "^/register/customer(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/register/customer(?:/)?$"
+    },
+    {
+      "page": "/screens/local-shop-profile-mobile-8",
+      "regex": "^/screens/local\\-shop\\-profile\\-mobile\\-8(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/screens/local\\-shop\\-profile\\-mobile\\-8(?:/)?$"
+    },
+    {
+      "page": "/screens/marketnera-home---categories-0",
+      "regex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-0(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-0(?:/)?$"
+    },
+    {
+      "page": "/screens/marketnera-home---categories-1",
+      "regex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-1(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-1(?:/)?$"
+    },
+    {
+      "page": "/screens/marketnera-home---categories-3",
+      "regex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-3(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-3(?:/)?$"
+    },
+    {
+      "page": "/screens/marketnera-home---categories-4",
+      "regex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-4(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-4(?:/)?$"
+    },
+    {
+      "page": "/screens/marketnera-home---categories-5",
+      "regex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-5(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-5(?:/)?$"
+    },
+    {
+      "page": "/screens/marketnera-home---categories-6",
+      "regex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-6(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/screens/marketnera\\-home\\-\\-\\-categories\\-6(?:/)?$"
+    },
+    {
+      "page": "/screens/marketnera-mobile-checkout-2",
+      "regex": "^/screens/marketnera\\-mobile\\-checkout\\-2(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/screens/marketnera\\-mobile\\-checkout\\-2(?:/)?$"
+    },
+    {
+      "page": "/screens/marketnera-mobile-home-7",
+      "regex": "^/screens/marketnera\\-mobile\\-home\\-7(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/screens/marketnera\\-mobile\\-home\\-7(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

@@ -1,0 +1,1406 @@
+module.exports = [
+"[project]/src/app/favicon.ico.mjs { IMAGE => \"[project]/src/app/favicon.ico (static in ecmascript, tag client)\" } [app-rsc] (structured image object, ecmascript, Next.js Server Component)", ((__turbopack_context__) => {
+
+__turbopack_context__.n(__turbopack_context__.i("[project]/src/app/favicon.ico.mjs { IMAGE => \"[project]/src/app/favicon.ico (static in ecmascript, tag client)\" } [app-rsc] (structured image object, ecmascript)"));
+}),
+"[externals]/next/dist/shared/lib/no-fallback-error.external.js [external] (next/dist/shared/lib/no-fallback-error.external.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/shared/lib/no-fallback-error.external.js", () => require("next/dist/shared/lib/no-fallback-error.external.js"));
+
+module.exports = mod;
+}),
+"[project]/src/app/layout.tsx [app-rsc] (ecmascript, Next.js Server Component)", ((__turbopack_context__) => {
+
+__turbopack_context__.n(__turbopack_context__.i("[project]/src/app/layout.tsx [app-rsc] (ecmascript)"));
+}),
+"[project]/src/app/screens/marketnera-home---categories-0/page.tsx [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>Screen
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.js [app-rsc] (ecmascript)");
+;
+function Screen() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["Fragment"], {
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "relative flex flex-col min-h-screen",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
+                    className: "flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4 lg:px-20 bg-white/80 dark:bg-navy/80 backdrop-blur-md sticky top-0 z-50",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex items-center gap-3 shrink-0",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "text-primary size-8",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                                        fill: "none",
+                                        viewBox: "0 0 48 48",
+                                        xmlns: "http://www.w3.org/2000/svg",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
+                                            d: "M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z",
+                                            fill: "currentColor"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 10,
+                                            columnNumber: 1
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                        lineNumber: 9,
+                                        columnNumber: 1
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                    lineNumber: 8,
+                                    columnNumber: 1
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                    className: "text-navy dark:text-slate-100 text-2xl font-black leading-tight tracking-tight",
+                                    children: "Marketnera"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                    lineNumber: 13,
+                                    columnNumber: 1
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                            lineNumber: 7,
+                            columnNumber: 1
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex-1 max-w-2xl mx-8 relative",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "relative group",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400",
+                                        children: "search"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                        lineNumber: 17,
+                                        columnNumber: 1
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                        className: "w-full bg-slate-100 dark:bg-slate-800 border-none rounded-full py-3 pl-12 pr-4 focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-slate-700 transition-all text-sm",
+                                        placeholder: "Search for groceries, local shops...",
+                                        type: "text",
+                                        value: "Fresh"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                        lineNumber: 18,
+                                        columnNumber: 1
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden z-50",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "p-2",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest",
+                                                    children: "Suggested Items"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 21,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors group/item",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "material-symbols-outlined text-primary",
+                                                            children: "eco"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 23,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "text-sm font-medium",
+                                                            children: [
+                                                                "Organic ",
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "font-bold",
+                                                                    children: "Tomatoes"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 24,
+                                                                    columnNumber: 47
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 24,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "ml-auto text-xs text-slate-400",
+                                                            children: "In Vegetables"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 25,
+                                                            columnNumber: 1
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 22,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors group/item",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "material-symbols-outlined text-primary",
+                                                            children: "bakery_dining"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 28,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "text-sm font-medium",
+                                                            children: [
+                                                                "Whole Wheat ",
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "font-bold",
+                                                                    children: "Bread"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 29,
+                                                                    columnNumber: 51
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 29,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "ml-auto text-xs text-slate-400",
+                                                            children: "In Bakery"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 30,
+                                                            columnNumber: 1
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 27,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex items-center gap-3 px-4 py-3 bg-slate-50 dark:bg-slate-700 cursor-pointer transition-colors group/item",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "material-symbols-outlined text-primary",
+                                                            children: "water_drop"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 33,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "text-sm font-medium",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "font-bold",
+                                                                    children: "Fresh"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 34,
+                                                                    columnNumber: 39
+                                                                }, this),
+                                                                " Milk"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 34,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "ml-auto text-xs text-slate-400",
+                                                            children: "In Dairy"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 35,
+                                                            columnNumber: 1
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 32,
+                                                    columnNumber: 1
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 20,
+                                            columnNumber: 1
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                        lineNumber: 19,
+                                        columnNumber: 1
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                lineNumber: 16,
+                                columnNumber: 1
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                            lineNumber: 15,
+                            columnNumber: 1
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex items-center gap-6 shrink-0",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
+                                    className: "hidden xl:flex items-center gap-8",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                            className: "text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors",
+                                            href: "#",
+                                            children: "Deals"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 43,
+                                            columnNumber: 1
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                            className: "text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors",
+                                            href: "#",
+                                            children: "Stores"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 44,
+                                            columnNumber: 1
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                    lineNumber: 42,
+                                    columnNumber: 1
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex items-center gap-4",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            className: "size-10 rounded-full flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                className: "material-symbols-outlined",
+                                                children: "person"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                lineNumber: 48,
+                                                columnNumber: 1
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 47,
+                                            columnNumber: 1
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            className: "bg-navy dark:bg-slate-700 text-white px-6 h-10 rounded-full text-sm font-bold hover:bg-slate-800 transition-all",
+                                            children: "Sign In"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 50,
+                                            columnNumber: 1
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                    lineNumber: 46,
+                                    columnNumber: 1
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                            lineNumber: 41,
+                            columnNumber: 1
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                    lineNumber: 6,
+                    columnNumber: 1
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex flex-1 max-w-[1600px] mx-auto w-full",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("aside", {
+                            className: "w-72 shrink-0 border-r border-slate-200 dark:border-slate-800 p-8 hidden lg:block sticky top-20 h-[calc(100vh-80px)] overflow-y-auto scrollbar-hide",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "space-y-10",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                className: "text-xs font-black uppercase tracking-widest text-navy dark:text-white mb-6",
+                                                children: "Categories"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                lineNumber: 58,
+                                                columnNumber: 1
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "space-y-3",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                        className: "flex items-center gap-3 cursor-pointer group",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                className: "rounded border-slate-300 text-primary focus:ring-primary h-5 w-5",
+                                                                type: "checkbox"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 61,
+                                                                columnNumber: 1
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors",
+                                                                children: "Vegetables"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 62,
+                                                                columnNumber: 1
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 60,
+                                                        columnNumber: 1
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                        className: "flex items-center gap-3 cursor-pointer group",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                defaultChecked: true,
+                                                                className: "rounded border-slate-300 text-primary focus:ring-primary h-5 w-5",
+                                                                type: "checkbox"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 65,
+                                                                columnNumber: 1
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-sm font-bold text-primary",
+                                                                children: "Dairy & Eggs"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 66,
+                                                                columnNumber: 1
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 64,
+                                                        columnNumber: 1
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                        className: "flex items-center gap-3 cursor-pointer group",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                className: "rounded border-slate-300 text-primary focus:ring-primary h-5 w-5",
+                                                                type: "checkbox"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 69,
+                                                                columnNumber: 1
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors",
+                                                                children: "Bakery"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 70,
+                                                                columnNumber: 1
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 68,
+                                                        columnNumber: 1
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                        className: "flex items-center gap-3 cursor-pointer group",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                className: "rounded border-slate-300 text-primary focus:ring-primary h-5 w-5",
+                                                                type: "checkbox"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 73,
+                                                                columnNumber: 1
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors",
+                                                                children: "Meat & Seafood"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 74,
+                                                                columnNumber: 1
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 72,
+                                                        columnNumber: 1
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                        className: "flex items-center gap-3 cursor-pointer group",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                className: "rounded border-slate-300 text-primary focus:ring-primary h-5 w-5",
+                                                                type: "checkbox"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 77,
+                                                                columnNumber: 1
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors",
+                                                                children: "Beverages"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 78,
+                                                                columnNumber: 1
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 76,
+                                                        columnNumber: 1
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                lineNumber: 59,
+                                                columnNumber: 1
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                        lineNumber: 57,
+                                        columnNumber: 1
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                className: "text-xs font-black uppercase tracking-widest text-navy dark:text-white mb-6",
+                                                children: "Price Range"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                lineNumber: 83,
+                                                columnNumber: 1
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                className: "w-full accent-primary mb-4",
+                                                max: "100",
+                                                min: "0",
+                                                type: "range"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                lineNumber: 84,
+                                                columnNumber: 1
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex justify-between text-xs font-bold text-slate-400",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        children: "$0"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 86,
+                                                        columnNumber: 1
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        children: "$100+"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 87,
+                                                        columnNumber: 1
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                lineNumber: 85,
+                                                columnNumber: 1
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                        lineNumber: 82,
+                                        columnNumber: 1
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                className: "text-xs font-black uppercase tracking-widest text-navy dark:text-white mb-6",
+                                                children: "Local Shops"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                lineNumber: 91,
+                                                columnNumber: 1
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "space-y-3",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                        className: "flex items-center gap-3 cursor-pointer",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                className: "text-primary focus:ring-primary h-5 w-5",
+                                                                name: "shop",
+                                                                type: "radio"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 94,
+                                                                columnNumber: 1
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-sm font-medium text-slate-600 dark:text-slate-400",
+                                                                children: "Greenery Market"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 95,
+                                                                columnNumber: 1
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 93,
+                                                        columnNumber: 1
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                        className: "flex items-center gap-3 cursor-pointer",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                className: "text-primary focus:ring-primary h-5 w-5",
+                                                                name: "shop",
+                                                                type: "radio"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 98,
+                                                                columnNumber: 1
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-sm font-medium text-slate-600 dark:text-slate-400",
+                                                                children: "Artisan Bakery"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 99,
+                                                                columnNumber: 1
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 97,
+                                                        columnNumber: 1
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                        className: "flex items-center gap-3 cursor-pointer",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                defaultChecked: true,
+                                                                className: "text-primary focus:ring-primary h-5 w-5",
+                                                                name: "shop",
+                                                                type: "radio"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 102,
+                                                                columnNumber: 1
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-sm font-bold text-navy dark:text-slate-200",
+                                                                children: "Sunshine Organics"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 103,
+                                                                columnNumber: 1
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 101,
+                                                        columnNumber: 1
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                lineNumber: 92,
+                                                columnNumber: 1
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                        lineNumber: 90,
+                                        columnNumber: 1
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                lineNumber: 56,
+                                columnNumber: 1
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                            lineNumber: 55,
+                            columnNumber: 1
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
+                            className: "flex-1 p-8",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex items-center justify-between mb-8",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                                                    className: "text-3xl font-black text-navy dark:text-white",
+                                                    children: "Fresh Groceries"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 112,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                    className: "text-slate-500 text-sm mt-1",
+                                                    children: "Showing 124 results in your area"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 113,
+                                                    columnNumber: 1
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 111,
+                                            columnNumber: 1
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "flex items-center gap-2",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    className: "text-sm text-slate-500 font-medium",
+                                                    children: "Sort by:"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 116,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                                    className: "border-none bg-white dark:bg-slate-800 rounded-lg text-sm font-bold py-2 px-4 pr-10 focus:ring-2 focus:ring-primary",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                            children: "Relevance"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 118,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                            children: "Price: Low to High"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 119,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                            children: "Price: High to Low"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 120,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                            children: "Newest"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 121,
+                                                            columnNumber: 1
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 117,
+                                                    columnNumber: 1
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 115,
+                                            columnNumber: 1
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                    lineNumber: 110,
+                                    columnNumber: 1
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "bg-white dark:bg-slate-900 rounded-[2rem] p-4 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "relative aspect-square rounded-[1.5rem] overflow-hidden mb-4 bg-slate-50",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                                            alt: "Organic Avocado",
+                                                            className: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500",
+                                                            src: "https://lh3.googleusercontent.com/aida-public/AB6AXuB202VitgXwM5sug7nubqMb527DL-dIHGvv9AC0lH00KRaAXJcXWmd-LCu-Uq7PaqoBDzOjp5uEouJT4TPqrvTHVLUh4NZclqj7bG5n0LsbrarQO-JyR_ZwTlock5IXPZztxzYshZxP7EXx0UxqjTuhXXuiTorwkfE1U_7U8t9geqvNfujBXADy-UXfBijY6mYf87rfcPeiiMYvwefFTG5tb5TGmYLMsp4FqA14nAzxciPJGwcybq4kY6Gnf36s63tNDXJKxps3WpJr"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 128,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                            className: "absolute top-4 right-4 size-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-slate-400 hover:text-primary transition-colors",
+                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "material-symbols-outlined text-xl",
+                                                                children: "favorite"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                lineNumber: 130,
+                                                                columnNumber: 1
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 129,
+                                                            columnNumber: 1
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 127,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "px-2",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex justify-between items-start mb-1",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                                                    className: "font-bold text-navy dark:text-white text-lg leading-tight",
+                                                                    children: "Organic Hass Avocado"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 135,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-primary font-black text-xl",
+                                                                    children: "$4.99"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 136,
+                                                                    columnNumber: 1
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 134,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex items-center gap-2 mb-4",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded",
+                                                                    children: "2 Units"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 139,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-[10px] font-black uppercase text-primary tracking-widest",
+                                                                    children: "• Sunshine Organics"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 140,
+                                                                    columnNumber: 1
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 138,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                            className: "w-full bg-primary text-white h-12 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-primary/20",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "material-symbols-outlined",
+                                                                    children: "shopping_basket"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 143,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                "Add to Cart"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 142,
+                                                            columnNumber: 1
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 133,
+                                                    columnNumber: 1
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 126,
+                                            columnNumber: 1
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "bg-white dark:bg-slate-900 rounded-[2rem] p-4 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "relative aspect-square rounded-[1.5rem] overflow-hidden mb-4 bg-slate-50",
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                                        alt: "Fresh Milk",
+                                                        className: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500",
+                                                        src: "https://lh3.googleusercontent.com/aida-public/AB6AXuBiqsLOYBU7z7eH1MLEYIL93EK4DKEHEunr9o7FO91myhxtKAUhMERs01vKDfk_l6bKhlEv4wQbGFaHClt5e-vfMzfv0dMg1xBHlnoMxmW9L2t1wEz3Jy0i2mtICygx98YKcBn3NJCaQXhFDFBjXZbvyd3gzOg2DJlPku3eBkmJtj-3CDpVzI-0BwyizIV17AH-Ju2vMY2SsrL0DkDc433SF6pjcR3pqdrqpCBZPRYrYQE1BPs1W3DnRDfvDHL2F9jBPoM9bTsHa-zk"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 150,
+                                                        columnNumber: 1
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 149,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "px-2",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex justify-between items-start mb-1",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                                                    className: "font-bold text-navy dark:text-white text-lg leading-tight",
+                                                                    children: "Farm Fresh Whole Milk"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 154,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-primary font-black text-xl",
+                                                                    children: "$5.50"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 155,
+                                                                    columnNumber: 1
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 153,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex items-center gap-2 mb-4",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded",
+                                                                    children: "1 Gallon"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 158,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-[10px] font-black uppercase text-primary tracking-widest",
+                                                                    children: "• Dairy Depot"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 159,
+                                                                    columnNumber: 1
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 157,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                            className: "w-full bg-primary text-white h-12 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-primary/20",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "material-symbols-outlined",
+                                                                    children: "shopping_basket"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 162,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                "Add to Cart"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 161,
+                                                            columnNumber: 1
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 152,
+                                                    columnNumber: 1
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 148,
+                                            columnNumber: 1
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "bg-white dark:bg-slate-900 rounded-[2rem] p-4 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "relative aspect-square rounded-[1.5rem] overflow-hidden mb-4 bg-slate-50",
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                                        alt: "Sourdough Bread",
+                                                        className: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500",
+                                                        src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCGM9zvnVC9KjdnKycBiTAt2QfxbSSVixDtfZ1veXOuVduKbt8aQHYnyThgGTuUHh3SyX_oYygroHx72es__uEg0iESDUXJH2hLtRygchHzoAuBJ8NOEM4v4LLWVrPtCC5ADIpo0VbX_NNK7IoegYB94uWNlRXwyo6xKaHPbTn8LuVSyJ3-99yxx57v211X0MVpYYcoHWYeQabXfWTzVywndLN9tFaDjAYq3igrpzPSiz7HUr-s6VK_gzNelkCdn1VGnNFOhEtBe-q7"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 169,
+                                                        columnNumber: 1
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 168,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "px-2",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex justify-between items-start mb-1",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                                                    className: "font-bold text-navy dark:text-white text-lg leading-tight",
+                                                                    children: "Artisan Sourdough"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 173,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-primary font-black text-xl",
+                                                                    children: "$6.20"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 174,
+                                                                    columnNumber: 1
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 172,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex items-center gap-2 mb-4",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded",
+                                                                    children: "450g"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 177,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-[10px] font-black uppercase text-primary tracking-widest",
+                                                                    children: "• The Hearth Bake"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 178,
+                                                                    columnNumber: 1
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 176,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                            className: "w-full bg-primary text-white h-12 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-primary/20",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "material-symbols-outlined",
+                                                                    children: "shopping_basket"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 181,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                "Add to Cart"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 180,
+                                                            columnNumber: 1
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 171,
+                                                    columnNumber: 1
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 167,
+                                            columnNumber: 1
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "bg-white dark:bg-slate-900 rounded-[2rem] p-4 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "relative aspect-square rounded-[1.5rem] overflow-hidden mb-4 bg-slate-50",
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                                        alt: "Vine Tomatoes",
+                                                        className: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500",
+                                                        src: "https://lh3.googleusercontent.com/aida-public/AB6AXuB6xF3Bvm-HBxfSsrTR5BfbBsBJshaKi9U70XsuxunBWtvc2Yn-I4BiCgxn3WFeaZyexbhQC5HvpqMH4y1kgLlMjyoG7K3wfc9vrPGMvAuAWSc53YaWncme87gffx1ztDBNjYPJQQ7tYHPz8FWMD-QHhB4DxTau6pyiyb7XPajjCHx-iZWgt7q17GDeb8Dsi3PFydweoEUVxSv8uGAI3psp_7xbC9lCu7Y-3Rzyy970P1iJ2gbpQ3qatnobJr-vdYz87q1KiNxxGXPs"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                        lineNumber: 188,
+                                                        columnNumber: 1
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 187,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "px-2",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex justify-between items-start mb-1",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                                                    className: "font-bold text-navy dark:text-white text-lg leading-tight",
+                                                                    children: "Organic Vine Tomatoes"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 192,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-primary font-black text-xl",
+                                                                    children: "$3.95"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 193,
+                                                                    columnNumber: 1
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 191,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex items-center gap-2 mb-4",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded",
+                                                                    children: "500g Pack"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 196,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-[10px] font-black uppercase text-primary tracking-widest",
+                                                                    children: "• Greenery Market"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 197,
+                                                                    columnNumber: 1
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 195,
+                                                            columnNumber: 1
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                            className: "w-full bg-primary text-white h-12 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-primary/20",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "material-symbols-outlined",
+                                                                    children: "shopping_basket"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                                    lineNumber: 200,
+                                                                    columnNumber: 1
+                                                                }, this),
+                                                                "Add to Cart"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                            lineNumber: 199,
+                                                            columnNumber: 1
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 190,
+                                                    columnNumber: 1
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 186,
+                                            columnNumber: 1
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "bg-white dark:bg-slate-900 rounded-[2rem] p-4 border border-slate-100 dark:border-slate-800 shadow-sm opacity-60",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "aspect-square rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 mb-4 animate-pulse"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 206,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "h-6 w-3/4 bg-slate-100 dark:bg-slate-800 rounded mb-2 animate-pulse"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 207,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "h-4 w-1/2 bg-slate-100 dark:bg-slate-800 rounded animate-pulse"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 208,
+                                                    columnNumber: 1
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 205,
+                                            columnNumber: 1
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "bg-white dark:bg-slate-900 rounded-[2rem] p-4 border border-slate-100 dark:border-slate-800 shadow-sm opacity-60",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "aspect-square rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 mb-4 animate-pulse"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 211,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "h-6 w-3/4 bg-slate-100 dark:bg-slate-800 rounded mb-2 animate-pulse"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 212,
+                                                    columnNumber: 1
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "h-4 w-1/2 bg-slate-100 dark:bg-slate-800 rounded animate-pulse"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                    lineNumber: 213,
+                                                    columnNumber: 1
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 210,
+                                            columnNumber: 1
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                    lineNumber: 125,
+                                    columnNumber: 1
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                            lineNumber: 109,
+                            columnNumber: 1
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                    lineNumber: 54,
+                    columnNumber: 1
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    className: "fixed bottom-8 right-8 size-16 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all z-[60] group",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "relative",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    className: "material-symbols-outlined text-3xl",
+                                    children: "shopping_cart"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                    lineNumber: 220,
+                                    columnNumber: 1
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    className: "absolute -top-2 -right-2 bg-navy text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ring-4 ring-background-light dark:ring-background-dark",
+                                    children: "3"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                    lineNumber: 221,
+                                    columnNumber: 1
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                            lineNumber: 219,
+                            columnNumber: 1
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "absolute right-full mr-4 bg-navy text-white text-xs font-bold py-2 px-4 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none",
+                            children: "3 items: $16.69"
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                            lineNumber: 225,
+                            columnNumber: 1
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                    lineNumber: 218,
+                    columnNumber: 1
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
+                    className: "bg-white dark:bg-background-dark border-t border-slate-100 dark:border-slate-800 px-6 lg:px-20 py-12",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex items-center gap-2 text-navy dark:text-white font-black text-xl",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "text-primary",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                                            className: "w-6 h-6",
+                                            fill: "none",
+                                            viewBox: "0 0 48 48",
+                                            xmlns: "http://www.w3.org/2000/svg",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
+                                                d: "M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z",
+                                                fill: "currentColor"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                                lineNumber: 234,
+                                                columnNumber: 1
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                            lineNumber: 233,
+                                            columnNumber: 1
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                        lineNumber: 232,
+                                        columnNumber: 1
+                                    }, this),
+                                    "Marketnera"
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                lineNumber: 231,
+                                columnNumber: 1
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                        className: "hover:text-primary",
+                                        href: "#",
+                                        children: "Help Center"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                        lineNumber: 240,
+                                        columnNumber: 1
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                        className: "hover:text-primary",
+                                        href: "#",
+                                        children: "Store Locator"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                        lineNumber: 241,
+                                        columnNumber: 1
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                        className: "hover:text-primary",
+                                        href: "#",
+                                        children: "Sell on Marketnera"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                        lineNumber: 242,
+                                        columnNumber: 1
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                lineNumber: 239,
+                                columnNumber: 1
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]",
+                                children: "© 2024 Marketnera. Support Local."
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                                lineNumber: 244,
+                                columnNumber: 1
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                        lineNumber: 230,
+                        columnNumber: 1
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+                    lineNumber: 229,
+                    columnNumber: 1
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/app/screens/marketnera-home---categories-0/page.tsx",
+            lineNumber: 5,
+            columnNumber: 1
+        }, this)
+    }, void 0, false);
+}
+}),
+"[project]/src/app/screens/marketnera-home---categories-0/page.tsx [app-rsc] (ecmascript, Next.js Server Component)", ((__turbopack_context__) => {
+
+__turbopack_context__.n(__turbopack_context__.i("[project]/src/app/screens/marketnera-home---categories-0/page.tsx [app-rsc] (ecmascript)"));
+}),
+];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__a4837a1d._.js.map

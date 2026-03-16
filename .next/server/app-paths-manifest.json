@@ -1,0 +1,20 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/customer/dashboard/page": "app/customer/dashboard/page.js",
+  "/customer/profile/page": "app/customer/profile/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/login/customer/page": "app/login/customer/page.js",
+  "/page": "app/page.js",
+  "/register/customer/page": "app/register/customer/page.js",
+  "/register/page": "app/register/page.js",
+  "/screens/local-shop-profile-mobile-8/page": "app/screens/local-shop-profile-mobile-8/page.js",
+  "/screens/marketnera-home---categories-0/page": "app/screens/marketnera-home---categories-0/page.js",
+  "/screens/marketnera-home---categories-1/page": "app/screens/marketnera-home---categories-1/page.js",
+  "/screens/marketnera-home---categories-3/page": "app/screens/marketnera-home---categories-3/page.js",
+  "/screens/marketnera-home---categories-4/page": "app/screens/marketnera-home---categories-4/page.js",
+  "/screens/marketnera-home---categories-5/page": "app/screens/marketnera-home---categories-5/page.js",
+  "/screens/marketnera-home---categories-6/page": "app/screens/marketnera-home---categories-6/page.js",
+  "/screens/marketnera-mobile-checkout-2/page": "app/screens/marketnera-mobile-checkout-2/page.js",
+  "/screens/marketnera-mobile-home-7/page": "app/screens/marketnera-mobile-home-7/page.js"
+}

@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/screens/layout,_N_T_/screens/marketnera-home---categories-6/layout,_N_T_/screens/marketnera-home---categories-6/page,_N_T_/screens/marketnera-home---categories-6"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/screens/marketnera-home---categories-6/__PAGE__",
+    "/screens/marketnera-home---categories-6",
+    "/screens",
+    "/_index",
+    "/_head"
+  ]
+}

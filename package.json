@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "UV_THREADPOOL_SIZE=1 next build --webpack",
-    "start": "next start",
+    "build": "next build",
+    "start": "node server.js",
     "lint": "eslint"
   },
   "dependencies": {

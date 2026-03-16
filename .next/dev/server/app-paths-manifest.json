@@ -1,0 +1,8 @@
+{
+  "/customer/dashboard/page": "app/customer/dashboard/page.js",
+  "/customer/profile/page": "app/customer/profile/page.js",
+  "/login/customer/page": "app/login/customer/page.js",
+  "/page": "app/page.js",
+  "/register/customer/page": "app/register/customer/page.js",
+  "/register/page": "app/register/page.js"
+}
