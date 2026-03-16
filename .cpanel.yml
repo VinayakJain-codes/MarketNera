@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/USERNAME/public_html/
+    - export DEPLOYPATH=/home/xbmsmcsd/marketnera.com/
     - /bin/cp -R * $DEPLOYPATH
