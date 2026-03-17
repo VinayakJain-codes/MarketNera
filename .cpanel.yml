@@ -1,11 +1,14 @@
----
 deployment:
   tasks:
     - export DEPLOYPATH=/home/xbmsmcsd/marketnera.com/
     - /bin/mkdir -p $DEPLOYPATH
-    - /bin/cp -r .next $DEPLOYPATH
+    - /bin/cp -r src $DEPLOYPATH
     - /bin/cp -r public $DEPLOYPATH
     - /bin/cp server.js $DEPLOYPATH
     - /bin/cp package.json $DEPLOYPATH
     - /bin/cp package-lock.json $DEPLOYPATH
-    - /bin/cp .env.example $DEPLOYPATH
+    - /bin/cp next.config.ts $DEPLOYPATH
+    - /bin/cp postcss.config.mjs $DEPLOYPATH
+    - /bin/cp tsconfig.json $DEPLOYPATH
+    - /bin/cp .gitignore $DEPLOYPATH
+    - cd $DEPLOYPATH && /usr/local/bin/npm install --omit=dev
