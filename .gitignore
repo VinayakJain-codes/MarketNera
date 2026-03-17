@@ -14,7 +14,7 @@
 /coverage
 
 # next.js (build output included for cPanel deployment)
-# /.next/
+/.next/
 /out/
 
 # production

@@ -1,4 +1,0 @@
-:HL["/_next/static/css/5e131e32c54018d4.css","style"]
-:HL["https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap","style"]
-:HL["https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap","style"]
-0:{"buildId":"cG6Xbl7XaQlY9i-StUHaK","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"screens","paramType":null,"paramKey":"screens","hasRuntimePrefetch":false,"slots":{"children":{"name":"marketnera-mobile-checkout-2","paramType":null,"paramKey":"marketnera-mobile-checkout-2","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
