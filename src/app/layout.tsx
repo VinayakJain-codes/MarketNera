@@ -1,38 +1,28 @@
-import { Geist, Geist_Mono, Work_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import siteMetadata from "@/config/metadata";
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: "../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
-  subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const workSans = Work_Sans({
+const workSans = localFont({
+  src: "../fonts/WorkSans.woff2",
   variable: "--font-work-sans",
-  subsets: ["latin"],
 });
 
 export const metadata = siteMetadata;
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="light">
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${workSans.variable} antialiased font-display`}
-      >
+      <body className={`${geistSans.variable} ${workSans.variable} antialiased font-display`}>
         {children}
       </body>
     </html>
