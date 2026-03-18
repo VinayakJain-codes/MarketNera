@@ -101,7 +101,7 @@ export default function CustomerProfilePage() {
                                     {initial}
                                 </div>
                             )}
-                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#13ec5b] rounded-full flex items-center justify-center border-2 border-white">
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#2D9E4B] rounded-full flex items-center justify-center border-2 border-white">
                                 <span className="material-symbols-outlined text-xs text-slate-950">check</span>
                             </div>
                         </div>
@@ -110,7 +110,7 @@ export default function CustomerProfilePage() {
                             <h2 className="text-xl font-bold text-slate-900 truncate">{fullName}</h2>
                             <p className="text-sm text-slate-500 truncate">{email}</p>
                             <div className="mt-2 flex items-center gap-2">
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#13ec5b]/10 text-[#13ec5b] text-[11px] font-bold">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#2D9E4B]/10 text-[#2D9E4B] text-[11px] font-bold">
                                     <span className="material-symbols-outlined text-[12px] fill-1">verified</span>
                                     Customer
                                 </span>

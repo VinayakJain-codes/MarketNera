@@ -20,7 +20,7 @@ export default function CtaSection() {
                         </p>
                     </div>
                     <div className="flex flex-col gap-4 sm:flex-row">
-                        <button className="inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all cursor-pointer bg-[#13ec5b] text-slate-950 shadow-lg shadow-[#13ec5b]/20 hover:scale-105 h-14 min-w-[180px] px-8 text-base">
+                        <button className="inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all cursor-pointer bg-[#2D9E4B] text-slate-950 shadow-lg shadow-[#2D9E4B]/20 hover:scale-105 h-14 min-w-[180px] px-8 text-base">
                             {primaryCta}
                         </button>
                         <Button variant="ghost" size="lg" className="bg-[#1C2C23] border border-white/10 hover:bg-[#253A2E] text-white">
@@ -31,8 +31,8 @@ export default function CtaSection() {
             </div>
 
             <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-                <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-[#13ec5b]/10 blur-[100px]" />
-                <div className="absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-[#13ec5b]/5 blur-[100px]" />
+                <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-[#2D9E4B]/10 blur-[100px]" />
+                <div className="absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-[#2D9E4B]/5 blur-[100px]" />
             </div>
         </section>
     );

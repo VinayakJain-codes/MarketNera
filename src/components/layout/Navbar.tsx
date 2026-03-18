@@ -19,7 +19,7 @@ export default function Navbar() {
                         <a
                             key={item.href}
                             href={item.href}
-                            className="text-sm font-medium text-slate-600 transition-colors hover:text-[#13ec5b]"
+                            className="text-sm font-medium text-slate-600 transition-colors hover:text-[#2D9E4B]"
                         >
                             {item.label}
                         </a>

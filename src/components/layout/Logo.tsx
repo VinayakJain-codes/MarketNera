@@ -1,25 +1,33 @@
+import Image from "next/image";
 import siteConfig from "@/config/site";
 
 export default function Logo() {
     return (
-        <div className="flex items-center gap-2">
-            <div className="text-primary h-8 w-8 flex items-center justify-center">
-                <svg
-                    fill="none"
-                    viewBox="0 0 48 48"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-full w-full"
-                    aria-hidden="true"
-                >
-                    <path
-                        d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z"
-                        fill="currentColor"
-                    />
-                </svg>
+        <div className="group flex items-center gap-3 cursor-pointer">
+            {/* Logo Image with dynamic rotation and drop-shadow glow */}
+            <div className="relative transition-all duration-500 ease-out group-hover:scale-110 group-hover:-rotate-2 group-hover:drop-shadow-[0_0_15px_rgba(45,158,75,0.6)]">
+                <Image
+                    src="/logo.png"
+                    alt={`${siteConfig.name} Logo`}
+                    width={200}
+                    height={200}
+                    className="h-10 w-auto object-contain md:h-12"
+                    priority
+                />
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900">
-                {siteConfig.name}
-            </span>
+            
+            {/* Text container with alignment and illumination */}
+            <div className="relative flex items-center pb-0.5 mt-1">
+                {/* Intense glowing background that expands and pulses on hover */}
+                <span className="absolute -inset-2 rounded-lg bg-gradient-to-r from-[#FF9933] via-white to-[#138808] opacity-0 blur-xl transition-all duration-700 ease-out group-hover:opacity-40 group-hover:scale-110 group-hover:animate-pulse"></span>
+                
+                {/* The Animated Text - Segmented Indian Flag Colors */}
+                <span className="relative flex items-center text-xl font-black tracking-tight md:text-2xl transition-all duration-500 ease-out group-hover:tracking-[0.05em]">
+                    <span className="text-[#FF9933]">Mark</span>
+                    <span className="text-white [-webkit-text-stroke:0.5px_darkgray] [text-shadow:0_1px_2px_rgba(0,0,0,0.1)]">e</span>
+                    <span className="text-[#138808]">tnera</span>
+                </span>
+            </div>
         </div>
     );
 }

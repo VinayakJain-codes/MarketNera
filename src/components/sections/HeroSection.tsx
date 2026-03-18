@@ -14,7 +14,7 @@ export default function HeroSection() {
                     {/* Text content */}
                     <div className="flex flex-col space-y-8">
                         <div className="space-y-4">
-                            <span className="inline-block text-xs font-bold uppercase tracking-[0.2em] text-[#13ec5b]">
+                            <span className="inline-block text-xs font-bold uppercase tracking-[0.2em] text-[#2D9E4B]">
                                 {eyebrow}
                             </span>
                             <h1 className="text-5xl font-black leading-[1.1] tracking-tight text-slate-900 lg:text-7xl">
@@ -38,8 +38,8 @@ export default function HeroSection() {
                             />
                         </div>
                         {/* Decorative blobs */}
-                        <div className="absolute -bottom-6 -left-6 hidden h-24 w-24 rounded-2xl bg-[#13ec5b]/20 blur-2xl lg:block" />
-                        <div className="absolute -right-6 -top-6 hidden h-32 w-32 rounded-full bg-[#13ec5b]/10 blur-3xl lg:block" />
+                        <div className="absolute -bottom-6 -left-6 hidden h-24 w-24 rounded-2xl bg-[#2D9E4B]/20 blur-2xl lg:block" />
+                        <div className="absolute -right-6 -top-6 hidden h-32 w-32 rounded-full bg-[#2D9E4B]/10 blur-3xl lg:block" />
                     </div>
                 </div>
             </div>

@@ -29,13 +29,13 @@ export default function SmartHeroCta() {
     return (
         <div className="flex flex-wrap gap-4">
             <button
-                className="inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all cursor-pointer bg-[#13ec5b] text-slate-950 shadow-lg shadow-[#13ec5b]/20 hover:scale-105 h-14 min-w-[180px] px-8 text-base"
+                className="inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all cursor-pointer bg-[#2D9E4B] text-slate-950 shadow-lg shadow-[#2D9E4B]/20 hover:scale-105 h-14 min-w-[180px] px-8 text-base"
                 onClick={handleShopNow}
             >
                 Shop Now
             </button>
             <button
-                className="inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all cursor-pointer border-2 border-[#13ec5b] text-[#13ec5b] hover:bg-[#13ec5b]/5 h-14 min-w-[180px] px-8 text-base"
+                className="inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all cursor-pointer border-2 border-[#2D9E4B] text-[#2D9E4B] hover:bg-[#2D9E4B]/5 h-14 min-w-[180px] px-8 text-base"
                 onClick={handleRegisterShop}
             >
                 Register Your shop

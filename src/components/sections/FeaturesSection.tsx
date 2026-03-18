@@ -3,7 +3,7 @@ import { features, whyTitle, whySubtext } from "@/content/home";
 
 export default function FeaturesSection() {
     return (
-        <section className="bg-[#13ec5b]/5 py-24" id="features">
+        <section className="bg-[#2D9E4B]/5 py-24" id="features">
             <div className="container mx-auto px-6 lg:px-20">
                 {/* Heading */}
                 <div className="mb-16 flex flex-col items-center text-center">
@@ -19,7 +19,7 @@ export default function FeaturesSection() {
                 <div className="grid gap-8 md:grid-cols-3">
                     {features.map((feature) => (
                         <Card key={feature.title} className="group flex flex-col space-y-6">
-                            <div className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-[#13ec5b]/10 text-[#13ec5b] transition-colors group-hover:bg-[#13ec5b] group-hover:text-slate-950">
+                            <div className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-[#2D9E4B]/10 text-[#2D9E4B] transition-colors group-hover:bg-[#2D9E4B] group-hover:text-slate-950">
                                 <span className="material-symbols-outlined text-3xl" aria-hidden="true">
                                     {feature.icon}
                                 </span>

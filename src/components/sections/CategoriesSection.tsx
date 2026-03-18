@@ -19,7 +19,7 @@ export default function CategoriesSection() {
                         </p>
                     </div>
                     <a
-                        className="group flex items-center gap-1 font-bold text-[#13ec5b] hover:underline"
+                        className="group flex items-center gap-1 font-bold text-[#2D9E4B] hover:underline"
                         href="/marketplace"
                     >
                         View All Categories
@@ -48,7 +48,7 @@ export default function CategoriesSection() {
                                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 />
                                 {category.badge && (
-                                    <span className="absolute bottom-4 left-4 rounded bg-[#13ec5b] px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950">
+                                    <span className="absolute bottom-4 left-4 rounded bg-[#2D9E4B] px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950">
                                         {category.badge}
                                     </span>
                                 )}
@@ -66,7 +66,7 @@ export default function CategoriesSection() {
                                 </div>
                                 <a
                                     href={category.href}
-                                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#13ec5b]/10 py-3 text-sm font-bold text-[#13ec5b] transition-all hover:bg-[#13ec5b] hover:text-slate-950"
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2D9E4B]/10 py-3 text-sm font-bold text-[#2D9E4B] transition-all hover:bg-[#2D9E4B] hover:text-slate-950"
                                 >
                                     Browse Items
                                     <span className="material-symbols-outlined text-sm" aria-hidden="true">

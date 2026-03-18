@@ -1,3 +1,5 @@
+import Logo from "@/components/layout/Logo";
+
 export default function Screen() {
   return (
     <>
@@ -7,10 +9,7 @@ export default function Screen() {
 <header className="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10 px-4 md:px-10 py-3">
 <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-4">
 <div className="flex items-center gap-6">
-<div className="flex items-center gap-2 text-primary">
-<span className="material-symbols-outlined text-3xl">storefront</span>
-<h2 className="text-slate-900 dark:text-slate-100 text-xl font-bold tracking-tight">Marketnera</h2>
-</div>
+<Logo />
 <nav className="hidden md:flex items-center gap-6">
 <a className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="#">Home</a>
 <a className="text-primary text-sm font-semibold" href="#">Shops</a>

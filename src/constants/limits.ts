@@ -16,5 +16,5 @@ export const LIMITS = {
     MAX_HOME_FEATURES: 3,
 
     /** Footer copyright start year */
-    FOUNDING_YEAR: 2024,
+    FOUNDING_YEAR: 2026,
 } as const;

@@ -10,12 +10,7 @@ export default function Footer() {
                 <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
                     {/* Brand column */}
                     <div className="space-y-6">
-                        <div className="flex items-center gap-2 text-2xl font-bold text-primary">
-                            <span className="material-symbols-outlined text-3xl" aria-hidden="true">
-                                shopping_bag
-                            </span>
-                            <span>{siteConfig.name}</span>
-                        </div>
+                        <Logo />
                         <p className="max-w-xs text-sm leading-relaxed text-slate-500">
                             {footerTagline}
                         </p>

@@ -1,3 +1,5 @@
+import Logo from "@/components/layout/Logo";
+
 export default function Screen() {
   return (
     <>
@@ -5,12 +7,7 @@ export default function Screen() {
 <div className="relative flex flex-col min-h-screen">
 <header className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4 lg:px-20 bg-white/80 dark:bg-navy/80 backdrop-blur-md sticky top-0 z-50">
 <div className="flex items-center gap-3 shrink-0">
-<div className="text-primary size-8">
-<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-<path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z" fill="currentColor"></path>
-</svg>
-</div>
-<h2 className="text-navy dark:text-slate-100 text-2xl font-black leading-tight tracking-tight">Marketnera</h2>
+<Logo />
 </div>
 <div className="flex-1 max-w-2xl mx-8 relative">
 <div className="relative group">
@@ -229,19 +226,14 @@ export default function Screen() {
 <footer className="bg-white dark:bg-background-dark border-t border-slate-100 dark:border-slate-800 px-6 lg:px-20 py-12">
 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
 <div className="flex items-center gap-2 text-navy dark:text-white font-black text-xl">
-<span className="text-primary">
-<svg className="w-6 h-6" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-<path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z" fill="currentColor"></path>
-</svg>
-</span> 
-                    Marketnera
+<Logo />
                 </div>
 <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
 <a className="hover:text-primary" href="#">Help Center</a>
 <a className="hover:text-primary" href="#">Store Locator</a>
 <a className="hover:text-primary" href="#">Sell on Marketnera</a>
 </div>
-<p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">© 2024 Marketnera. Support Local.</p>
+<p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">© 2026 Marketnera. Support Local.</p>
 </div>
 </footer>
 </div>

@@ -1,3 +1,5 @@
+import Logo from "@/components/layout/Logo";
+
 export default function Screen() {
   return (
     <>
@@ -7,12 +9,7 @@ export default function Screen() {
 <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background-light/80 backdrop-blur-md dark:bg-background-dark/80">
 <div className="container mx-auto flex h-16 items-center justify-between px-6 lg:px-20">
 <div className="flex items-center gap-2">
-<div className="text-primary flex h-8 w-8 items-center justify-center">
-<svg className="h-full w-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-<path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z" fill="currentColor"></path>
-</svg>
-</div>
-<span className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Marketnera</span>
+<Logo />
 </div>
 <nav className="hidden items-center gap-8 md:flex">
 <a className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-slate-400 dark:hover:text-primary" href="#">Home</a>
@@ -206,8 +203,7 @@ export default function Screen() {
 <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
 <div className="space-y-6">
 <div className="flex items-center gap-2 text-2xl font-bold text-primary">
-<span className="material-symbols-outlined text-3xl">shopping_bag</span>
-<span>Marketnera</span>
+<Logo />
 </div>
 <p className="max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                     Modernizing local commerce since 2024. Bridging the gap between local shops and the digital future.
@@ -240,7 +236,7 @@ export default function Screen() {
 </div>
 <div className="mt-16 border-t border-primary/10 pt-8">
 <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-<p className="text-xs tracking-wide text-slate-500 dark:text-slate-400">© 2024 Marketnera Inc. All rights reserved.</p>
+<p className="text-xs tracking-wide text-slate-500 dark:text-slate-400">© 2026 Marketnera Inc. All rights reserved.</p>
 <div className="flex gap-8">
 <a className="text-xs font-bold uppercase tracking-widest text-slate-500 transition-colors hover:text-primary dark:text-slate-400" href="#">Twitter</a>
 <a className="text-xs font-bold uppercase tracking-widest text-slate-500 transition-colors hover:text-primary dark:text-slate-400" href="#">LinkedIn</a>

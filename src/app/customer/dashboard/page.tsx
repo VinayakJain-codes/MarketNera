@@ -274,7 +274,7 @@ export default function CustomerDashboard() {
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img alt={shop.name} className="w-full h-full object-cover" src={shop.img} />
                                 {shop.verified && (
-                                    <div className="absolute top-2 right-2 px-2 py-0.5 bg-[#13ec5b] text-white text-[10px] font-bold rounded flex items-center gap-1">
+                                    <div className="absolute top-2 right-2 px-2 py-0.5 bg-[#2D9E4B] text-white text-[10px] font-bold rounded flex items-center gap-1">
                                         <span className="material-symbols-outlined text-[12px] fill-1">verified</span> VERIFIED
                                     </div>
                                 )}

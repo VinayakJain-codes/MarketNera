@@ -17,7 +17,7 @@ export const navItems: NavItem[] = [
 
 export const heroContent: HeroContent = {
     eyebrow: "Digital Transformation",
-    heading: "Empowering Local Shopkeepers in the Digital Age",
+    heading: "Growth. Local. Yours.",
     subtext:
         "Help your local business compete and thrive online with modern tools for inventory, delivery, and marketing.",
     primaryCta: "Shop Now",
@@ -101,7 +101,7 @@ export const ctaContent: CtaContent = {
 };
 
 export const footerTagline =
-    "Modernizing local commerce since 2024. Bridging the gap between local shops and the digital future.";
+    "Growth. Local. Yours. Modernizing local commerce since 2024.";
 
 export const footerColumns: FooterColumn[] = [
     {
