@@ -25,7 +25,7 @@ export default function Footer() {
                             <nav className="flex flex-col space-y-3" aria-label={`${col.heading} links`}>
                                 {col.links.map((link) => (
                                     <a
-                                        key={link.href}
+                                        key={link.label}
                                         href={link.href}
                                         className="text-sm text-slate-500 transition-colors hover:text-primary"
                                     >

@@ -1,16 +1,5 @@
-import localFont from "next/font/local";
 import "./globals.css";
 import siteMetadata from "@/config/metadata";
-
-const geistSans = localFont({
-  src: "../fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-
-const workSans = localFont({
-  src: "../fonts/WorkSans.woff2",
-  variable: "--font-work-sans",
-});
 
 export const metadata = siteMetadata;
 
@@ -20,9 +9,25 @@ export default function RootLayout({
   return (
     <html lang="en" className="light">
       <head>
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" 
+          rel="stylesheet" 
+        />
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" 
+          rel="stylesheet" 
+        />
+        <style>{`
+          :root {
+            --font-work-sans: 'Work Sans', sans-serif;
+          }
+        `}</style>
       </head>
-      <body className={`${geistSans.variable} ${workSans.variable} antialiased font-display`}>
+      <body className="antialiased font-display">
         {children}
       </body>
     </html>

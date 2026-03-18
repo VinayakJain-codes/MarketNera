@@ -17,7 +17,7 @@ export default function Navbar() {
                 <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation">
                     {navItems.map((item) => (
                         <a
-                            key={item.href}
+                            key={item.label}
                             href={item.href}
                             className="text-sm font-medium text-slate-600 transition-colors hover:text-[#2D9E4B]"
                         >

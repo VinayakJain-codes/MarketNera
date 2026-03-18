@@ -107,25 +107,25 @@ export const footerColumns: FooterColumn[] = [
     {
         heading: "Platform",
         links: [
-            { label: "Features", href: ROUTES.FEATURES },
-            { label: "Marketplace", href: ROUTES.MARKETPLACE },
-            { label: "Delivery", href: ROUTES.DELIVERY },
+            { label: "Features",       href: "/#features" },
+            { label: "Categories",     href: "/#categories" },
+            { label: "Register Shop",  href: ROUTES.REGISTER },
         ],
     },
     {
         heading: "Company",
         links: [
-            { label: "About Us", href: ROUTES.ABOUT },
-            { label: "Success Stories", href: ROUTES.SUCCESS_STORIES },
-            { label: "Careers", href: ROUTES.CAREERS },
+            { label: "About Us",        href: "#" },
+            { label: "Success Stories", href: "#" },
+            { label: "Careers",         href: "#" },
         ],
     },
     {
         heading: "Support",
         links: [
-            { label: "Help Center", href: ROUTES.HELP_CENTER },
-            { label: "API Docs", href: ROUTES.API_DOCS },
-            { label: "Privacy", href: ROUTES.PRIVACY },
+            { label: "Help Center",    href: "#" },
+            { label: "Privacy Policy", href: "#" },
+            { label: "Contact Us",     href: "#" },
         ],
     },
 ];
