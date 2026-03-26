@@ -1,11 +1,6 @@
 import { Star } from "lucide-react";
 
-const drivers = [
-  { name: "John Doe", onTime: "98%", rating: 4.9, deliveries: 124 },
-  { name: "Jane Smith", onTime: "95%", rating: 4.7, deliveries: 98 },
-  { name: "Robert Taylor", onTime: "92%", rating: 4.5, deliveries: 156 },
-  { name: "Alice Brown", onTime: "99%", rating: 5.0, deliveries: 210 },
-];
+const drivers: any[] = [];
 
 export default function DriverPerformance() {
   return (

@@ -1,9 +1,4 @@
-const timeline = [
-  { id: 1, content: 'Order #1024', target: 'Fulfilled', date: 'Just now', time: '10:45 AM', iconBg: 'bg-green-500' },
-  { id: 2, content: 'Driver matching for', target: 'Order #1025', date: '5 mins ago', time: '10:40 AM', iconBg: 'bg-blue-500' },
-  { id: 3, content: 'Exception for', target: 'Order #1012', date: '15 mins ago', time: '10:30 AM', iconBg: 'bg-[#FF9933]' },
-  { id: 4, content: 'Order #1026', target: 'Delayed', date: '30 mins ago', time: '10:15 AM', iconBg: 'bg-[#FF9933]' },
-];
+const timeline: any[] = [];
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')

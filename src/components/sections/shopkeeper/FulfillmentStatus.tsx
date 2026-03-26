@@ -1,12 +1,12 @@
 import { Package, CheckCircle, AlertTriangle, XCircle, Clock, RotateCcw } from "lucide-react";
 
 const statuses = [
-  { name: "In Transit", count: 12, icon: Truck, color: "text-blue-600", bg: "bg-blue-50" },
-  { name: "Fulfilled Today", count: 45, icon: CheckCircle, color: "text-[#138808]", bg: "bg-green-50" },
-  { name: "Delayed", count: 2, icon: Clock, color: "text-[#FF9933]", bg: "bg-orange-50" },
+  { name: "In Transit", count: 0, icon: Truck, color: "text-blue-600", bg: "bg-blue-50" },
+  { name: "Fulfilled Today", count: 0, icon: CheckCircle, color: "text-[#138808]", bg: "bg-green-50" },
+  { name: "Delayed", count: 0, icon: Clock, color: "text-[#FF9933]", bg: "bg-orange-50" },
   { name: "Failed", count: 0, icon: XCircle, color: "text-red-600", bg: "bg-red-50" },
-  { name: "Exception", count: 1, icon: AlertTriangle, color: "text-yellow-600", bg: "bg-yellow-50" },
-  { name: "Attempted", count: 3, icon: RotateCcw, color: "text-gray-600", bg: "bg-gray-50" },
+  { name: "Exception", count: 0, icon: AlertTriangle, color: "text-yellow-600", bg: "bg-yellow-50" },
+  { name: "Attempted", count: 0, icon: RotateCcw, color: "text-gray-600", bg: "bg-gray-50" },
 ];
 
 function Truck(props: any) {

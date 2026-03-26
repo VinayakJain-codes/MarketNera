@@ -1,9 +1,9 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
 
 const financials = [
-  { name: "Total Revenue", stat: "$71,897", previousStat: "$70,946", change: "12%", changeType: "increase" },
-  { name: "Total Costs", stat: "$24,510", previousStat: "$28,620", change: "5.4%", changeType: "decrease" },
-  { name: "Net Profit Margin", stat: "63.2%", previousStat: "56.14%", change: "3.2%", changeType: "increase" },
+  { name: "Total Revenue", stat: "$0", previousStat: "$0", change: "0%", changeType: "increase" },
+  { name: "Total Costs", stat: "$0", previousStat: "$0", change: "0%", changeType: "decrease" },
+  { name: "Net Profit Margin", stat: "0%", previousStat: "0%", change: "0%", changeType: "increase" },
 ];
 
 export default function FinancialOverview() {

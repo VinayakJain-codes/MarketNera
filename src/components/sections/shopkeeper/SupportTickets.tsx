@@ -1,8 +1,4 @@
-const tickets = [
-  { id: "#TKT-001", subject: "Delivery issue with Order #1024", status: "Open", color: "text-red-700 bg-red-50 ring-red-600/20" },
-  { id: "#TKT-002", subject: "App sync problem", status: "In Progress", color: "text-blue-700 bg-blue-50 ring-blue-600/20" },
-  { id: "#TKT-003", subject: "Payment gateway error", status: "Resolved", color: "text-[#138808] bg-green-50 ring-green-600/20" },
-];
+const tickets: any[] = [];
 
 export default function SupportTickets() {
   return (

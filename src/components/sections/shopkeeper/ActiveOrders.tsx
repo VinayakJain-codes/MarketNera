@@ -1,11 +1,6 @@
 import { CheckCircle, Clock } from "lucide-react";
 
-const orders = [
-  { id: "#ORD-1024", customer: "Sarah Jenkins", eta: "10 mins", status: "In Transit", courier: "Mike D.", color: "text-blue-700 bg-blue-50 ring-blue-600/20" },
-  { id: "#ORD-1025", customer: "David Chen", eta: "-", status: "Fulfilled", courier: "Sarah T.", color: "text-[#138808] bg-green-50 ring-green-600/20" },
-  { id: "#ORD-1026", customer: "Emma Wilson", eta: "35 mins", status: "Delayed", courier: "John R.", color: "text-[#FF9933] bg-orange-50 ring-[#FF9933]/20" },
-  { id: "#ORD-1027", customer: "James Smith", eta: "5 mins", status: "In Transit", courier: "Mike D.", color: "text-blue-700 bg-blue-50 ring-blue-600/20" },
-];
+const orders: any[] = [];
 
 export default function ActiveOrders() {
   return (
