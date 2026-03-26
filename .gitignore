@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+*.md
+
+# GSD (Get Stuff Done) & AI Agent
+.gsd/
+.agent/
+.gemini/
+.planning/
+model_capabilities.yaml
+ARCHITECTURE.md
+STACK.md
+PROJECT_RULES.md
+GSD-STYLE.md
+STATE.md
+PLAN.md

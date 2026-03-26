@@ -20,6 +20,10 @@ export const ROUTES = {
     LOGIN_CUSTOMER: "/login/customer",
     CUSTOMER_DASHBOARD: "/customer/dashboard",
     CUSTOMER_PROFILE: "/customer/profile",
+    SIGNUP_SHOPKEEPER: "/register/shopkeeper",
+    LOGIN_SHOPKEEPER: "/login/shopkeeper",
+    SHOPKEEPER_DASHBOARD: "/shopkeeper/dashboard",
+    SHOPKEEPER_SETUP: "/shopkeeper/setup",
 } as const;
 
 export type Route = (typeof ROUTES)[keyof typeof ROUTES];

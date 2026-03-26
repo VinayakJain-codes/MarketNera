@@ -47,7 +47,7 @@ export default function RegisterSelectionPage() {
 
                         {/* Shopkeeper */}
                         <a
-                            href="#"
+                            href={ROUTES.SIGNUP_SHOPKEEPER}
                             className="group relative flex items-center gap-4 rounded-2xl border-2 border-slate-200 bg-white p-5 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 animate-fade-in-up delay-300"
                         >
                             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
