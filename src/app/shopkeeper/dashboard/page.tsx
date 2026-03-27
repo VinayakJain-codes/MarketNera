@@ -1,62 +1,119 @@
-import MetricsGrid from "@/components/sections/shopkeeper/MetricsGrid";
-import FulfillmentStatus from "@/components/sections/shopkeeper/FulfillmentStatus";
-import ActiveOrders from "@/components/sections/shopkeeper/ActiveOrders";
-import RecentActivity from "@/components/sections/shopkeeper/RecentActivity";
-import PerformanceChart from "@/components/sections/shopkeeper/PerformanceChart";
-import DriverPerformance from "@/components/sections/shopkeeper/DriverPerformance";
-import FinancialOverview from "@/components/sections/shopkeeper/FinancialOverview";
-import SupportTickets from "@/components/sections/shopkeeper/SupportTickets";
+'use client';
+
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import ShopkeeperTopbar from '@/components/layout/ShopkeeperTopbar';
+import MetricsCards from '@/components/sections/shopkeeper/MetricsCards';
+import DashboardChartsRow from '@/components/sections/shopkeeper/DashboardChartsRow';
+import DashboardDataRow from '@/components/sections/shopkeeper/DashboardDataRow';
+import GamificationWidget from '@/components/sections/shopkeeper/GamificationWidget';
+import InventoryWarnings from '@/components/sections/shopkeeper/InventoryWarnings';
+import QuickActions from '@/components/sections/shopkeeper/QuickActions';
+import {
+  getDashboardMetrics,
+  getRevenueTrend,
+  getSalesByCategory,
+  getRecentOrders,
+  getTopProducts,
+} from '@/lib/api/shopkeeper';
+import type {
+  DashboardMetrics,
+  RevenueTrend,
+  CategorySale,
+  RecentOrder,
+  TopProduct,
+} from '@/lib/api/shopkeeper';
 
 export default function ShopkeeperDashboardPage() {
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [revenue, setRevenue] = useState<RevenueTrend[]>([]);
+  const [categories, setCategories] = useState<CategorySale[]>([]);
+  const [orders, setOrders] = useState<RecentOrder[]>([]);
+  const [products, setProducts] = useState<TopProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAll() {
+      try {
+        const [m, r, c, o, p] = await Promise.all([
+          getDashboardMetrics(),
+          getRevenueTrend(),
+          getSalesByCategory(),
+          getRecentOrders(),
+          getTopProducts(),
+        ]);
+        setMetrics(m);
+        setRevenue(r);
+        setCategories(c);
+        setOrders(o);
+        setProducts(p);
+      } catch (err) {
+        console.error('Dashboard fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAll();
+  }, []);
+
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-12">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage your store operations, orders, and performance.</p>
-      </div>
-      
-      {/* Grid wrapper for dashboard components */}
-      <div className="flex flex-col gap-8">
-        
-        {/* Row 1: Metrics */}
-        <MetricsGrid />
+    <>
+      <ShopkeeperTopbar />
 
-        {/* Row 2: Status & Performance */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-1">
-            <FulfillmentStatus />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 space-y-6"
+      >
+        {loading ? (
+          /* Skeleton Loaders */
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="skeleton-pulse h-32 rounded-2xl" />
+              ))}
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <div className="skeleton-pulse h-72 rounded-2xl lg:col-span-2" />
+              <div className="skeleton-pulse h-72 rounded-2xl" />
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <div className="skeleton-pulse h-64 rounded-2xl lg:col-span-2" />
+              <div className="skeleton-pulse h-64 rounded-2xl" />
+            </div>
           </div>
-          <div className="lg:col-span-2">
-            <PerformanceChart />
-          </div>
-        </div>
+        ) : (
+          <>
+            {/* Row 1: Metrics */}
+            <MetricsCards
+              totalRevenue={metrics?.totalRevenue}
+              activeCustomers={metrics?.activeCustomers}
+              totalOrders={metrics?.totalOrders}
+              conversionRate={metrics?.conversionRate}
+              revenueChange={metrics?.revenueChange}
+              customerChange={metrics?.customerChange}
+              orderChange={metrics?.orderChange}
+              conversionChange={metrics?.conversionChange}
+            />
 
-        {/* Row 3: Active Orders & Recent Activity */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <ActiveOrders />
-          </div>
-          <div className="lg:col-span-1">
-            <RecentActivity />
-          </div>
-        </div>
+            {/* Row 2: Charts */}
+            <DashboardChartsRow revenueData={revenue} categoryData={categories} />
 
-        {/* Row 4: Financials */}
-        <FinancialOverview />
+            {/* Row 3: Data Tables */}
+            <DashboardDataRow orders={orders} products={products} />
 
-        {/* Row 5: Drivers & Support */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <div className="lg:col-span-1">
-            <DriverPerformance />
-          </div>
-          <div className="lg:col-span-1">
-            <SupportTickets />
-          </div>
-        </div>
+            {/* Row 4: Advanced Features */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <GamificationWidget currentRevenue={metrics?.totalRevenue || 0} />
+              <InventoryWarnings />
+            </div>
+          </>
+        )}
+      </motion.div>
 
-      </div>
-    </div>
+      {/* Floating Quick Actions */}
+      <QuickActions />
+    </>
   );
 }
-
-

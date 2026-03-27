@@ -49,3 +49,19 @@ export async function getShopkeeperProfile(userId: string) {
     
     return data as ShopkeeperProfile | null;
 }
+
+/**
+ * Fetches all shopkeeper profiles for display on the Customer Dashboard.
+ */
+export async function getAllShopkeepers(): Promise<ShopkeeperProfile[]> {
+    const { data, error } = await supabase
+        .from('shopkeeper')
+        .select('user_id, shop_name, category, address, phone, created_at');
+
+    if (error) {
+        console.error('Error fetching all shopkeepers:', error);
+        return [];
+    }
+
+    return (data ?? []) as ShopkeeperProfile[];
+}

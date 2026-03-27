@@ -121,3 +121,34 @@ body {
 }
 .animate-pulse-ring { animation: pulseRing 2s ease-out infinite; }
 .animate-slide-down { animation: slideDown 0.6s ease-out both; }
+
+/* ─── Dashboard Light Theme tokens ─── */
+:root {
+  --brand-green: #22c55e;
+  --brand-green-light: #4ade80;
+  --brand-orange: #f97316;
+  --brand-orange-light: #fb923c;
+  --brand-white: #ffffff;
+  --dash-bg: #ffffff;
+  --dash-card: #ffffff;
+  --dash-card-border: #e2e8f0;
+  --dash-text: #0f1117;
+  --dash-text-muted: #64748b;
+}
+
+/* Dashboard skeleton loader */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.8; }
+}
+.skeleton-pulse { animation: skeletonPulse 1.5s ease-in-out infinite; background: var(--dash-card-border); border-radius: 8px; }
+
+/* Dashboard glassmorphism card */
+.dash-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--dash-card-border);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}

@@ -104,8 +104,8 @@ export default function Screen() {
 <h3 className="text-xs font-black uppercase tracking-widest text-navy dark:text-white mb-6">Filter by Price</h3>
 <input className="w-full accent-primary mb-4" max="100" min="0" type="range"/>
 <div className="flex justify-between text-xs font-bold text-slate-400">
-<span>$0</span>
-<span>$100+</span>
+<span>₹0</span>
+<span>₹100+</span>
 </div>
 </div>
 </div>
@@ -137,7 +137,7 @@ export default function Screen() {
 <div className="px-2">
 <div className="flex justify-between items-start mb-1">
 <h4 className="font-bold text-navy dark:text-white text-lg leading-tight">Organic Hass Avocado</h4>
-<span className="text-primary font-black text-xl">$4.99</span>
+<span className="text-primary font-black text-xl">₹4.99</span>
 </div>
 <div className="flex items-center gap-2 mb-4">
 <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">2 Units</span>
@@ -155,7 +155,7 @@ export default function Screen() {
 <div className="px-2">
 <div className="flex justify-between items-start mb-1">
 <h4 className="font-bold text-navy dark:text-white text-lg leading-tight">Organic Vine Tomatoes</h4>
-<span className="text-primary font-black text-xl">$3.95</span>
+<span className="text-primary font-black text-xl">₹3.95</span>
 </div>
 <div className="flex items-center gap-2 mb-4">
 <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">500g Pack</span>
@@ -173,7 +173,7 @@ export default function Screen() {
 <div className="px-2">
 <div className="flex justify-between items-start mb-1">
 <h4 className="font-bold text-navy dark:text-white text-lg leading-tight">Farm Fresh Whole Milk</h4>
-<span className="text-primary font-black text-xl">$5.50</span>
+<span className="text-primary font-black text-xl">₹5.50</span>
 </div>
 <div className="flex items-center gap-2 mb-4">
 <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">1 Gallon</span>
@@ -191,7 +191,7 @@ export default function Screen() {
 <div className="px-2">
 <div className="flex justify-between items-start mb-1">
 <h4 className="font-bold text-navy dark:text-white text-lg leading-tight">Artisan Sourdough</h4>
-<span className="text-primary font-black text-xl">$6.20</span>
+<span className="text-primary font-black text-xl">₹6.20</span>
 </div>
 <div className="flex items-center gap-2 mb-4">
 <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">450g</span>
@@ -213,7 +213,7 @@ export default function Screen() {
             </span>
 </div>
 <div className="absolute right-full mr-4 bg-navy text-white text-xs font-bold py-2 px-4 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            3 items from Sunshine Organics: $16.69
+            3 items from Sunshine Organics: ₹16.69
         </div>
 </button>
 <footer className="bg-white dark:bg-background-dark border-t border-slate-100 dark:border-slate-800 px-6 lg:px-20 py-12">

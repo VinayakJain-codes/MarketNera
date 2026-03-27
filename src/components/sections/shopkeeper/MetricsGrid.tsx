@@ -19,7 +19,7 @@ const metrics = [
   },
   {
     title: "Avg. Order Value",
-    value: "$0.00",
+    value: "₹0.00",
     trend: "-",
     trendUp: false,
     trendNeutral: true,

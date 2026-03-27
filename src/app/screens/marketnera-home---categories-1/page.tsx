@@ -136,9 +136,9 @@ export default function Screen() {
 <div className="absolute inset-0 bg-navy/90 translate-y-full group-hover:translate-y-0 transition-transform duration-500 flex flex-col justify-center p-8 text-white z-20">
 <h5 className="text-primary font-bold uppercase tracking-widest text-xs mb-4">Best Sellers</h5>
 <ul className="flex flex-col gap-3 text-sm">
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Organic Avocado</span> <span>$4.99</span></li>
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Farm Fresh Eggs</span> <span>$6.50</span></li>
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Sourdough Bread</span> <span>$5.20</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Organic Avocado</span> <span>₹4.99</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Farm Fresh Eggs</span> <span>₹6.50</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Sourdough Bread</span> <span>₹5.20</span></li>
 </ul>
 <button className="mt-8 py-3 bg-primary text-white rounded-full font-bold hover:bg-orange-600 transition-colors">Shop Now</button>
 </div>
@@ -156,9 +156,9 @@ export default function Screen() {
 <div className="absolute inset-0 bg-navy/90 translate-y-full group-hover:translate-y-0 transition-transform duration-500 flex flex-col justify-center p-8 text-white z-20">
 <h5 className="text-primary font-bold uppercase tracking-widest text-xs mb-4">Best Sellers</h5>
 <ul className="flex flex-col gap-3 text-sm">
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Pro Yoga Mat</span> <span>$29.99</span></li>
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Steel Kettlebell</span> <span>$45.00</span></li>
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Grip Tape</span> <span>$12.00</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Pro Yoga Mat</span> <span>₹29.99</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Steel Kettlebell</span> <span>₹45.00</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Grip Tape</span> <span>₹12.00</span></li>
 </ul>
 <button className="mt-8 py-3 bg-primary text-white rounded-full font-bold hover:bg-orange-600 transition-colors">Shop Now</button>
 </div>
@@ -176,9 +176,9 @@ export default function Screen() {
 <div className="absolute inset-0 bg-navy/90 translate-y-full group-hover:translate-y-0 transition-transform duration-500 flex flex-col justify-center p-8 text-white z-20">
 <h5 className="text-primary font-bold uppercase tracking-widest text-xs mb-4">Best Sellers</h5>
 <ul className="flex flex-col gap-3 text-sm">
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Ceramic Pan</span> <span>$38.00</span></li>
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Knife Set (5pc)</span> <span>$89.00</span></li>
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Spice Jar Kit</span> <span>$24.99</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Ceramic Pan</span> <span>₹38.00</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Knife Set (5pc)</span> <span>₹89.00</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Spice Jar Kit</span> <span>₹24.99</span></li>
 </ul>
 <button className="mt-8 py-3 bg-primary text-white rounded-full font-bold hover:bg-orange-600 transition-colors">Shop Now</button>
 </div>
@@ -196,9 +196,9 @@ export default function Screen() {
 <div className="absolute inset-0 bg-navy/90 translate-y-full group-hover:translate-y-0 transition-transform duration-500 flex flex-col justify-center p-8 text-white z-20">
 <h5 className="text-primary font-bold uppercase tracking-widest text-xs mb-4">Best Sellers</h5>
 <ul className="flex flex-col gap-3 text-sm">
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Cotton T-Shirt</span> <span>$19.99</span></li>
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Denim Jacket</span> <span>$65.00</span></li>
-<li className="flex justify-between border-b border-white/10 pb-2"><span>Silk Scarf</span> <span>$34.00</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Cotton T-Shirt</span> <span>₹19.99</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Denim Jacket</span> <span>₹65.00</span></li>
+<li className="flex justify-between border-b border-white/10 pb-2"><span>Silk Scarf</span> <span>₹34.00</span></li>
 </ul>
 <button className="mt-8 py-3 bg-primary text-white rounded-full font-bold hover:bg-orange-600 transition-colors">Shop Now</button>
 </div>

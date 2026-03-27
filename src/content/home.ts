@@ -19,10 +19,10 @@ export const heroContent: HeroContent = {
     eyebrow: "Digital Transformation",
     heading: "Growth. Local. Yours.",
     subtext: "Help your local business compete and thrive online with modern tools for inventory, delivery, and marketing.",
-    primaryCta: "Shop Now",
-    secondaryCta: "Register Your shop",
-    heroImageUrl: "", // Removed dummy image
-    heroImageAlt: "Marketnera Marketplace",
+    primaryCta: "Start Free Trial",
+    secondaryCta: "Book a Demo",
+    heroImageUrl: "/HeroImage.png",
+    heroImageAlt: "MarketNera Platform Interface",
 };
 
 export const whyTitle = "Why Marketnera?";
