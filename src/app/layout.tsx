@@ -1,5 +1,6 @@
 import "./globals.css";
 import siteMetadata from "@/config/metadata";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = siteMetadata;
 
@@ -29,6 +30,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased font-display">
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
