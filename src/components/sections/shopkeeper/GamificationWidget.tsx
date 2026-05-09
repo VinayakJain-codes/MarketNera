@@ -47,6 +47,7 @@ export default function GamificationWidget({
         />
       </div>
 
+
       <div className="flex items-center justify-between text-xs">
         <span className="text-[var(--dash-text-muted)]">₹{currentRevenue.toLocaleString()} / ₹{tierTarget.toLocaleString()}</span>
         <span className="text-[var(--brand-green)] font-medium">{Math.round(progress)}%</span>
