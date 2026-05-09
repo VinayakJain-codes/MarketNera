@@ -19,6 +19,8 @@ export const ROUTES = {
     SIGNUP_CUSTOMER: "/register/customer",
     LOGIN_CUSTOMER: "/login/customer",
     CUSTOMER_DASHBOARD: "/customer/dashboard",
+    CUSTOMER_CART: "/customer/cart",
+    CUSTOMER_ORDERS: "/customer/orders",
     CUSTOMER_PROFILE: "/customer/profile",
     SIGNUP_SHOPKEEPER: "/register/shopkeeper",
     LOGIN_SHOPKEEPER: "/login/shopkeeper",

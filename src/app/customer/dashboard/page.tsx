@@ -6,6 +6,7 @@ import { User } from "@supabase/supabase-js";
 import { ROUTES } from "@/constants/routes";
 import { getAllShopkeepers, ShopkeeperProfile } from "@/lib/services/shopkeeper";
 import { getGlobalProducts, Product } from "@/lib/api/products";
+import { addToCart, getCartCount } from "@/lib/services/cart";
 
 /* ── Category config (UI metadata only, not dummy data) ── */
 const CATEGORY_CONFIG: Record<string, { icon: string; bg: string; border: string; text: string }> = {
@@ -50,7 +51,8 @@ export default function CustomerDashboard() {
     const [user, setUser] = useState<User | null>(null);
     const [location, setLocation] = useState("Detecting precise location...");
     const [showLocationModal, setShowLocationModal] = useState(false);
-    const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
+    const [addedProductIds, setAddedProductIds] = useState<Set<string>>(new Set());
+    const [cartCount, setCartCount] = useState(0);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -131,13 +133,31 @@ export default function CustomerDashboard() {
     const avatarUrl = metadata.avatar_url;
     const initial = fullName.charAt(0).toUpperCase();
 
-    const handleAdd = (productId: string) => {
-        setAddedItems((prev) => {
+    // Fetch cart count from Supabase when user is known
+    useEffect(() => {
+        if (!user) return;
+        getCartCount(user.id).then(setCartCount);
+    }, [user]);
+
+    const handleAdd = async (product: Product & { shop_id: string }) => {
+        if (!user) return;
+        const alreadyAdded = addedProductIds.has(product.id);
+        // Toggle visual state optimistically
+        setAddedProductIds((prev) => {
             const next = new Set(prev);
-            if (next.has(productId)) next.delete(productId);
-            else next.add(productId);
+            if (next.has(product.id)) next.delete(product.id);
+            else next.add(product.id);
             return next;
         });
+        if (!alreadyAdded) {
+            const result = await addToCart(user.id, product.id, product.shop_id);
+            if (result.success) {
+                setCartCount((c) => c + 1);
+            } else {
+                // Revert on failure
+                setAddedProductIds((prev) => { const next = new Set(prev); next.delete(product.id); return next; });
+            }
+        }
     };
 
     const handleLogout = async () => {
@@ -158,7 +178,7 @@ export default function CustomerDashboard() {
     };
 
     return (
-        <div className="max-w-[480px] mx-auto bg-white min-h-screen shadow-xl relative pb-24">
+        <div className="w-full max-w-[480px] md:max-w-5xl lg:max-w-7xl mx-auto bg-white min-h-screen shadow-xl relative pb-24">
             {/* ─── Header ─── */}
             <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md px-4 pt-4 pb-2 border-b border-slate-100">
                 <div className="flex items-center justify-between mb-4 animate-fade-in-up">
@@ -179,7 +199,7 @@ export default function CustomerDashboard() {
                                     expand_more
                                 </span>
                             </div>
-                            <p className="text-sm font-semibold text-slate-800 truncate max-w-[180px]">
+                            <p className="text-sm font-semibold text-slate-800 truncate max-w-[180px] md:max-w-xs">
                                 {location}
                             </p>
                         </div>
@@ -283,7 +303,7 @@ export default function CustomerDashboard() {
 
             {/* ─── Categories (from real product data) ─── */}
             <div className="px-4 py-4 overflow-hidden">
-                <div className="flex gap-3 overflow-x-auto no-scrollbar">
+                <div className="flex gap-3 overflow-x-auto no-scrollbar md:flex-wrap md:justify-center">
                     {dynamicCategories.map((catName, i) => {
                         const cfg = CATEGORY_CONFIG[catName] ?? CATEGORY_CONFIG.Other;
                         const isActive = selectedCategory === catName;
@@ -329,7 +349,7 @@ export default function CustomerDashboard() {
                     <h2 className="text-lg font-bold text-slate-900">Nearby Shops</h2>
                     <span className="text-primary text-sm font-semibold">{shops.length} shops</span>
                 </div>
-                <div className="flex gap-4 overflow-x-auto no-scrollbar px-4 pb-2">
+                <div className="flex gap-4 overflow-x-auto no-scrollbar px-4 pb-2 md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-x-visible">
                     {loadingShops ? (
                         [1, 2, 3].map(i => <ShopSkeleton key={i} />)
                     ) : shops.length === 0 ? (
@@ -343,7 +363,7 @@ export default function CustomerDashboard() {
                             return (
                                 <div
                                     key={shop.user_id}
-                                    className="min-w-[240px] bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden animate-slide-in-right hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+                                    className="min-w-[240px] md:min-w-0 bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden animate-slide-in-right hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
                                     style={{ animationDelay: `${0.3 + i * 0.12}s` }}
                                 >
                                     {/* Shop banner using category color */}
@@ -375,7 +395,7 @@ export default function CustomerDashboard() {
                         {loadingProducts ? "Loading..." : `${products.length} items`}
                     </span>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {loadingProducts ? (
                         [1, 2, 3, 4].map(i => <ProductSkeleton key={i} />)
                     ) : products.length === 0 ? (
@@ -390,7 +410,7 @@ export default function CustomerDashboard() {
                         products.map((product, i) => {
                             const imgUrl = getProductImage(product as any);
                             const cfg = CATEGORY_CONFIG[product.category] ?? CATEGORY_CONFIG.Other;
-                            const isAdded = addedItems.has(product.id);
+                            const isAdded = addedProductIds.has(product.id);
                             const discountPct = product.sale_price && product.sale_price < product.price
                                 ? Math.round((1 - product.sale_price / product.price) * 100)
                                 : null;
@@ -437,7 +457,7 @@ export default function CustomerDashboard() {
                                             )}
                                         </div>
                                         <button
-                                            onClick={() => handleAdd(product.id)}
+                                            onClick={() => handleAdd(product as any)}
                                             className={`flex items-center gap-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 active:scale-95 ${
                                                 isAdded
                                                     ? "bg-primary text-white shadow-md shadow-primary/20"
@@ -458,24 +478,30 @@ export default function CustomerDashboard() {
             </section>
 
             {/* ─── Bottom Navigation ─── */}
-            <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] glass-nav border-t border-slate-100 flex items-center justify-around py-3 z-50">
-                <a className="flex flex-col items-center gap-1 text-primary" href="#">
+            <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] md:max-w-5xl lg:max-w-7xl glass-nav border-t border-slate-100 flex items-center justify-around py-3 z-50">
+                <a className="flex flex-col items-center gap-1 text-primary" href={ROUTES.CUSTOMER_DASHBOARD}>
                     <span className="material-symbols-outlined fill-1">home</span>
                     <span className="text-[10px] font-bold">Home</span>
                 </a>
-                <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#">
+                <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#shops">
                     <span className="material-symbols-outlined">storefront</span>
                     <span className="text-[10px] font-medium">Shops</span>
                 </a>
                 <div className="relative -mt-8">
-                    <button className="w-14 h-14 bg-[#13ec5b] text-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-[#13ec5b]/30 border-4 border-white hover:scale-110 transition-transform active:scale-95">
+                    <a
+                        href={ROUTES.CUSTOMER_CART}
+                        className="w-14 h-14 bg-[#13ec5b] text-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-[#13ec5b]/30 border-4 border-white hover:scale-110 transition-transform active:scale-95"
+                        aria-label="View cart"
+                    >
                         <span className="material-symbols-outlined text-3xl">shopping_cart</span>
-                        <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-pulse-badge">
-                            {addedItems.size}
-                        </div>
-                    </button>
+                        {cartCount > 0 && (
+                            <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-pulse-badge">
+                                {cartCount > 99 ? "99+" : cartCount}
+                            </div>
+                        )}
+                    </a>
                 </div>
-                <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#">
+                <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href={ROUTES.CUSTOMER_ORDERS}>
                     <span className="material-symbols-outlined">receipt_long</span>
                     <span className="text-[10px] font-medium">Orders</span>
                 </a>
