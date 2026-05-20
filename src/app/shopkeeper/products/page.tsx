@@ -94,13 +94,19 @@ export default function ShopkeeperProductsPage() {
     }
   };
 
-  const handleSaveProduct = async (payload: ProductCreatePayload) => {
-    if (editingProduct) {
-      const updated = await updateProduct(editingProduct.id, payload);
-      setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
-    } else {
-      const created = await createProduct(payload);
-      setProducts(prev => [created, ...prev]);
+  const handleSaveProduct = async (savedProduct: Product) => {
+    // Re-fetch products from database to ensure the newly uploaded media records and URLs are loaded
+    try {
+      const data = await getProducts(MOCK_SHOP_ID, filters);
+      setProducts(data);
+    } catch (error) {
+      console.error('Failed to reload products:', error);
+      // Fallback state update
+      if (editingProduct) {
+        setProducts(prev => prev.map(p => p.id === savedProduct.id ? savedProduct : p));
+      } else {
+        setProducts(prev => [savedProduct, ...prev]);
+      }
     }
     setIsModalOpen(false);
     setEditingProduct(null);
