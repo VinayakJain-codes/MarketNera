@@ -137,7 +137,8 @@ export async function getRecentOrders(): Promise<RecentOrder[]> {
       .order('created_at', { ascending: false })
       .limit(8);
 
-    if (error || !data?.length) throw error;
+    if (error) throw error;
+    if (!data?.length) return [];
 
     // Map DB rows → RecentOrder shape
     return data.map((row: any) => {
