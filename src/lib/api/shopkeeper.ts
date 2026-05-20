@@ -43,8 +43,6 @@ export interface TopProduct {
 
 // ── Fetchers (Supabase-backed with fallback) ──
 
-// ── Fetchers (Supabase-backed with fallback) ──
-
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   try {
     // Note: 'shopkeeper_metrics' is a view or table you might have created.
@@ -64,18 +62,18 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 async function computeMetricsFromOrders(): Promise<DashboardMetrics> {
   try {
     const { data: orders } = await supabase.from('orders').select('*');
-    const { data: shopkeeper } = await supabase.from('shopkeeper').select('user_id');
 
-    const totalRevenue = orders?.reduce((sum, o) => sum + (o.total || 0), 0) ?? 0;
+    // Use correct column name: total_amount (not total)
+    const totalRevenue = orders?.reduce((sum, o) => sum + (parseFloat(o.total_amount) || 0), 0) ?? 0;
     const totalOrders = orders?.length ?? 0;
-    const activeCustomers = shopkeeper?.length ?? 0;
-    const conversionRate = totalOrders > 0 ? Math.round((totalOrders / Math.max(activeCustomers, 1)) * 100) : 0;
+    // Count unique customers
+    const uniqueCustomers = new Set(orders?.map(o => o.customer_id) ?? []).size;
 
     return {
       totalRevenue,
-      activeCustomers,
+      activeCustomers: uniqueCustomers,
       totalOrders,
-      conversionRate: Math.min(conversionRate, 100),
+      conversionRate: 0,
       revenueChange: 0,
       customerChange: 0,
       orderChange: 0,
@@ -122,13 +120,53 @@ export async function getSalesByCategory(): Promise<CategorySale[]> {
 
 export async function getRecentOrders(): Promise<RecentOrder[]> {
   try {
+    // Use correct columns: customer_id, total_amount, created_at
+    // Join with order_items to get the first product name per order
     const { data, error } = await supabase
       .from('orders')
-      .select('id, customer, product, date, status, total')
-      .order('date', { ascending: false })
+      .select(`
+        id,
+        customer_id,
+        status,
+        total_amount,
+        created_at,
+        order_items (
+          product_name
+        )
+      `)
+      .order('created_at', { ascending: false })
       .limit(8);
+
     if (error || !data?.length) throw error;
-    return data as RecentOrder[];
+
+    // Map DB rows → RecentOrder shape
+    return data.map((row: any) => {
+      // Capitalise first char of status to match union type
+      const rawStatus = (row.status ?? 'pending') as string;
+      const statusMap: Record<string, RecentOrder['status']> = {
+        pending: 'Pending',
+        accepted: 'Processing',
+        preparing: 'Processing',
+        ready: 'Processing',
+        delivered: 'Delivered',
+        cancelled: 'Cancelled',
+      };
+
+      const firstProduct = row.order_items?.[0]?.product_name ?? 'Order';
+
+      return {
+        id: row.id,
+        customer: `Customer ${row.customer_id?.slice(0, 6) ?? ''}`,
+        product: firstProduct,
+        date: new Date(row.created_at).toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }),
+        status: statusMap[rawStatus] ?? 'Pending',
+        total: parseFloat(row.total_amount) || 0,
+      };
+    }) as RecentOrder[];
   } catch {
     return [];
   }
