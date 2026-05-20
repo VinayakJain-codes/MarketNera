@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #0f172a;
+  
+  --bg-page: #fafafa;
+  --bg-surface: #ffffff;
+  --border-subtle: #f1f5f9;
+  --brand-primary: #f97316;
+  --brand-green: #22c55e;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
 }
 
 @theme inline {
@@ -16,16 +25,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
 
 body {
   background: var(--background);
   color: var(--foreground);
+  min-height: 100vh;
 }
 
 /* ─── Auth page animations ─── */
@@ -151,4 +155,31 @@ body {
   border: 1px solid var(--dash-card-border);
   border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* ─── Premium UI Animations & Utilities ─── */
+@keyframes bounceBadge {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-bounce-badge { animation: bounceBadge 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+/* Micro-interactions */
+.premium-hover {
+  transition: all 150ms ease;
+}
+.premium-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+.premium-active:active {
+  transform: scale(0.97);
+}
+.btn-glow {
+  box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.4);
+}
+.btn-glow:hover {
+  box-shadow: 0 15px 30px -5px rgba(249, 115, 22, 0.5);
 }

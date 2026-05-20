@@ -185,42 +185,37 @@ export default function CustomerDashboard() {
                     {/* Location */}
                     <button
                         onClick={() => setShowLocationModal(!showLocationModal)}
-                        className="flex items-center gap-2 group"
+                        className="flex items-center gap-2 group bg-slate-100 px-3 py-1.5 rounded-full hover:bg-slate-200 premium-hover"
                     >
-                        <div className="text-primary">
-                            <span className="material-symbols-outlined text-3xl">location_on</span>
+                        <div className="text-primary flex items-center justify-center">
+                            <span className="material-symbols-outlined text-xl">location_on</span>
                         </div>
-                        <div>
-                            <div className="flex items-center gap-1">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                    Delivering to
-                                </span>
-                                <span className="material-symbols-outlined text-xs text-slate-400 group-hover:rotate-180 transition-transform">
-                                    expand_more
-                                </span>
-                            </div>
-                            <p className="text-sm font-semibold text-slate-800 truncate max-w-[180px] md:max-w-xs">
+                        <div className="flex flex-col items-start">
+                            <p className="text-[11px] font-bold text-slate-800 truncate max-w-[140px] md:max-w-[200px] leading-tight">
                                 {location}
                             </p>
                         </div>
+                        <span className="material-symbols-outlined text-[16px] text-slate-400 group-hover:rotate-180 transition-transform">
+                            expand_more
+                        </span>
                     </button>
 
                     {/* Right side — Notification + Avatar */}
                     <div className="flex gap-3 items-center">
-                        <button className="relative w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">
+                        <button className="relative w-10 h-10 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:shadow-md transition-shadow premium-hover">
                             <span className="material-symbols-outlined text-slate-600">notifications</span>
-                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
+                            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
                         </button>
                         <a
                             href={ROUTES.CUSTOMER_PROFILE}
                             title="My Profile"
-                            className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/30 hover:border-primary hover:scale-110 transition-all duration-300 shadow-sm"
+                            className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/20 hover:ring-primary/50 hover:scale-110 shadow-sm transition-all duration-300"
                         >
                             {avatarUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img src={avatarUrl} alt={fullName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             ) : (
-                                <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+                                <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
                                     {initial}
                                 </div>
                             )}
@@ -229,18 +224,18 @@ export default function CustomerDashboard() {
                 </div>
 
                 {/* Search bar */}
-                <div className="relative group animate-fade-in-up delay-100">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
+                <div className="relative mt-2 animate-fade-in-up delay-100">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                         <span className="material-symbols-outlined text-xl">search</span>
                     </div>
                     <input
-                        className="block w-full pl-10 pr-12 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:bg-white focus:shadow-lg placeholder-slate-400 outline-none transition-all duration-300"
+                        className="block w-full pl-11 pr-12 py-3.5 bg-white border border-slate-200 shadow-sm rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:shadow-md placeholder-slate-400 outline-none transition-all premium-hover"
                         placeholder="Search products, shops..."
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
                         <span className="material-symbols-outlined text-xl">mic</span>
                     </div>
                 </div>
@@ -303,7 +298,7 @@ export default function CustomerDashboard() {
 
             {/* ─── Categories (from real product data) ─── */}
             <div className="px-4 py-4 overflow-hidden">
-                <div className="flex gap-3 overflow-x-auto no-scrollbar md:flex-wrap md:justify-center">
+                <div className="flex gap-2 overflow-x-auto no-scrollbar md:flex-wrap md:justify-center">
                     {dynamicCategories.map((catName, i) => {
                         const cfg = CATEGORY_CONFIG[catName] ?? CATEGORY_CONFIG.Other;
                         const isActive = selectedCategory === catName;
@@ -311,14 +306,16 @@ export default function CustomerDashboard() {
                             <button
                                 key={catName}
                                 onClick={() => setSelectedCategory(catName)}
-                                className={`flex flex-col items-center gap-2 min-w-[72px] animate-fade-in-up group`}
-                                style={{ animationDelay: `${i * 0.07}s` }}
+                                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap animate-fade-in-up transition-all premium-hover
+                                    ${isActive 
+                                        ? "bg-primary text-white shadow-lg shadow-primary/30 scale-[1.02]" 
+                                        : "bg-white border border-slate-200 text-slate-600 hover:border-primary/50 hover:text-primary"}`}
+                                style={{ animationDelay: `${i * 0.05}s` }}
                             >
-                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border transition-all duration-300 shadow-sm group-hover:-translate-y-1 group-hover:scale-110 group-hover:shadow-lg
-                                    ${isActive ? `${cfg.text} bg-white border-current shadow-md scale-105` : `${cfg.bg} ${cfg.border}`}`}>
-                                    <span className={`material-symbols-outlined ${isActive ? cfg.text : cfg.text} text-3xl`}>{catName === "All" ? "grid_view" : cfg.icon}</span>
-                                </div>
-                                <span className={`text-[11px] font-semibold ${isActive ? "text-slate-900" : "text-slate-600"}`}>{catName}</span>
+                                <span className={`material-symbols-outlined text-[16px] ${isActive ? "text-white" : cfg.text}`}>
+                                    {catName === "All" ? "grid_view" : cfg.icon}
+                                </span>
+                                {catName}
                             </button>
                         );
                     })}
@@ -327,29 +324,33 @@ export default function CustomerDashboard() {
 
             {/* ─── Promo Banner ─── */}
             <div className="px-4 py-2 animate-fade-in-up delay-200">
-                <div className="w-full h-36 rounded-2xl bg-gradient-to-r from-orange-500 via-orange-400 to-amber-500 p-6 flex justify-between items-center relative overflow-hidden shadow-lg shadow-orange-500/20">
-                    <div className="z-10">
-                        <h3 className="text-white text-xl font-bold leading-tight">
+                <div className="w-full h-36 md:h-40 rounded-3xl bg-gradient-to-r from-[#FF6B35] via-[#F97316] to-[#FBBF24] p-6 flex justify-between items-center relative overflow-hidden shadow-xl shadow-primary/25 premium-hover"
+                     style={{ backgroundImage: `radial-gradient(circle at 10px 10px, rgba(255,255,255,0.15) 2px, transparent 0)`, backgroundSize: '24px 24px', backgroundColor: '#F97316' }}>
+                    <div className="z-10 flex flex-col items-start">
+                        <h3 className="text-white text-xl md:text-2xl font-black leading-tight tracking-tight drop-shadow-sm">
                             Fresh Grocery<br />at Your Doorstep
                         </h3>
-                        <p className="text-white/80 text-xs mt-1">Get 20% off on your first order</p>
-                        <button className="mt-3 px-5 py-2 bg-white text-orange-600 rounded-lg text-xs font-bold shadow-lg hover:scale-105 transition-transform">
+                        <p className="text-white/90 text-xs font-medium mt-1">Get 20% off on your first order</p>
+                        <button className="mt-4 px-6 py-2 bg-white text-primary rounded-xl text-xs font-bold shadow-lg hover:scale-105 active:scale-95 transition-all">
                             ORDER NOW
                         </button>
                     </div>
-                    <div className="absolute -right-4 -bottom-4 w-32 h-32 opacity-20 animate-float">
-                        <span className="material-symbols-outlined text-[120px] text-white">shopping_basket</span>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-28 h-28 opacity-90 animate-float drop-shadow-xl flex items-center justify-center">
+                        <span className="material-symbols-outlined text-[80px] text-white/40">shopping_basket</span>
                     </div>
                 </div>
             </div>
 
             {/* ─── Nearby Shops ─── */}
-            <section className="mt-6">
-                <div className="flex justify-between items-center px-4 mb-4 animate-fade-in-up delay-300">
-                    <h2 className="text-lg font-bold text-slate-900">Nearby Shops</h2>
-                    <span className="text-primary text-sm font-semibold">{shops.length} shops</span>
+            <section className="mt-8" id="shops">
+                <div className="flex flex-col px-4 mb-4 animate-fade-in-up delay-300">
+                    <span className="uppercase tracking-widest text-[10px] font-bold text-slate-400 mb-1">Explore</span>
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-slate-900">Nearby Shops</h2>
+                        <span className="text-primary text-sm font-semibold">{shops.length} shops</span>
+                    </div>
                 </div>
-                <div className="flex gap-4 overflow-x-auto no-scrollbar px-4 pb-2 md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-x-visible">
+                <div className="flex gap-4 overflow-x-auto no-scrollbar px-4 pb-4 pt-1 md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-x-visible">
                     {loadingShops ? (
                         [1, 2, 3].map(i => <ShopSkeleton key={i} />)
                     ) : shops.length === 0 ? (
@@ -363,20 +364,26 @@ export default function CustomerDashboard() {
                             return (
                                 <div
                                     key={shop.user_id}
-                                    className="min-w-[240px] md:min-w-0 bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden animate-slide-in-right hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
-                                    style={{ animationDelay: `${0.3 + i * 0.12}s` }}
+                                    className="min-w-[200px] md:min-w-0 bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden animate-slide-in-right premium-hover cursor-pointer flex flex-col"
+                                    style={{ animationDelay: `${0.3 + i * 0.1}s` }}
                                 >
-                                    {/* Shop banner using category color */}
-                                    <div className={`h-24 ${cfg.bg} flex items-center justify-center relative`}>
-                                        <span className={`material-symbols-outlined text-[56px] ${cfg.text} opacity-40`}>{cfg.icon}</span>
-                                        <div className="absolute top-2 right-2 px-2 py-0.5 bg-[#2D9E4B] text-white text-[10px] font-bold rounded flex items-center gap-1">
-                                            <span className="material-symbols-outlined text-[12px] fill-1">verified</span> VERIFIED
+                                    {/* Shop banner using category gradient */}
+                                    <div className={`h-20 bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center relative`}>
+                                        <span className={`material-symbols-outlined text-[48px] text-orange-200`}>{cfg.icon}</span>
+                                        <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 bg-[#22c55e] text-white rounded-full shadow-sm">
+                                            <span className="material-symbols-outlined text-[12px] font-bold">check</span>
                                         </div>
                                     </div>
-                                    <div className="p-3">
-                                        <h4 className="font-bold text-sm text-slate-800">{shop.shop_name}</h4>
-                                        <p className="text-xs text-slate-500 mt-0.5">{shop.category}</p>
-                                        <p className="text-xs text-slate-400 mt-1 truncate">{shop.address}</p>
+                                    <div className="p-3.5 flex flex-col flex-grow">
+                                        <h4 className="font-bold text-sm text-slate-900 line-clamp-1">{shop.shop_name}</h4>
+                                        <div className="flex items-center gap-2 mt-1.5">
+                                            <span className={`bg-primary/10 text-primary text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider`}>
+                                                {shop.category}
+                                            </span>
+                                            <span className="text-[10px] font-medium text-slate-400 flex items-center gap-0.5">
+                                                <span className="material-symbols-outlined text-[12px]">schedule</span> 15 min
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -418,10 +425,10 @@ export default function CustomerDashboard() {
                             return (
                                 <div
                                     key={product.id}
-                                    className="group bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex flex-col animate-fade-in-up hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                                    className="group bg-white rounded-2xl p-3 shadow-sm border border-slate-100/80 flex flex-col animate-fade-in-up premium-hover"
                                     style={{ animationDelay: `${0.4 + i * 0.1}s` }}
                                 >
-                                    <div className="aspect-square bg-slate-50 rounded-lg overflow-hidden mb-3 relative">
+                                    <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden mb-3 relative">
                                         {imgUrl ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img
@@ -435,39 +442,37 @@ export default function CustomerDashboard() {
                                             </div>
                                         )}
                                         {discountPct && (
-                                            <div className="absolute top-1.5 left-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                                            <div className="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm">
                                                 -{discountPct}%
                                             </div>
                                         )}
                                     </div>
-                                    <div className="flex-grow">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{product.category}</p>
-                                        <h5 className="text-sm font-semibold text-slate-800 line-clamp-2 mt-0.5 leading-snug">{product.name}</h5>
+                                    <div className="flex-grow flex flex-col justify-start">
+                                        <h5 className="text-sm font-semibold text-slate-900 line-clamp-2 leading-tight">{product.name}</h5>
                                         {product.unit_type && (
-                                            <p className="text-[10px] text-primary font-medium mt-1">per {product.unit_type}</p>
+                                            <p className="text-[11px] text-slate-500 font-medium mt-1">{product.unit_type}</p>
                                         )}
                                     </div>
-                                    <div className="flex items-center justify-between mt-3">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-slate-900">
+                                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-50">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-base font-black text-slate-900 tracking-tight">
                                                 ₹{product.sale_price ?? product.price}
                                             </span>
                                             {product.sale_price && product.sale_price < product.price && (
-                                                <span className="text-[10px] text-slate-400 line-through">₹{product.price}</span>
+                                                <span className="text-xs text-slate-400 line-through font-medium">₹{product.price}</span>
                                             )}
                                         </div>
                                         <button
                                             onClick={() => handleAdd(product as any)}
-                                            className={`flex items-center gap-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 active:scale-95 ${
+                                            className={`flex items-center justify-center w-8 h-8 rounded-full transition-all premium-active ${
                                                 isAdded
-                                                    ? "bg-primary text-white shadow-md shadow-primary/20"
-                                                    : "bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-white"
+                                                    ? "bg-primary text-white shadow-md shadow-primary/30"
+                                                    : "bg-primary/10 text-primary hover:bg-primary hover:text-white"
                                             }`}
                                         >
-                                            <span className="material-symbols-outlined text-sm">
+                                            <span className="material-symbols-outlined text-[18px] font-bold">
                                                 {isAdded ? "check" : "add"}
                                             </span>
-                                            {isAdded ? "ADDED" : "ADD"}
                                         </button>
                                     </div>
                                 </div>
@@ -478,24 +483,25 @@ export default function CustomerDashboard() {
             </section>
 
             {/* ─── Bottom Navigation ─── */}
-            <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] md:max-w-5xl lg:max-w-7xl glass-nav border-t border-slate-100 flex items-center justify-around py-3 z-50">
-                <a className="flex flex-col items-center gap-1 text-primary" href={ROUTES.CUSTOMER_DASHBOARD}>
+            <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] md:max-w-5xl lg:max-w-7xl bg-white border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] flex items-center justify-around pb-4 pt-3 z-50">
+                <a className="flex flex-col items-center gap-1 text-primary relative" href={ROUTES.CUSTOMER_DASHBOARD}>
+                    <div className="absolute -top-3 w-8 h-0.5 bg-primary rounded-b-full"></div>
                     <span className="material-symbols-outlined fill-1">home</span>
                     <span className="text-[10px] font-bold">Home</span>
                 </a>
                 <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#shops">
                     <span className="material-symbols-outlined">storefront</span>
-                    <span className="text-[10px] font-medium">Shops</span>
+                    <span className="text-[10px] font-bold">Shops</span>
                 </a>
-                <div className="relative -mt-8">
+                <div className="relative -mt-10">
                     <a
                         href={ROUTES.CUSTOMER_CART}
-                        className="w-14 h-14 bg-[#13ec5b] text-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-[#13ec5b]/30 border-4 border-white hover:scale-110 transition-transform active:scale-95"
+                        className="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-xl shadow-primary/40 border-4 border-white premium-hover premium-active"
                         aria-label="View cart"
                     >
-                        <span className="material-symbols-outlined text-3xl">shopping_cart</span>
+                        <span className="material-symbols-outlined text-[28px] fill-1 text-white">shopping_bag</span>
                         {cartCount > 0 && (
-                            <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-pulse-badge">
+                            <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black min-w-[20px] h-[20px] px-1 rounded-full flex items-center justify-center border-2 border-white animate-bounce-badge">
                                 {cartCount > 99 ? "99+" : cartCount}
                             </div>
                         )}
@@ -503,11 +509,11 @@ export default function CustomerDashboard() {
                 </div>
                 <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href={ROUTES.CUSTOMER_ORDERS}>
                     <span className="material-symbols-outlined">receipt_long</span>
-                    <span className="text-[10px] font-medium">Orders</span>
+                    <span className="text-[10px] font-bold">Orders</span>
                 </a>
                 <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href={ROUTES.CUSTOMER_PROFILE}>
                     <span className="material-symbols-outlined">person</span>
-                    <span className="text-[10px] font-medium">Profile</span>
+                    <span className="text-[10px] font-bold">Profile</span>
                 </a>
             </nav>
         </div>

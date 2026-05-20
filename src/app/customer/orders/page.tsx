@@ -79,32 +79,32 @@ function OrderCard({
     });
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden animate-fade-in-up">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden animate-fade-in-up premium-hover">
             {/* Header */}
             <button
                 onClick={() => setExpanded((v) => !v)}
-                className="w-full p-4 text-left"
+                className="w-full p-5 text-left focus:outline-none"
             >
                 <div className="flex items-start justify-between gap-2">
                     <div>
-                        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide mb-0.5">
-                            Order #{order.id.slice(0, 8).toUpperCase()}
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">
+                            Order #{order.id.slice(0, 8)}
                         </p>
-                        <p className="text-sm font-semibold text-slate-800">
+                        <p className="text-sm font-black text-slate-900 tracking-tight">
                             {itemCount} item{itemCount !== 1 ? "s" : ""} · ₹{order.total_amount.toFixed(2)}
                         </p>
-                        <p className="text-xs text-slate-400 mt-0.5">{date}</p>
+                        <p className="text-xs font-medium text-slate-500 mt-1">{date}</p>
                     </div>
                     <div className="flex items-center gap-2">
                         <span
-                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
                                 ORDER_STATUS_COLORS[order.status]
                             }`}
                         >
                             {ORDER_STATUS_LABELS[order.status]}
                         </span>
-                        <span className="material-symbols-outlined text-slate-300 text-lg">
-                            {expanded ? "expand_less" : "expand_more"}
+                        <span className="material-symbols-outlined text-slate-300 text-xl transition-transform duration-300" style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}>
+                            expand_more
                         </span>
                     </div>
                 </div>
@@ -115,31 +115,30 @@ function OrderCard({
 
             {/* Expanded items */}
             {expanded && (
-                <div className="border-t border-slate-100 px-4 pb-4">
-                    <div className="py-3 space-y-2">
+                <div className="border-t border-slate-100/80 px-5 pb-5">
+                    <div className="py-4 space-y-3">
                         {order.order_items?.map((item) => (
-                            <div key={item.id} className="flex justify-between text-sm">
-                                <span className="text-slate-600">
-                                    {item.product_name}{" "}
-                                    <span className="text-slate-400">×{item.quantity}</span>
+                            <div key={item.id} className="flex justify-between items-center text-sm">
+                                <span className="text-slate-600 font-medium">
+                                    <span className="text-slate-800 font-bold">{item.quantity}×</span> {item.product_name}
                                 </span>
-                                <span className="font-semibold text-slate-800">
+                                <span className="font-black text-slate-900">
                                     ₹{item.subtotal.toFixed(2)}
                                 </span>
                             </div>
                         ))}
                     </div>
                     {order.delivery_address && (
-                        <div className="flex gap-2 mt-2 p-2 bg-slate-50 rounded-lg">
-                            <span className="material-symbols-outlined text-slate-400 text-sm mt-0.5">location_on</span>
-                            <p className="text-xs text-slate-500">{order.delivery_address}</p>
+                        <div className="flex items-start gap-2 mt-2 p-3 bg-slate-50 rounded-xl border border-slate-100/50">
+                            <span className="material-symbols-outlined text-slate-400 text-[18px]">location_on</span>
+                            <p className="text-xs text-slate-500 font-medium leading-relaxed">{order.delivery_address}</p>
                         </div>
                     )}
                     {/* Cancel action (only for pending) */}
                     {order.status === "pending" && (
                         <button
                             onClick={() => onCancel(order.id)}
-                            className="mt-3 w-full py-2 rounded-lg border border-red-200 text-red-500 text-xs font-semibold hover:bg-red-50 transition-colors"
+                            className="mt-4 w-full py-3 rounded-xl border-2 border-red-100 text-red-500 text-xs font-black uppercase tracking-wider hover:bg-red-50 transition-colors premium-active"
                         >
                             Cancel Order
                         </button>
@@ -204,19 +203,23 @@ export default function CustomerOrdersPage() {
     return (
         <div className="w-full max-w-[480px] md:max-w-3xl mx-auto bg-gray-50 min-h-screen shadow-xl relative pb-8">
             {/* Header */}
-            <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md px-4 py-4 border-b border-slate-100 flex items-center gap-3">
-                <button
-                    onClick={() => router.back()}
-                    className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
-                    aria-label="Go back"
-                >
-                    <span className="material-symbols-outlined text-slate-600 text-xl">arrow_back</span>
-                </button>
-                <div className="flex-1">
-                    <h1 className="text-lg font-bold text-slate-900">My Orders</h1>
-                    <p className="text-xs text-slate-400">
-                        {loading ? "Loading..." : `${orders.length} total order${orders.length !== 1 ? "s" : ""}`}
-                    </p>
+            <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md px-4 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => router.back()}
+                        className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 premium-hover"
+                        aria-label="Go back"
+                    >
+                        <span className="material-symbols-outlined text-slate-600 text-xl">arrow_back</span>
+                    </button>
+                    <div>
+                        <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            My Orders
+                            {!loading && orders.length > 0 && (
+                                <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-0.5 rounded-full">{orders.length}</span>
+                            )}
+                        </h1>
+                    </div>
                 </div>
             </header>
 
@@ -256,23 +259,23 @@ export default function CustomerOrdersPage() {
                 {loading ? (
                     [1, 2, 3].map((i) => <OrderSkeleton key={i} />)
                 ) : filteredOrders.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mb-5">
-                            <span className="material-symbols-outlined text-4xl text-orange-300">receipt_long</span>
+                    <div className="flex flex-col items-center justify-center py-28 px-6 text-center animate-fade-in-up">
+                        <div className="w-28 h-28 bg-orange-50/50 rounded-full flex items-center justify-center mb-6">
+                            <span className="material-symbols-outlined text-6xl text-orange-300 drop-shadow-sm">receipt_long</span>
                         </div>
-                        <h2 className="text-base font-bold text-slate-700 mb-1">
+                        <h2 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">
                             {filter === "active" ? "No active orders" : "No past orders"}
                         </h2>
-                        <p className="text-xs text-slate-400 mb-6">
+                        <p className="text-sm font-medium text-slate-500 mb-8">
                             {filter === "active"
                                 ? "Your active orders will appear here"
                                 : "Completed and cancelled orders will appear here"}
                         </p>
                         <button
                             onClick={() => router.push(ROUTES.CUSTOMER_DASHBOARD)}
-                            className="px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity"
+                            className="px-8 py-3.5 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/30 premium-hover premium-active"
                         >
-                            Shop Now
+                            Start Shopping
                         </button>
                     </div>
                 ) : (

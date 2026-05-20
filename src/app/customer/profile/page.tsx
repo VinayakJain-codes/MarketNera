@@ -61,60 +61,60 @@ export default function CustomerProfilePage() {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="w-full max-w-[480px] md:max-w-3xl mx-auto bg-slate-50 min-h-screen shadow-xl relative">
             {/* ─── Header with gradient ─── */}
-            <div className="relative overflow-hidden animate-slide-down">
-                <div className="bg-gradient-to-br from-primary via-orange-400 to-amber-500 px-6 pt-12 pb-24">
+            <div className="relative overflow-hidden animate-slide-down rounded-b-[40px] shadow-sm">
+                <div className="bg-gradient-to-br from-primary via-[#F97316] to-[#FBBF24] px-6 pt-12 pb-28">
                     {/* Back button */}
                     <a
                         href={ROUTES.CUSTOMER_DASHBOARD}
-                        className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors mb-6"
+                        className="inline-flex items-center gap-2 text-white/90 hover:text-white text-sm font-bold transition-colors mb-6 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm"
                     >
-                        <span className="material-symbols-outlined text-lg">arrow_back</span>
+                        <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                         Back to Dashboard
                     </a>
-                    <h1 className="text-white text-2xl font-bold">My Profile</h1>
-                    <p className="text-white/70 text-sm mt-1">Manage your account information</p>
+                    <h1 className="text-white text-3xl font-black tracking-tight drop-shadow-sm">My Profile</h1>
+                    <p className="text-white/90 text-sm font-medium mt-1">Manage your account information</p>
                 </div>
 
                 {/* Decorative shapes */}
-                <div className="absolute top-8 right-0 w-48 h-48 rounded-full bg-white/5 blur-2xl" />
-                <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white/10 blur-xl animate-float" />
+                <div className="absolute top-8 right-0 w-48 h-48 rounded-full bg-white/10 blur-3xl" />
+                <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-white/10 blur-2xl animate-float" />
             </div>
 
             {/* ─── Avatar Card (overlapping the header) ─── */}
             <div className="px-6 -mt-16 relative z-10 animate-scale-in">
-                <div className="bg-white rounded-3xl p-6 shadow-xl ring-1 ring-slate-900/5">
-                    <div className="flex items-center gap-5">
+                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.08)] ring-1 ring-slate-100">
+                    <div className="flex flex-col items-center gap-4 text-center">
                         {/* Avatar with pulse ring */}
-                        <div className="relative shrink-0">
+                        <div className="relative shrink-0 -mt-12">
                             {avatarUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                     src={avatarUrl}
                                     alt={fullName}
-                                    className="h-20 w-20 rounded-full object-cover ring-4 ring-primary/20 animate-pulse-ring"
+                                    className="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-xl animate-pulse-ring"
                                     referrerPolicy="no-referrer"
                                 />
                             ) : (
-                                <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center text-2xl font-bold text-slate-950 ring-4 ring-primary/20 animate-pulse-ring">
+                                <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center text-3xl font-black text-white ring-4 ring-white shadow-xl animate-pulse-ring">
                                     {initial}
                                 </div>
                             )}
-                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#2D9E4B] rounded-full flex items-center justify-center border-2 border-white">
-                                <span className="material-symbols-outlined text-xs text-slate-950">check</span>
+                            <div className="absolute bottom-0 right-0 w-7 h-7 bg-[#22c55e] rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                                <span className="material-symbols-outlined text-[14px] text-white font-bold">check</span>
                             </div>
                         </div>
 
-                        <div className="min-w-0 flex-1">
-                            <h2 className="text-xl font-bold text-slate-900 truncate">{fullName}</h2>
-                            <p className="text-sm text-slate-500 truncate">{email}</p>
-                            <div className="mt-2 flex items-center gap-2">
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#2D9E4B]/10 text-[#2D9E4B] text-[11px] font-bold">
-                                    <span className="material-symbols-outlined text-[12px] fill-1">verified</span>
+                        <div className="min-w-0 w-full">
+                            <h2 className="text-2xl font-black text-slate-900 truncate tracking-tight">{fullName}</h2>
+                            <p className="text-sm font-medium text-slate-500 truncate mt-0.5">{email}</p>
+                            <div className="mt-3 flex items-center justify-center gap-3">
+                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-50 text-green-600 text-[11px] font-bold uppercase tracking-wider">
+                                    <span className="material-symbols-outlined text-[14px] fill-1">verified</span>
                                     Customer
                                 </span>
-                                <span className="text-[11px] text-slate-400">
+                                <span className="text-[11px] font-medium text-slate-400">
                                     Since {createdAt}
                                 </span>
                             </div>
@@ -127,18 +127,18 @@ export default function CustomerProfilePage() {
             <div className="px-6 mt-6">
                 <div className="grid grid-cols-3 gap-3 animate-fade-in-up delay-200">
                     {[
-                        { label: "Orders", value: "0", icon: "receipt_long" },
-                        { label: "Wishlist", value: "0", icon: "favorite" },
-                        { label: "Addresses", value: "0", icon: "location_on" },
+                        { label: "Orders", value: "0", icon: "receipt_long", color: "text-blue-500" },
+                        { label: "Wishlist", value: "0", icon: "favorite", color: "text-rose-500" },
+                        { label: "Addresses", value: "0", icon: "location_on", color: "text-emerald-500" },
                     ].map((stat, i) => (
                         <div
                             key={stat.label}
-                            className="bg-white rounded-2xl p-4 text-center shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
+                            className="bg-white rounded-3xl p-4 text-center shadow-sm border border-slate-100/80 premium-hover"
                             style={{ animationDelay: `${0.2 + i * 0.08}s` }}
                         >
-                            <span className="material-symbols-outlined text-primary text-2xl">{stat.icon}</span>
-                            <p className="text-2xl font-bold text-slate-900 mt-1">{stat.value}</p>
-                            <p className="text-[11px] text-slate-500 font-medium">{stat.label}</p>
+                            <span className={`material-symbols-outlined ${stat.color} text-[28px] drop-shadow-sm`}>{stat.icon}</span>
+                            <p className="text-2xl font-black text-slate-900 mt-1">{stat.value}</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{stat.label}</p>
                         </div>
                     ))}
                 </div>
@@ -149,20 +149,22 @@ export default function CustomerProfilePage() {
                 {menuItems.map((item, i) => (
                     <a
                         key={item.title}
-                        href="#"
-                        className={`group flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-100 ${item.borderColor} hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 animate-fade-in-up`}
+                        href={item.title === "My Orders" ? ROUTES.CUSTOMER_ORDERS : "#"}
+                        className={`group flex items-center gap-4 bg-white rounded-3xl p-4 shadow-sm border border-slate-100/80 premium-hover animate-fade-in-up`}
                         style={{ animationDelay: `${0.3 + i * 0.07}s` }}
                     >
-                        <div className={`w-12 h-12 rounded-xl ${item.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300`}>
-                            <span className="material-symbols-outlined text-2xl">{item.icon}</span>
+                        <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
+                            <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-slate-800">{item.title}</p>
-                            <p className="text-xs text-slate-500 mt-0.5">{item.subtitle}</p>
+                            <p className="text-sm font-bold text-slate-900">{item.title}</p>
+                            <p className="text-xs font-medium text-slate-400 mt-0.5">{item.subtitle}</p>
                         </div>
-                        <span className="material-symbols-outlined text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300">
-                            chevron_right
-                        </span>
+                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-primary group-hover:text-white text-slate-400 transition-colors">
+                            <span className="material-symbols-outlined text-[18px]">
+                                chevron_right
+                            </span>
+                        </div>
                     </a>
                 ))}
             </div>
@@ -171,9 +173,9 @@ export default function CustomerProfilePage() {
             <div className="px-6 mt-8 pb-12 animate-fade-in delay-500">
                 <button
                     onClick={handleSignOut}
-                    className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl border-2 border-red-200 bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 hover:border-red-300 hover:shadow-lg hover:shadow-red-100 transition-all duration-300 active:scale-[0.98]"
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-red-100 bg-white text-red-500 font-black text-sm shadow-sm hover:bg-red-50 hover:border-red-200 transition-all duration-300 premium-active"
                 >
-                    <span className="material-symbols-outlined text-xl">logout</span>
+                    <span className="material-symbols-outlined text-[20px]">logout</span>
                     Sign Out
                 </button>
             </div>
