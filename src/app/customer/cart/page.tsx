@@ -101,7 +101,7 @@ export default function CartPage() {
 
     // ── Compute totals ──
     const subtotal = computeSubtotal(items);
-    const deliveryFee = subtotal > 500 ? 0 : (subtotal > 0 ? 40 : 0);
+    const deliveryFee = 0;
     const total = subtotal + deliveryFee;
     const itemCount = items.reduce((s, i) => s + i.quantity, 0);
 
@@ -388,11 +388,9 @@ export default function CartPage() {
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-4">
                         <div className="flex items-center justify-between">
                             <h2 className="text-sm font-bold text-slate-900">Order Summary</h2>
-                            {subtotal > 500 && (
-                                <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-[14px]">celebration</span> Free Delivery!
-                                </span>
-                            )}
+                            <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 animate-pulse">
+                                <span className="material-symbols-outlined text-[14px]">celebration</span> Free Delivery!
+                            </span>
                         </div>
 
                         <div className="flex justify-between text-sm font-medium text-slate-500">
@@ -401,11 +399,7 @@ export default function CartPage() {
                         </div>
                         <div className="flex justify-between text-sm font-medium text-slate-500">
                             <span>Delivery fee</span>
-                            {subtotal > 500 ? (
-                                <span className="text-green-600 font-bold">Free</span>
-                            ) : (
-                                <span className="text-slate-800">₹{deliveryFee.toFixed(2)}</span>
-                            )}
+                            <span className="text-green-600 font-bold">Free</span>
                         </div>
                         <div className="border-t-2 border-dashed border-slate-100 pt-4 pb-2">
                             <div className="bg-slate-50 rounded-xl px-3 py-2.5 -mx-1 flex justify-between font-black text-slate-900 text-lg">
