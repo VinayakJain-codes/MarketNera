@@ -30,6 +30,11 @@ export interface Order {
     notes: string | null;
     created_at: string;
     updated_at: string;
+    payment_method: "cod" | "razorpay";
+    payment_status: "pending" | "paid" | "failed";
+    razorpay_order_id: string | null;
+    razorpay_payment_id: string | null;
+    razorpay_signature: string | null;
     order_items?: OrderItem[];
 }
 
@@ -40,6 +45,9 @@ export interface PlaceOrderPayload {
     totalAmount: number;
     deliveryAddress?: string;
     notes?: string;
+    paymentMethod?: "cod" | "razorpay";
+    paymentStatus?: "pending" | "paid" | "failed";
+    razorpayOrderId?: string;
 }
 
 // ── Status helpers ─────────────────────────────────────────────────────────
@@ -90,6 +98,9 @@ export async function placeOrder(
             total_amount: payload.totalAmount,
             delivery_address: payload.deliveryAddress ?? null,
             notes: payload.notes ?? null,
+            payment_method: payload.paymentMethod ?? "cod",
+            payment_status: payload.paymentStatus ?? "pending",
+            razorpay_order_id: payload.razorpayOrderId ?? null,
         })
         .select()
         .single();

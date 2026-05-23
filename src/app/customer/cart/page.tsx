@@ -12,6 +12,7 @@ import {
     CartItem,
 } from "@/lib/services/cart";
 import { placeOrder } from "@/lib/services/orders";
+import { loadRazorpayScript } from "@/lib/services/razorpay";
 import { ROUTES } from "@/constants/routes";
 import { User } from "@supabase/supabase-js";
 
@@ -47,6 +48,7 @@ export default function CartPage() {
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const [placing, setPlacing] = useState(false);
     const [placeError, setPlaceError] = useState<string | null>(null);
+    const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">("cod");
 
     // ── Auth check ──
     useEffect(() => {
@@ -118,23 +120,129 @@ export default function CartPage() {
             quantity: item.quantity,
         }));
 
-        const { order, error } = await placeOrder({
-            customerId: user.id,
-            shopkeeperId,
-            items: orderItems,
-            totalAmount: total,
-        });
+        if (paymentMethod === "cod") {
+            const { order, error } = await placeOrder({
+                customerId: user.id,
+                shopkeeperId,
+                items: orderItems,
+                totalAmount: total,
+                paymentMethod: "cod",
+                paymentStatus: "pending",
+            });
 
-        if (error || !order) {
-            setPlaceError(error ?? "Failed to place order. Please try again.");
-            setPlacing(false);
-            return;
-        }
+            if (error || !order) {
+                setPlaceError(error ?? "Failed to place order. Please try again.");
+                setPlacing(false);
+                return;
+            }
 
-        // Clear cart then redirect to orders
-        await clearCart(user.id);
-        router.push(ROUTES.CUSTOMER_ORDERS);
-    };
+            // Clear cart then redirect to orders
+            await clearCart(user.id);
+            router.push(ROUTES.CUSTOMER_ORDERS);
+        } else {
+            // Razorpay Flow
+            try {
+                // 1. Create order record in Supabase with payment_method = 'razorpay'
+                const { order, error } = await placeOrder({
+                    customerId: user.id,
+                    shopkeeperId,
+                    items: orderItems,
+                    totalAmount: total,
+                    paymentMethod: "razorpay",
+                    paymentStatus: "pending",
+                });
+
+                if (error || !order) {
+                    setPlaceError(error ?? "Failed to initialize order. Please try again.");
+                    setPlacing(false);
+                    return;
+                }
+
+                // 2. Call backend create-order API
+                const response = await fetch("/api/payments/razorpay/create-order", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ orderId: order.id }),
+                });
+
+                const createOrderResult = await response.json();
+
+                if (!response.ok || !createOrderResult.success) {
+                    throw new Error(createOrderResult.error || "Failed to initiate transaction.");
+                }
+
+                const { keyId, order: razorpayOrder } = createOrderResult;
+
+                // 3. Dynamically load the Razorpay checkout script
+                const scriptLoaded = await loadRazorpayScript();
+                if (!scriptLoaded) {
+                    throw new Error("Unable to load payment SDK. Check your internet connection.");
+                }
+
+                // 4. Configure Razorpay checkout options
+                const options = {
+                    key: keyId,
+                    amount: razorpayOrder.amount,
+                    currency: razorpayOrder.currency,
+                    name: "MarketNera",
+                    description: `Order Payment for #${order.id.slice(0, 8)}`,
+                    order_id: razorpayOrder.id,
+                    handler: async (paymentResponse: any) => {
+                        setPlacing(true);
+                        try {
+                            // 5. Send verify-payment request to backend
+                            const verifyResponse = await fetch("/api/payments/razorpay/verify-payment", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                                    razorpay_order_id: paymentResponse.razorpay_order_id,
+                                    razorpay_signature: paymentResponse.razorpay_signature,
+                                }),
+                              });
+
+                              const verifyResult = await verifyResponse.json();
+
+                              if (!verifyResponse.ok || !verifyResult.success) {
+                                  throw new Error(verifyResult.error || "Payment verification failed.");
+                              }
+
+                              // 6. Clear cart and redirect to success
+                              await clearCart(user.id);
+                              router.push(`${ROUTES.CUSTOMER_ORDERS}?payment=success`);
+                          } catch (err: any) {
+                              setPlaceError(err.message || "Payment verification failed. Please contact support.");
+                              setPlacing(false);
+                          }
+                      },
+                      prefill: {
+                          email: user.email || "",
+                      },
+                      theme: {
+                          color: "#2563EB", // brand primary blue
+                      },
+                      modal: {
+                          ondismiss: () => {
+                              setPlacing(false);
+                              setPlaceError("Payment cancelled.");
+                          },
+                      },
+                  };
+
+                  // 5. Open checkout modal
+                  const rzp = new window.Razorpay(options);
+                  rzp.open();
+
+              } catch (err: any) {
+                  setPlaceError(err.message || "Payment initiation failed. Please try again.");
+                  setPlacing(false);
+              }
+          }
+      };
 
     // ── Product image helper ──
     const getProductImage = (item: CartItem): string => {
@@ -309,6 +417,61 @@ export default function CartPage() {
                 </section>
             )}
 
+            {/* ─── Payment Method ─── */}
+            {!loading && items.length > 0 && (
+                <section className="px-4 py-2 animate-fade-in-up">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-4">
+                        <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-primary text-lg">payments</span>
+                            Payment Method
+                        </h2>
+                        <div className="grid grid-cols-2 gap-3">
+                            {/* COD Option */}
+                            <button
+                                onClick={() => setPaymentMethod("cod")}
+                                className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 text-center transition-all cursor-pointer relative overflow-hidden ${
+                                    paymentMethod === "cod"
+                                        ? "border-green-500 bg-green-50/30 text-green-900 font-bold shadow-md shadow-green-500/5 scale-[1.02]"
+                                        : "border-slate-100 hover:border-slate-200 bg-white text-slate-600 font-medium"
+                                }`}
+                            >
+                                {paymentMethod === "cod" && (
+                                    <div className="absolute top-2 right-2 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-[10px] text-white font-black">check</span>
+                                    </div>
+                                )}
+                                <span className={`material-symbols-outlined text-3xl mb-2 ${paymentMethod === "cod" ? "text-green-600 animate-pulse" : "text-slate-400"}`}>
+                                    payments
+                                </span>
+                                <span className="text-xs">Cash on Delivery</span>
+                                <span className="text-[10px] text-slate-400 mt-1">Pay at doorstep</span>
+                            </button>
+
+                            {/* Razorpay Option */}
+                            <button
+                                onClick={() => setPaymentMethod("razorpay")}
+                                className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 text-center transition-all cursor-pointer relative overflow-hidden ${
+                                    paymentMethod === "razorpay"
+                                        ? "border-blue-600 bg-blue-50/30 text-blue-900 font-bold shadow-md shadow-blue-500/5 scale-[1.02]"
+                                        : "border-slate-100 hover:border-slate-200 bg-white text-slate-600 font-medium"
+                                }`}
+                            >
+                                {paymentMethod === "razorpay" && (
+                                    <div className="absolute top-2 right-2 w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-[10px] text-white font-black">check</span>
+                                    </div>
+                                )}
+                                <span className={`material-symbols-outlined text-3xl mb-2 ${paymentMethod === "razorpay" ? "text-blue-600 fill-1" : "text-slate-400"}`}>
+                                    credit_card
+                                </span>
+                                <span className="text-xs">Pay Online</span>
+                                <span className="text-[10px] text-slate-400 mt-1">UPI, Card, Wallet</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            )}
+
             {/* ─── Checkout CTA ─── */}
             {!loading && items.length > 0 && (
                 <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] md:max-w-3xl bg-white border-t border-slate-100 px-4 py-4 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
@@ -327,7 +490,11 @@ export default function CartPage() {
                         <button
                             onClick={handlePlaceOrder}
                             disabled={placing}
-                            className="flex-1 md:flex-none md:w-56 flex justify-center items-center gap-2 px-6 py-4 bg-green-500 text-white rounded-xl font-black text-sm shadow-xl shadow-green-500/30 hover:opacity-90 active:scale-95 transition-all disabled:opacity-60 premium-active"
+                            className={`flex-1 md:flex-none md:w-56 flex justify-center items-center gap-2 px-6 py-4 text-white rounded-xl font-black text-sm shadow-xl transition-all disabled:opacity-60 premium-active ${
+                                paymentMethod === "razorpay"
+                                    ? "bg-blue-600 shadow-blue-600/30 hover:bg-blue-700"
+                                    : "bg-green-500 shadow-green-500/30 hover:bg-green-600"
+                            }`}
                         >
                             {placing ? (
                                 <>
@@ -336,8 +503,10 @@ export default function CartPage() {
                                 </>
                             ) : (
                                 <>
-                                    <span className="material-symbols-outlined text-xl fill-1">bolt</span>
-                                    Place Order
+                                    <span className="material-symbols-outlined text-xl fill-1">
+                                        {paymentMethod === "razorpay" ? "credit_card" : "bolt"}
+                                    </span>
+                                    {paymentMethod === "razorpay" ? "Pay & Place Order" : "Place Order (COD)"}
                                 </>
                             )}
                         </button>
