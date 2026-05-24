@@ -3,6 +3,7 @@ import {
     categoriesSectionTitle,
     categoriesSectionSubtext,
 } from "@/content/home";
+import Image from "next/image";
 
 export default function CategoriesSection() {
     return (
@@ -41,10 +42,11 @@ export default function CategoriesSection() {
                         >
                             {/* Image */}
                             <div className="relative aspect-square overflow-hidden">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
+                                <Image
                                     src={category.imageUrl}
                                     alt={category.imageAlt}
+                                    fill
+                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 />
                                 {category.badge && (

@@ -191,3 +191,39 @@ export function computeSubtotal(items: CartItem[]): number {
         return total + price * item.quantity;
     }, 0);
 }
+
+/**
+ * Bulk add past order items back to the user's cart.
+ * Clears the cart first to avoid multi-shop conflicts.
+ */
+export async function reorderPastOrder(
+    userId: string,
+    items: { product_id: string; shop_id: string; quantity: number }[]
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        await clearCart(userId);
+
+        if (items.length === 0) {
+            return { success: true };
+        }
+
+        const insertData = items.map(item => ({
+            user_id: userId,
+            product_id: item.product_id,
+            shopkeeper_id: item.shop_id,
+            quantity: item.quantity
+        }));
+
+        const { error } = await supabase.from("cart_items").insert(insertData);
+
+        if (error) {
+            console.error("Error bulk inserting reorder items:", error);
+            return { success: false, error: error.message };
+        }
+
+        return { success: true };
+    } catch (err: any) {
+        console.error("Exception in reorderPastOrder:", err);
+        return { success: false, error: err?.message || "An unexpected error occurred." };
+    }
+}

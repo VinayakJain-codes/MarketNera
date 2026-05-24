@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { ROUTES } from "@/constants/routes";
+import Image from "next/image";
 
 export default function ProfileMenu() {
     const [user, setUser] = useState<User | null>(null);
@@ -50,10 +51,11 @@ export default function ProfileMenu() {
             </div>
 
             {avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                     src={avatarUrl}
                     alt={fullName}
+                    width={36}
+                    height={36}
                     className="h-9 w-9 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary transition-all duration-300"
                     referrerPolicy="no-referrer"
                 />

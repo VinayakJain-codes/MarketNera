@@ -4,9 +4,14 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { ROUTES } from "@/constants/routes";
-import { getAllShopkeepers, ShopkeeperProfile } from "@/lib/services/shopkeeper";
+import { getAllShopkeepers, ShopkeeperProfile, getNearbyShops } from "@/lib/services/shopkeeper";
 import { getGlobalProducts, Product } from "@/lib/api/products";
 import { addToCart, getCartCount } from "@/lib/services/cart";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { getWishlist, toggleWishlist } from "@/lib/services/wishlist";
+import toast from "react-hot-toast";
 
 /* ── Category config (UI metadata only, not dummy data) ── */
 const CATEGORY_CONFIG: Record<string, { icon: string; bg: string; border: string; text: string }> = {
@@ -52,9 +57,13 @@ export default function CustomerDashboard() {
     const [location, setLocation] = useState("Detecting precise location...");
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [addedProductIds, setAddedProductIds] = useState<Set<string>>(new Set());
+    const [wishlistedProductIds, setWishlistedProductIds] = useState<Set<string>>(new Set());
     const [cartCount, setCartCount] = useState(0);
     const [searchQuery, setSearchQuery] = useState("");
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [selectedCategory, setSelectedCategory] = useState("All");
+    const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+    const router = useRouter();
 
     // Real data state
     const [shops, setShops] = useState<ShopkeeperProfile[]>([]);
@@ -67,7 +76,7 @@ export default function CustomerDashboard() {
         supabase.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null);
         });
-        supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
         });
 
@@ -75,6 +84,7 @@ export default function CustomerDashboard() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
+                    setCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
                     try {
                         const res = await fetch(
                             `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
@@ -101,28 +111,38 @@ export default function CustomerDashboard() {
                 () => setLocation("Enable location access"),
             );
         }
+
+        return () => subscription.unsubscribe();
     }, []);
 
-    // Fetch shops
+    // Fetch shops (hyperlocal PostGIS query if coords available)
     useEffect(() => {
-        getAllShopkeepers().then((data) => {
-            setShops(data);
-            setLoadingShops(false);
-        });
-    }, []);
+        setLoadingShops(true);
+        if (coords) {
+            getNearbyShops(coords.lat, coords.lng).then((data) => {
+                setShops(data);
+                setLoadingShops(false);
+            });
+        } else {
+            getAllShopkeepers().then((data) => {
+                setShops(data);
+                setLoadingShops(false);
+            });
+        }
+    }, [coords]);
 
     // Fetch products (with filters)
     const fetchProducts = useCallback(() => {
         setLoadingProducts(true);
         getGlobalProducts({
-            search: searchQuery || undefined,
+            search: debouncedSearchQuery || undefined,
             category: selectedCategory === "All" ? undefined : selectedCategory,
             limit: 20,
         }).then((data) => {
             setProducts(data);
             setLoadingProducts(false);
         });
-    }, [searchQuery, selectedCategory]);
+    }, [debouncedSearchQuery, selectedCategory]);
 
     useEffect(() => {
         fetchProducts();
@@ -138,6 +158,46 @@ export default function CustomerDashboard() {
         if (!user) return;
         getCartCount(user.id).then(setCartCount);
     }, [user]);
+
+    // Fetch wishlist items from Supabase when user is known
+    useEffect(() => {
+        if (!user) return;
+        getWishlist(user.id).then((items) => {
+            setWishlistedProductIds(new Set(items.map((i) => i.product_id)));
+        });
+    }, [user]);
+
+    const handleToggleWishlist = async (productId: string) => {
+        if (!user) {
+            router.push(ROUTES.LOGIN_CUSTOMER);
+            return;
+        }
+
+        const isCurrentlyWishlisted = wishlistedProductIds.has(productId);
+
+        // Toggle visual state optimistically
+        setWishlistedProductIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(productId)) next.delete(productId);
+            else next.add(productId);
+            return next;
+        });
+
+        const { added, error } = await toggleWishlist(user.id, productId);
+        if (error) {
+            // Revert optimistic state on error
+            setWishlistedProductIds((prev) => {
+                const next = new Set(prev);
+                if (isCurrentlyWishlisted) {
+                    next.add(productId);
+                } else {
+                    next.delete(productId);
+                }
+                return next;
+            });
+            toast.error(error);
+        }
+    };
 
     const handleAdd = async (product: Product & { shop_id: string }) => {
         if (!user) return;
@@ -164,7 +224,6 @@ export default function CustomerDashboard() {
         await supabase.auth.signOut();
         window.location.href = ROUTES.HOME;
     };
-    void handleLogout; // suppress lint warning — exposed via UI if needed
 
     // Unique categories from real products
     const dynamicCategories = ["All", ...Array.from(new Set(products.map(p => p.category)))];
@@ -206,14 +265,16 @@ export default function CustomerDashboard() {
                             <span className="material-symbols-outlined text-slate-600">notifications</span>
                             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
                         </button>
+                        <button onClick={handleLogout} title="Log Out" className="relative w-10 h-10 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:shadow-md transition-shadow premium-hover text-slate-600 hover:text-red-500">
+                            <span className="material-symbols-outlined transition-colors">logout</span>
+                        </button>
                         <a
                             href={ROUTES.CUSTOMER_PROFILE}
                             title="My Profile"
                             className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/20 hover:ring-primary/50 hover:scale-110 shadow-sm transition-all duration-300"
                         >
                             {avatarUrl ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={avatarUrl} alt={fullName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                <Image src={avatarUrl} alt={fullName} width={40} height={40} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             ) : (
                                 <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
                                     {initial}
@@ -331,7 +392,13 @@ export default function CustomerDashboard() {
                             Fresh Grocery<br />at Your Doorstep
                         </h3>
                         <p className="text-white/90 text-xs font-medium mt-1">Get 20% off on your first order</p>
-                        <button className="mt-4 px-6 py-2 bg-white text-primary rounded-xl text-xs font-bold shadow-lg hover:scale-105 active:scale-95 transition-all">
+                        <button 
+                            onClick={() => {
+                                setSelectedCategory("Grocery");
+                                document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+                            }}
+                            className="mt-4 px-6 py-2 bg-white text-primary rounded-xl text-xs font-bold shadow-lg hover:scale-105 active:scale-95 transition-all"
+                        >
                             ORDER NOW
                         </button>
                     </div>
@@ -364,6 +431,7 @@ export default function CustomerDashboard() {
                             return (
                                 <div
                                     key={shop.user_id}
+                                    onClick={() => router.push(`/shop/${shop.user_id}`)}
                                     className="min-w-[200px] md:min-w-0 bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden animate-slide-in-right premium-hover cursor-pointer flex flex-col"
                                     style={{ animationDelay: `${0.3 + i * 0.1}s` }}
                                 >
@@ -393,7 +461,7 @@ export default function CustomerDashboard() {
             </section>
 
             {/* ─── Products ─── */}
-            <section className="mt-8 px-4">
+            <section className="mt-8 px-4" id="products">
                 <div className="flex justify-between items-center mb-4 animate-fade-in-up delay-400">
                     <h2 className="text-lg font-bold text-slate-900">
                         {selectedCategory === "All" ? "All Products" : selectedCategory}
@@ -429,12 +497,25 @@ export default function CustomerDashboard() {
                                     style={{ animationDelay: `${0.4 + i * 0.1}s` }}
                                 >
                                     <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden mb-3 relative">
+                                        <button
+                                            onClick={() => handleToggleWishlist(product.id)}
+                                            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/85 backdrop-blur-md shadow-sm flex items-center justify-center text-slate-400 hover:text-red-500 transition-all duration-300 z-10"
+                                            aria-label="Add to wishlist"
+                                        >
+                                            <span className={`material-symbols-outlined text-[18px] transition-transform duration-300 ${
+                                                wishlistedProductIds.has(product.id) ? "fill-1 text-red-500 scale-110" : "hover:scale-110"
+                                            }`}>
+                                                favorite
+                                            </span>
+                                        </button>
                                         {imgUrl ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
+                                            <Image
                                                 alt={product.name}
                                                 className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
                                                 src={imgUrl}
+                                                width={200}
+                                                height={200}
+                                                unoptimized
                                             />
                                         ) : (
                                             <div className={`w-full h-full ${cfg.bg} flex items-center justify-center`}>

@@ -12,10 +12,10 @@ import ProductAnalyticsDrawer from '@/components/sections/shopkeeper/products/Pr
 import { getProducts, createProduct, updateProduct, bulkDeleteProducts, bulkUpdateVisibility, ProductFilters as FilterType, Product, ProductCreatePayload } from '@/lib/api/products';
 import Button from '@/components/ui/Button';
 
-// Mock active shop ID for now until Auth is hooked via Context
-const MOCK_SHOP_ID = '00000000-0000-0000-0000-000000000000';
+import { supabase } from '@/lib/supabase';
 
 export default function ShopkeeperProductsPage() {
+  const [shopId, setShopId] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<FilterType>({ 
@@ -35,14 +35,26 @@ export default function ShopkeeperProductsPage() {
   // Bulk State
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
+  // Fetch auth user on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setShopId(user.id);
+      }
+    };
+    fetchUser();
+  }, []);
+
   // Debounced fetch logic
   useEffect(() => {
     let isMounted = true;
     
     const fetchProducts = async () => {
+      if (!shopId) return;
       setIsLoading(true);
       try {
-        const data = await getProducts(MOCK_SHOP_ID, filters);
+        const data = await getProducts(shopId, filters);
         if (isMounted) setProducts(data);
       } catch (error) {
         console.error('Failed to fetch products:', error);
@@ -56,7 +68,7 @@ export default function ShopkeeperProductsPage() {
       isMounted = false;
       clearTimeout(debounceTimer);
     };
-  }, [filters]);
+  }, [filters, shopId]);
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
@@ -97,8 +109,10 @@ export default function ShopkeeperProductsPage() {
   const handleSaveProduct = async (savedProduct: Product) => {
     // Re-fetch products from database to ensure the newly uploaded media records and URLs are loaded
     try {
-      const data = await getProducts(MOCK_SHOP_ID, filters);
-      setProducts(data);
+      if (shopId) {
+        const data = await getProducts(shopId, filters);
+        setProducts(data);
+      }
     } catch (error) {
       console.error('Failed to reload products:', error);
       // Fallback state update

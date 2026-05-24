@@ -146,6 +146,51 @@ function OrderQueueCard({
     );
 }
 
+// ── Notification Chime & Push Alert Helpers ──
+
+function playNotificationChime() {
+    try {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        
+        // Premium two-tone sound (D5 -> A5)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = "sine";
+        osc1.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        gain1.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start();
+        osc1.stop(ctx.currentTime + 0.25);
+
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = "sine";
+        osc2.frequency.setValueAtTime(880.00, ctx.currentTime + 0.08); // A5
+        gain2.gain.setValueAtTime(0, ctx.currentTime);
+        gain2.gain.setValueAtTime(0.08, ctx.currentTime + 0.08);
+        gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(ctx.currentTime + 0.08);
+        osc2.stop(ctx.currentTime + 0.35);
+    } catch (e) {
+        console.error("Failed to play auditory chime:", e);
+    }
+}
+
+function triggerOrderNotification(orderAmount: number) {
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+        new Notification("New Order Received! 🛒", {
+            body: `You have received a new order worth ₹${orderAmount.toFixed(2)}. Tap to view.`,
+            icon: "/favicon.ico",
+        });
+    }
+}
+
 // ── Main Page ──
 export default function ShopkeeperOrdersPage() {
     const [user, setUser] = useState<User | null>(null);
@@ -153,11 +198,18 @@ export default function ShopkeeperOrdersPage() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<OrderStatus | "all">("pending");
 
-    // Auth
+    // Auth & Permission Request
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null);
         });
+
+        // Request browser push notification permissions on mount
+        if (typeof window !== "undefined" && "Notification" in window) {
+            if (Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+        }
     }, []);
 
     const fetchOrders = useCallback(async () => {
@@ -169,8 +221,38 @@ export default function ShopkeeperOrdersPage() {
     }, [user]);
 
     useEffect(() => {
+        if (!user) return;
         fetchOrders();
-    }, [fetchOrders]);
+
+        const channel = supabase
+            .channel(`shopkeeper-orders-${user.id}`)
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "orders",
+                    filter: `shopkeeper_id=eq.${user.id}`,
+                },
+                async (payload) => {
+                    console.log("Realtime shopkeeper order update received:", payload);
+                    const data = await getShopkeeperOrders(user.id);
+                    setOrders(data);
+
+                    // Trigger sound/push notification only for new order INSERT events
+                    if (payload.eventType === "INSERT") {
+                        playNotificationChime();
+                        const orderAmt = payload.new?.total_amount || 0;
+                        triggerOrderNotification(orderAmt);
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [user, fetchOrders]);
 
     const handleAdvance = async (orderId: string, next: OrderStatus) => {
         const { success } = await updateOrderStatus(orderId, next);

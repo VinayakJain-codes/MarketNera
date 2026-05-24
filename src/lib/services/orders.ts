@@ -88,45 +88,35 @@ export const ORDER_STATUS_FLOW: OrderStatus[] = [
 export async function placeOrder(
     payload: PlaceOrderPayload
 ): Promise<{ order: Order | null; error?: string }> {
-    // 1. Create the order record
-    const { data: order, error: orderErr } = await supabase
+    const { data, error } = await supabase.rpc("place_order_atomic", {
+        p_customer_id: payload.customerId,
+        p_shopkeeper_id: payload.shopkeeperId,
+        p_total_amount: payload.totalAmount,
+        p_delivery_address: payload.deliveryAddress ?? null,
+        p_notes: payload.notes ?? null,
+        p_payment_method: payload.paymentMethod ?? "cod",
+        p_payment_status: payload.paymentStatus ?? "pending",
+        p_razorpay_order_id: payload.razorpayOrderId ?? null,
+        p_items: payload.items
+    });
+
+    if (error) {
+        console.error("Error placing order atomically:", error);
+        return { order: null, error: error.message };
+    }
+
+    // After atomic insert, fetch the created order to return
+    const { data: orderData, error: fetchErr } = await supabase
         .from("orders")
-        .insert({
-            customer_id: payload.customerId,
-            shopkeeper_id: payload.shopkeeperId,
-            status: "pending",
-            total_amount: payload.totalAmount,
-            delivery_address: payload.deliveryAddress ?? null,
-            notes: payload.notes ?? null,
-            payment_method: payload.paymentMethod ?? "cod",
-            payment_status: payload.paymentStatus ?? "pending",
-            razorpay_order_id: payload.razorpayOrderId ?? null,
-        })
-        .select()
+        .select("*")
+        .eq("id", data.order_id)
         .single();
 
-    if (orderErr || !order) {
-        console.error("Error placing order:", orderErr);
-        return { order: null, error: orderErr?.message ?? "Failed to create order" };
+    if (fetchErr || !orderData) {
+        return { order: null, error: "Order placed, but failed to fetch details." };
     }
 
-    // 2. Insert all order items
-    const itemRows = payload.items.map((item) => ({
-        order_id: order.id,
-        product_id: item.productId,
-        product_name: item.productName,
-        unit_price: item.unitPrice,
-        quantity: item.quantity,
-    }));
-
-    const { error: itemsErr } = await supabase.from("order_items").insert(itemRows);
-    if (itemsErr) {
-        console.error("Error inserting order items:", itemsErr);
-        // Order exists but items failed — partial state, surface the error
-        return { order: order as Order, error: "Order created but items failed: " + itemsErr.message };
-    }
-
-    return { order: order as Order };
+    return { order: orderData as Order };
 }
 
 /**
@@ -185,10 +175,16 @@ export async function updateOrderStatus(
     orderId: string,
     newStatus: OrderStatus
 ): Promise<{ success: boolean; error?: string }> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, error: "Not authenticated" };
+    }
+
     const { error } = await supabase
         .from("orders")
         .update({ status: newStatus })
-        .eq("id", orderId);
+        .eq("id", orderId)
+        .eq("shopkeeper_id", user.id);
 
     if (error) {
         console.error("Error updating order status:", error);

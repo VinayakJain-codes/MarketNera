@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { supabaseServer } from "@/lib/supabaseServer";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
@@ -11,6 +13,25 @@ export async function POST(request: Request) {
         { error: "orderId is required" },
         { status: 400 }
       );
+    }
+
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll() {},
+        },
+      }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // 1. Fetch order details from database
@@ -25,6 +46,13 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Order not found" },
         { status: 404 }
+      );
+    }
+
+    if (order.customer_id !== user.id) {
+      return NextResponse.json(
+        { error: "Forbidden: You do not own this order" },
+        { status: 403 }
       );
     }
 

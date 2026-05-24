@@ -65,3 +65,26 @@ export async function getAllShopkeepers(): Promise<ShopkeeperProfile[]> {
 
     return (data ?? []) as ShopkeeperProfile[];
 }
+
+/**
+ * Fetches shopkeepers within proximity of latitude/longitude using PostGIS RPC.
+ */
+export async function getNearbyShops(
+    lat: number,
+    lng: number,
+    maxDistanceMeters: number = 10000 // default 10km
+): Promise<(ShopkeeperProfile & { distance_meters?: number })[]> {
+    const { data, error } = await supabase.rpc("get_nearby_shops", {
+        user_lat: lat,
+        user_lng: lng,
+        max_dist_meters: maxDistanceMeters,
+    });
+
+    if (error) {
+        console.error("Error fetching nearby shops:", error);
+        // Fallback to all shopkeepers if PostGIS fails or is unconfigured
+        return getAllShopkeepers();
+    }
+
+    return (data ?? []) as (ShopkeeperProfile & { distance_meters?: number })[];
+}

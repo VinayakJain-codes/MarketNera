@@ -22,6 +22,8 @@ export const ROUTES = {
     CUSTOMER_CART: "/customer/cart",
     CUSTOMER_ORDERS: "/customer/orders",
     CUSTOMER_PROFILE: "/customer/profile",
+    CUSTOMER_WISHLIST: "/customer/wishlist",
+    CUSTOMER_ADDRESSES: "/customer/addresses",
     SIGNUP_SHOPKEEPER: "/register/shopkeeper",
     LOGIN_SHOPKEEPER: "/login/shopkeeper",
     SHOPKEEPER_DASHBOARD: "/shopkeeper/dashboard",

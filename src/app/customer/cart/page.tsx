@@ -15,6 +15,9 @@ import { placeOrder } from "@/lib/services/orders";
 import { loadRazorpayScript } from "@/lib/services/razorpay";
 import { ROUTES } from "@/constants/routes";
 import { User } from "@supabase/supabase-js";
+import { getAddresses, CustomerAddress } from "@/lib/services/addresses";
+import { validateCoupon } from "@/lib/services/coupons";
+import toast from "react-hot-toast";
 
 // ── Category icon map (reused from dashboard) ──
 const CATEGORY_CONFIG: Record<string, { icon: string; bg: string; text: string }> = {
@@ -50,6 +53,16 @@ export default function CartPage() {
     const [placeError, setPlaceError] = useState<string | null>(null);
     const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">("cod");
 
+    // Address states
+    const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
+    const [selectedAddress, setSelectedAddress] = useState<CustomerAddress | null>(null);
+    const [showAddressModal, setShowAddressModal] = useState(false);
+
+    // Coupon states
+    const [couponCode, setCouponCode] = useState("");
+    const [appliedCoupon, setAppliedCoupon] = useState<any | null>(null);
+    const [couponError, setCouponError] = useState<string | null>(null);
+
     // ── Auth check ──
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -60,6 +73,16 @@ export default function CartPage() {
             setUser(session.user);
         });
     }, [router]);
+
+    // ── Fetch saved addresses ──
+    useEffect(() => {
+        if (!user) return;
+        getAddresses(user.id).then((list) => {
+            setAddresses(list);
+            const def = list.find((a) => a.is_default) || list[0] || null;
+            setSelectedAddress(def);
+        });
+    }, [user]);
 
     // ── Fetch cart ──
     const fetchCart = useCallback(async () => {
@@ -102,8 +125,38 @@ export default function CartPage() {
     // ── Compute totals ──
     const subtotal = computeSubtotal(items);
     const deliveryFee = 0;
-    const total = subtotal + deliveryFee;
+
+    const discountAmount = appliedCoupon
+        ? appliedCoupon.discount_type === "percentage"
+            ? (appliedCoupon.discount_value / 100) * subtotal
+            : appliedCoupon.discount_value
+        : 0;
+
+    const total = Math.max(0, subtotal - discountAmount + deliveryFee);
     const itemCount = items.reduce((s, i) => s + i.quantity, 0);
+
+    const handleApplyCoupon = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setCouponError(null);
+        if (!couponCode.trim()) return;
+
+        const res = await validateCoupon(couponCode, subtotal);
+        if (res.success && res.coupon) {
+            setAppliedCoupon(res.coupon);
+            setCouponCode("");
+            toast.success("Coupon applied successfully!");
+        } else {
+            setCouponError(res.error || "Failed to apply coupon.");
+            setAppliedCoupon(null);
+        }
+    };
+
+    const handleRemoveCoupon = () => {
+        setAppliedCoupon(null);
+        setCouponCode("");
+        setCouponError(null);
+        toast.success("Coupon removed.");
+    };
 
     // ── Place Order ──
     const handlePlaceOrder = async () => {
@@ -111,8 +164,22 @@ export default function CartPage() {
         setPlaceError(null);
         setPlacing(true);
 
-        // Group items by shopkeeper (multi-shopkeeper not supported yet — use first shopkeeper)
+        if (!selectedAddress) {
+            setPlaceError("Please select or add a delivery address to complete your order.");
+            setPlacing(false);
+            return;
+        }
+
+        const deliveryAddressString = `${selectedAddress.label}: ${selectedAddress.address_line}, ${selectedAddress.city} - ${selectedAddress.pincode}`;
+
+        // Group items by shopkeeper and validate
         const shopkeeperId = items[0].shopkeeper_id;
+        const hasMultipleShops = items.some(item => item.shopkeeper_id !== shopkeeperId);
+        if (hasMultipleShops) {
+            setPlaceError("You can only order items from one shop at a time. Please remove items from other shops to checkout.");
+            setPlacing(false);
+            return;
+        }
         const orderItems = items.map((item) => ({
             productId: item.product_id,
             productName: item.product?.name ?? "Product",
@@ -126,6 +193,7 @@ export default function CartPage() {
                 shopkeeperId,
                 items: orderItems,
                 totalAmount: total,
+                deliveryAddress: deliveryAddressString,
                 paymentMethod: "cod",
                 paymentStatus: "pending",
             });
@@ -148,6 +216,7 @@ export default function CartPage() {
                     shopkeeperId,
                     items: orderItems,
                     totalAmount: total,
+                    deliveryAddress: deliveryAddressString,
                     paymentMethod: "razorpay",
                     paymentStatus: "pending",
                 });
@@ -223,7 +292,7 @@ export default function CartPage() {
                           email: user.email || "",
                       },
                       theme: {
-                          color: "#2563EB", // brand primary blue
+                          color: "#F97316", // brand primary orange
                       },
                       modal: {
                           ondismiss: () => {
@@ -274,7 +343,13 @@ export default function CartPage() {
                     </div>
                 </div>
                 {!loading && items.length > 0 && (
-                    <button onClick={() => {}} className="text-red-500 font-bold text-xs uppercase tracking-wide hover:text-red-600 transition-colors">
+                    <button onClick={async () => {
+                        if (!user) return;
+                        setLoading(true);
+                        await clearCart(user.id);
+                        setItems([]);
+                        setLoading(false);
+                    }} className="text-red-500 font-bold text-xs uppercase tracking-wide hover:text-red-600 transition-colors">
                         Clear all
                     </button>
                 )}
@@ -382,6 +457,113 @@ export default function CartPage() {
                 </section>
             )}
 
+            {/* ─── Delivery Address ─── */}
+            {!loading && items.length > 0 && (
+                <section className="px-4 py-2 animate-fade-in-up">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary text-lg">location_on</span>
+                                Delivery Address
+                            </h2>
+                            <button
+                                onClick={() => {
+                                    if (addresses.length > 0) {
+                                        setShowAddressModal(true);
+                                    } else {
+                                        router.push(ROUTES.CUSTOMER_ADDRESSES);
+                                    }
+                                }}
+                                className="text-primary font-bold text-xs uppercase tracking-wide hover:opacity-85 transition-opacity"
+                            >
+                                {selectedAddress ? "Change" : "Add Address"}
+                            </button>
+                        </div>
+
+                        {selectedAddress ? (
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-3">
+                                <span className="material-symbols-outlined text-slate-400 text-lg mt-0.5">
+                                    {selectedAddress.label === "Home" ? "home" : selectedAddress.label === "Work" ? "work" : "location_on"}
+                                </span>
+                                <div>
+                                    <p className="text-xs font-black text-slate-800 uppercase tracking-wide">{selectedAddress.label}</p>
+                                    <p className="text-xs font-semibold text-slate-500 mt-1 leading-relaxed">{selectedAddress.address_line}</p>
+                                    {(selectedAddress.city || selectedAddress.pincode) && (
+                                        <p className="text-[11px] font-semibold text-slate-400 mt-0.5">
+                                            {[selectedAddress.city, selectedAddress.pincode].filter(Boolean).join(" - ")}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => router.push(ROUTES.CUSTOMER_ADDRESSES)}
+                                className="w-full py-4 rounded-xl border-2 border-dashed border-slate-200 text-slate-500 text-xs font-bold flex items-center justify-center gap-1.5 hover:border-primary hover:text-primary transition-all"
+                            >
+                                <span className="material-symbols-outlined text-base">add_circle</span>
+                                Add a delivery address to checkout
+                            </button>
+                        )}
+                    </div>
+                </section>
+            )}
+
+            {/* ─── Address Selector Modal ─── */}
+            {showAddressModal && (
+                <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/30 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white w-full max-w-[480px] rounded-t-3xl p-6 pb-10 shadow-2xl animate-fade-in-up">
+                        <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Select Delivery Address</h3>
+                            <button onClick={() => setShowAddressModal(false)} className="text-slate-400 hover:text-slate-600">
+                                <span className="material-symbols-outlined text-lg">close</span>
+                            </button>
+                        </div>
+                        <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+                            {addresses.map((addr) => (
+                                <button
+                                    key={addr.id}
+                                    onClick={() => {
+                                        setSelectedAddress(addr);
+                                        setShowAddressModal(false);
+                                    }}
+                                    className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-3 relative ${
+                                        selectedAddress?.id === addr.id
+                                            ? "border-emerald-500 bg-emerald-50/10 shadow-sm"
+                                            : "border-slate-100 hover:border-slate-200 bg-white"
+                                    }`}
+                                >
+                                    <span className="material-symbols-outlined text-slate-400 text-lg mt-0.5">
+                                        {addr.label === "Home" ? "home" : addr.label === "Work" ? "work" : "location_on"}
+                                    </span>
+                                    <div className="flex-1 min-w-0 pr-6">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="font-black text-[11px] text-slate-800 uppercase tracking-wide">{addr.label}</span>
+                                            {addr.is_default && (
+                                                <span className="bg-slate-100 text-slate-500 text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase">Default</span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs font-semibold text-slate-500 mt-1 leading-relaxed truncate">{addr.address_line}</p>
+                                    </div>
+                                    {selectedAddress?.id === addr.id && (
+                                        <span className="material-symbols-outlined text-emerald-500 text-lg absolute top-4 right-4">check_circle</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => {
+                                setShowAddressModal(false);
+                                router.push(ROUTES.CUSTOMER_ADDRESSES);
+                            }}
+                            className="w-full mt-4 py-3 rounded-xl border border-dashed border-primary/50 text-primary bg-primary/5 text-xs font-black uppercase tracking-wider hover:bg-primary/10 transition-colors flex justify-center items-center gap-1.5"
+                        >
+                            <span className="material-symbols-outlined text-sm">add</span>
+                            Add New Address
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* ─── Order Summary ─── */}
             {!loading && items.length > 0 && (
                 <section className="px-4 py-4 animate-fade-in-up">
@@ -401,6 +583,58 @@ export default function CartPage() {
                             <span>Delivery fee</span>
                             <span className="text-green-600 font-bold">Free</span>
                         </div>
+                        {discountAmount > 0 && (
+                            <div className="flex justify-between text-sm font-medium text-red-500 animate-fade-in">
+                                <span>Coupon Discount</span>
+                                <span>- ₹{discountAmount.toFixed(2)}</span>
+                            </div>
+                        )}
+
+                        {/* Promo Code System */}
+                        <div className="pt-2 border-t border-slate-100/80">
+                            {appliedCoupon ? (
+                                <div className="flex justify-between items-center bg-rose-50/40 border border-dashed border-rose-200 rounded-xl p-3 animate-scale-in">
+                                    <div className="flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-rose-500 text-[20px] fill-1">local_offer</span>
+                                        <div>
+                                            <p className="text-xs font-black text-rose-900 tracking-wide uppercase">{appliedCoupon.code}</p>
+                                            <p className="text-[10px] font-semibold text-rose-500 mt-0.5">Applied successfully</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={handleRemoveCoupon}
+                                        className="text-xs font-black text-rose-500 hover:text-rose-700 uppercase tracking-wider transition-colors"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ) : (
+                                <form onSubmit={handleApplyCoupon} className="space-y-2">
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Promo Code (e.g. WELCOME20)"
+                                            value={couponCode}
+                                            onChange={(e) => setCouponCode(e.target.value)}
+                                            className="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none bg-white focus:border-primary uppercase font-bold tracking-wider"
+                                        />
+                                        <button
+                                            type="submit"
+                                            className="px-4 py-2 bg-slate-900 text-white text-xs font-black uppercase tracking-wider rounded-xl hover:bg-slate-800 transition-colors shadow-sm"
+                                        >
+                                            Apply
+                                        </button>
+                                    </div>
+                                    {couponError && (
+                                        <p className="text-[10px] text-red-500 font-bold animate-fade-in pl-1">{couponError}</p>
+                                    )}
+                                    {!couponError && (
+                                        <p className="text-[9px] text-slate-400 font-semibold pl-1">Tip: Use <span className="font-bold text-slate-500">WELCOME20</span> for 20% off!</p>
+                                    )}
+                                </form>
+                            )}
+                        </div>
+
                         <div className="border-t-2 border-dashed border-slate-100 pt-4 pb-2">
                             <div className="bg-slate-50 rounded-xl px-3 py-2.5 -mx-1 flex justify-between font-black text-slate-900 text-lg">
                                 <span>Total</span>

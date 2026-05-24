@@ -21,7 +21,7 @@ export const heroContent: HeroContent = {
     subtext: "Help your local business compete and thrive online with modern tools for inventory, delivery, and marketing.",
     primaryCta: "Start Free Trial",
     secondaryCta: "Book a Demo",
-    heroImageUrl: "/HeroImage.png",
+    heroImageUrl: "/HeroImage.webp",
     heroImageAlt: "MarketNera Platform Interface",
 };
 

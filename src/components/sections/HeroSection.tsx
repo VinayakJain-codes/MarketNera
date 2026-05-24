@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { TrendingUp, ShoppingBag } from 'lucide-react';
 import { heroContent } from '@/content/home';
 import SmartHeroCta from '@/components/sections/SmartHeroCta';
+import Image from 'next/image';
 
 export default function HeroSection() {
     const { eyebrow, heading, subtext, heroImageUrl, heroImageAlt } = heroContent;
@@ -43,13 +44,13 @@ export default function HeroSection() {
                             className="relative aspect-video w-full overflow-hidden rounded-3xl shadow-2xl ring-1 ring-slate-900/5 group"
                         >
                             {heroImageUrl ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <motion.img
-                                    whileHover={{ scale: 1.05 }}
-                                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                                <Image
                                     src={heroImageUrl}
                                     alt={heroImageAlt}
-                                    className="h-full w-full object-cover"
+                                    width={1400}
+                                    height={686}
+                                    className="h-full w-full object-cover hover:scale-105 transition-transform duration-800"
+                                    priority
                                 />
                             ) : (
                                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#2D9E4B]/20 to-[#FF9933]/20">

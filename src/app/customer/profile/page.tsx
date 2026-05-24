@@ -4,10 +4,17 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { ROUTES } from "@/constants/routes";
+import toast from "react-hot-toast";
+import Image from "next/image";
+import { getWishlistCount } from "@/lib/services/wishlist";
+import { getAddressCount } from "@/lib/services/addresses";
 
 export default function CustomerProfilePage() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [orderCount, setOrderCount] = useState(0);
+    const [wishlistCount, setWishlistCount] = useState(0);
+    const [addressCount, setAddressCount] = useState(0);
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -15,11 +22,21 @@ export default function CustomerProfilePage() {
             setLoading(false);
             if (!session?.user) {
                 window.location.href = ROUTES.LOGIN_CUSTOMER;
+            } else {
+                supabase.from("orders")
+                    .select("id", { count: "exact", head: true })
+                    .eq("customer_id", session.user.id)
+                    .then(({ count }) => setOrderCount(count || 0));
+
+                getWishlistCount(session.user.id).then(setWishlistCount);
+                getAddressCount(session.user.id).then(setAddressCount);
             }
         });
-        supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
         });
+
+        return () => subscription.unsubscribe();
     }, []);
 
     const handleSignOut = async () => {
@@ -52,12 +69,12 @@ export default function CustomerProfilePage() {
     });
 
     const menuItems = [
-        { icon: "shopping_bag",    title: "My Orders",         subtitle: "View your order history",        color: "bg-blue-50 text-blue-500",   borderColor: "hover:border-blue-300" },
-        { icon: "location_on",     title: "Saved Addresses",   subtitle: "Manage delivery locations",      color: "bg-emerald-50 text-emerald-500", borderColor: "hover:border-emerald-300" },
-        { icon: "credit_card",     title: "Payment Methods",   subtitle: "Manage cards & UPI",             color: "bg-purple-50 text-purple-500", borderColor: "hover:border-purple-300" },
-        { icon: "notifications",   title: "Notifications",     subtitle: "Manage your preferences",        color: "bg-amber-50 text-amber-500", borderColor: "hover:border-amber-300" },
-        { icon: "favorite",        title: "Wishlist",          subtitle: "Items you've saved for later",   color: "bg-rose-50 text-rose-500",   borderColor: "hover:border-rose-300" },
-        { icon: "help",            title: "Help & Support",    subtitle: "FAQs, contact us, report issue", color: "bg-sky-50 text-sky-500",     borderColor: "hover:border-sky-300" },
+        { icon: "shopping_bag",    title: "My Orders",         subtitle: "View your order history",        color: "bg-blue-50 text-blue-500",   borderColor: "hover:border-blue-300", href: ROUTES.CUSTOMER_ORDERS },
+        { icon: "location_on",     title: "Saved Addresses",   subtitle: "Manage delivery locations",      color: "bg-emerald-50 text-emerald-500", borderColor: "hover:border-emerald-300", href: ROUTES.CUSTOMER_ADDRESSES },
+        { icon: "credit_card",     title: "Payment Methods",   subtitle: "Manage cards & UPI",             color: "bg-purple-50 text-purple-500", borderColor: "hover:border-purple-300", href: "#" },
+        { icon: "notifications",   title: "Notifications",     subtitle: "Manage your preferences",        color: "bg-amber-50 text-amber-500", borderColor: "hover:border-amber-300", href: "#" },
+        { icon: "favorite",        title: "Wishlist",          subtitle: "Items you've saved for later",   color: "bg-rose-50 text-rose-500",   borderColor: "hover:border-rose-300", href: ROUTES.CUSTOMER_WISHLIST },
+        { icon: "help",            title: "Help & Support",    subtitle: "FAQs, contact us, report issue", color: "bg-sky-50 text-sky-500",     borderColor: "hover:border-sky-300", href: "#" },
     ];
 
     return (
@@ -89,10 +106,11 @@ export default function CustomerProfilePage() {
                         {/* Avatar with pulse ring */}
                         <div className="relative shrink-0 -mt-12">
                             {avatarUrl ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
+                                <Image
                                     src={avatarUrl}
                                     alt={fullName}
+                                    width={96}
+                                    height={96}
                                     className="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-xl animate-pulse-ring"
                                     referrerPolicy="no-referrer"
                                 />
@@ -127,9 +145,9 @@ export default function CustomerProfilePage() {
             <div className="px-6 mt-6">
                 <div className="grid grid-cols-3 gap-3 animate-fade-in-up delay-200">
                     {[
-                        { label: "Orders", value: "0", icon: "receipt_long", color: "text-blue-500" },
-                        { label: "Wishlist", value: "0", icon: "favorite", color: "text-rose-500" },
-                        { label: "Addresses", value: "0", icon: "location_on", color: "text-emerald-500" },
+                        { label: "Orders", value: orderCount.toString(), icon: "receipt_long", color: "text-blue-500" },
+                        { label: "Wishlist", value: wishlistCount.toString(), icon: "favorite", color: "text-rose-500" },
+                        { label: "Addresses", value: addressCount.toString(), icon: "location_on", color: "text-emerald-500" },
                     ].map((stat, i) => (
                         <div
                             key={stat.label}
@@ -149,7 +167,13 @@ export default function CustomerProfilePage() {
                 {menuItems.map((item, i) => (
                     <a
                         key={item.title}
-                        href={item.title === "My Orders" ? ROUTES.CUSTOMER_ORDERS : "#"}
+                        href={item.href}
+                        onClick={(e) => {
+                            if (item.href === "#") {
+                                e.preventDefault();
+                                toast("Feature coming soon!", { icon: "🚧" });
+                            }
+                        }}
                         className={`group flex items-center gap-4 bg-white rounded-3xl p-4 shadow-sm border border-slate-100/80 premium-hover animate-fade-in-up`}
                         style={{ animationDelay: `${0.3 + i * 0.07}s` }}
                     >

@@ -1,7 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Bell, Download, ChevronDown, User } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { getShopkeeperProfile, ShopkeeperProfile } from '@/lib/services/shopkeeper';
 
 interface TopbarProps {
   title?: string;
@@ -12,6 +15,18 @@ export default function ShopkeeperTopbar({
   title = "Dashboard Overview", 
   description = "Manage your store operations, orders, and performance." 
 }: TopbarProps) {
+  const [shop, setShop] = useState<ShopkeeperProfile | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        getShopkeeperProfile(session.user.id).then(data => {
+            if (data) setShop(data);
+        }).catch(() => {});
+      }
+    });
+  }, []);
+
   const today = new Date();
   const dateStr = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -66,12 +81,18 @@ export default function ShopkeeperTopbar({
         </motion.button>
 
         {/* Avatar */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--brand-green)] to-[var(--brand-orange)] text-white font-bold text-sm"
-        >
-          <User className="h-5 w-5" />
-        </motion.button>
+        <div className="flex items-center gap-3 ml-2 pl-4 border-l border-[var(--dash-card-border)]">
+          <div className="hidden md:flex flex-col items-end">
+            <span className="text-sm font-bold text-[var(--dash-text)]">{shop?.shop_name || "Shopkeeper"}</span>
+            <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--brand-green)]">{shop?.category || "Loading..."}</span>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--brand-green)] to-[var(--brand-orange)] text-white font-bold text-sm shadow-sm"
+          >
+            {shop?.shop_name ? shop.shop_name.charAt(0).toUpperCase() : <User className="h-5 w-5" />}
+          </motion.button>
+        </div>
       </div>
     </motion.header>
   );
