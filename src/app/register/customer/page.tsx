@@ -46,7 +46,7 @@ export default function CustomerSignUpPage() {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: `${getURL()}${ROUTES.CUSTOMER_DASHBOARD.substring(1)}`,
+                redirectTo: `${getURL()}auth/callback?next=${encodeURIComponent(ROUTES.CUSTOMER_DASHBOARD)}`,
                 queryParams: {
                     access_type: "offline",
                     prompt: "consent",

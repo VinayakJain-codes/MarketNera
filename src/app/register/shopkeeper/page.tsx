@@ -46,7 +46,7 @@ export default function ShopkeeperSignUpPage() {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: `${getURL()}${ROUTES.SHOPKEEPER_SETUP.substring(1)}`,
+                redirectTo: `${getURL()}auth/callback?next=${encodeURIComponent(ROUTES.SHOPKEEPER_SETUP)}`,
                 queryParams: {
                     access_type: "offline",
                     prompt: "consent",
