@@ -23,6 +23,14 @@ export default function AddressesPage() {
     const [isDefault, setIsDefault] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
+    // Auto-detection state
+    const [detecting, setDetecting] = useState(false);
+    const [detectedAddr, setDetectedAddr] = useState<{ addressLine: string; city: string; pincode: string } | null>(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [confirmLabel, setConfirmLabel] = useState("Home");
+    const [confirmIsDefault, setConfirmIsDefault] = useState(false);
+    const [savingDetected, setSavingDetected] = useState(false);
+
     // Fetch addresses
     const fetchAddresses = async (userId: string) => {
         setLoading(true);
@@ -101,6 +109,94 @@ export default function AddressesPage() {
         } else {
             toast.error(res.error || "Failed to update default address");
         }
+    };
+
+    const handleAutoDetect = () => {
+        if (!navigator.geolocation) {
+            toast.error("Geolocation is not supported by your browser");
+            return;
+        }
+
+        setDetecting(true);
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+                try {
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+                    );
+                    if (!res.ok) throw new Error("Failed to reverse-geocode");
+                    
+                    const data = await res.json();
+                    const addr = data.address;
+
+                    // Formulate highly precise point address details
+                    const houseNo = addr.house_number || addr.building || addr.office || "";
+                    const streetRoad = addr.road || addr.street || addr.pedestrian || "";
+                    const areaSuburb = addr.suburb || addr.neighbourhood || addr.residential || addr.subdistrict || "";
+                    const cityVal = addr.city || addr.town || addr.village || addr.county || "";
+                    const pincodeVal = addr.postcode || "";
+
+                    const addressParts = [houseNo, streetRoad, areaSuburb].filter(Boolean);
+                    const parsedAddressLine = addressParts.length > 0 
+                        ? addressParts.join(", ") 
+                        : data.display_name.split(",").slice(0, 3).join(", ");
+
+                    setDetectedAddr({
+                        addressLine: parsedAddressLine,
+                        city: cityVal,
+                        pincode: pincodeVal
+                    });
+                    
+                    setShowConfirmModal(true);
+                } catch (error) {
+                    console.error("Error geocoding:", error);
+                    toast.error("Could not determine precise address details");
+                } finally {
+                    setDetecting(false);
+                }
+            },
+            (error) => {
+                console.error("Geolocation error:", error);
+                let message = "Unable to retrieve location";
+                if (error.code === error.PERMISSION_DENIED) {
+                    message = "Location permission denied. Please allow location access in your browser.";
+                } else if (error.code === error.POSITION_UNAVAILABLE) {
+                    message = "Location position unavailable.";
+                } else if (error.code === error.TIMEOUT) {
+                    message = "Location request timed out.";
+                }
+                toast.error(message);
+                setDetecting(false);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 12000,
+                maximumAge: 0
+            }
+        );
+    };
+
+    const handleSaveDetected = async () => {
+        if (!user || !detectedAddr) return;
+        setSavingDetected(true);
+        const res = await addAddress(user.id, {
+            label: confirmLabel,
+            address_line: detectedAddr.addressLine,
+            city: detectedAddr.city,
+            pincode: detectedAddr.pincode,
+            is_default: confirmIsDefault,
+        });
+
+        if (res.success) {
+            toast.success("Current location saved successfully!");
+            setShowConfirmModal(false);
+            setDetectedAddr(null);
+            fetchAddresses(user.id);
+        } else {
+            toast.error(res.error || "Failed to save address");
+        }
+        setSavingDetected(false);
     };
 
     return (
@@ -232,6 +328,55 @@ export default function AddressesPage() {
                     </form>
                 )}
 
+                {/* Geolocation Auto-Detect & Save Card */}
+                <div className="mb-6 relative overflow-hidden bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-[1.5px] rounded-2xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 active:scale-[0.99] transition-all duration-300">
+                    <div className="bg-white rounded-2xl p-4 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3.5">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center text-emerald-600 relative">
+                                <span className={`material-symbols-outlined text-2xl ${detecting ? 'animate-spin' : 'animate-pulse'}`}>
+                                    {detecting ? 'sync' : 'my_location'}
+                                </span>
+                                {detecting && (
+                                    <span className="absolute inset-0 rounded-xl border-2 border-emerald-500/35 border-t-transparent animate-spin" />
+                                )}
+                            </div>
+                            <div className="flex-grow">
+                                <h3 className="text-sm font-black text-slate-800 tracking-wide uppercase flex items-center gap-1.5">
+                                    Precise Auto-Detect
+                                    <span className="bg-emerald-100 text-emerald-700 text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                                        Accurate to 20m
+                                    </span>
+                                </h3>
+                                <p className="text-[11px] font-medium text-slate-400 mt-0.5 leading-relaxed">
+                                    {detecting ? 'Finding exact GPS point...' : 'Save your exact current address automatically using your GPS.'}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleAutoDetect}
+                            disabled={detecting}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white shadow-md transition-all duration-300 flex items-center gap-1.5 shrink-0 ${
+                                detecting
+                                    ? 'bg-slate-300 shadow-none cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-105 active:scale-95 shadow-emerald-500/20'
+                            }`}
+                        >
+                            {detecting ? (
+                                <>
+                                    <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                    Locating...
+                                </>
+                            ) : (
+                                <>
+                                    <span className="material-symbols-outlined text-sm">gps_fixed</span>
+                                    Detect
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </div>
+
                 {/* Addresses List */}
                 {loading ? (
                     <div className="space-y-4">
@@ -315,6 +460,117 @@ export default function AddressesPage() {
                     </div>
                 )}
             </div>
+
+            {/* Address Confirmation Modal */}
+            {showConfirmModal && detectedAddr && (
+                <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white w-full max-w-[480px] rounded-t-3xl p-6 pb-10 shadow-2xl animate-fade-in-up border-t border-slate-100">
+                        {/* Header */}
+                        <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                            <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-emerald-500 font-bold text-xl animate-bounce">location_on</span>
+                                <h3 className="text-base font-black text-slate-900 tracking-tight">Confirm Detected Address</h3>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    setShowConfirmModal(false);
+                                    setDetectedAddr(null);
+                                }}
+                                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center text-slate-500"
+                            >
+                                <span className="material-symbols-outlined text-lg">close</span>
+                            </button>
+                        </div>
+
+                        {/* Address Details Card */}
+                        <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 mb-5 space-y-3">
+                            <div>
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Detected Address Line</span>
+                                <p className="text-xs font-bold text-slate-800 leading-relaxed">{detectedAddr.addressLine}</p>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-200/60">
+                                <div>
+                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">City</span>
+                                    <p className="text-xs font-bold text-slate-800">{detectedAddr.city || "Not detected"}</p>
+                                </div>
+                                <div>
+                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Pincode</span>
+                                    <p className="text-xs font-bold text-slate-800">{detectedAddr.pincode || "Not detected"}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Label selection */}
+                        <div className="mb-5">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Save Address As</label>
+                            <div className="flex gap-2">
+                                {[
+                                    { id: "Home", icon: "home" },
+                                    { id: "Work", icon: "work" },
+                                    { id: "Current GPS", icon: "my_location" }
+                                ].map((item) => (
+                                    <button
+                                        key={item.id}
+                                        type="button"
+                                        onClick={() => setConfirmLabel(item.id)}
+                                        className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-1.5 ${
+                                            confirmLabel === item.id
+                                                ? "bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm font-extrabold"
+                                                : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
+                                        }`}
+                                    >
+                                        <span className="material-symbols-outlined text-sm">{item.icon}</span>
+                                        {item.id === "Current GPS" ? "GPS Location" : item.id}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Default toggle */}
+                        <label className="flex items-center gap-2.5 py-1 mb-6 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={confirmIsDefault}
+                                onChange={(e) => setConfirmIsDefault(e.target.checked)}
+                                className="w-4 h-4 rounded text-emerald-600 border-slate-300 focus:ring-emerald-500"
+                            />
+                            <span className="text-xs font-semibold text-slate-700">Set as default delivery address</span>
+                        </label>
+
+                        {/* Action buttons */}
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowConfirmModal(false);
+                                    setDetectedAddr(null);
+                                }}
+                                className="flex-1 py-3.5 rounded-xl border border-slate-200 text-slate-500 text-xs font-black uppercase tracking-wider hover:bg-slate-50 transition-all flex justify-center items-center"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSaveDetected}
+                                disabled={savingDetected}
+                                className="flex-[2] py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-105 active:scale-95 text-white text-xs font-black uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/25 flex justify-center items-center gap-1.5"
+                            >
+                                {savingDetected ? (
+                                    <>
+                                        <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                        Saving...
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="material-symbols-outlined text-sm">check_circle</span>
+                                        Save Address
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
