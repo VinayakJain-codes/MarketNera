@@ -3,27 +3,23 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
-import {
-  LayoutDashboard, Calendar, Users, Package, Store, ShoppingCart,
-  MessageSquare, BarChart3, Wallet, Settings, CreditCard, LogOut, ChevronLeft, ChevronRight
-} from 'lucide-react';
 import { useState } from 'react';
 
 const navItems = [
-  { label: 'Dashboard', href: '/shopkeeper/dashboard', icon: LayoutDashboard },
-  { label: 'Calendar', href: '/shopkeeper/dashboard/calendar', icon: Calendar },
-  { label: 'Contacts', href: '/shopkeeper/dashboard/contacts', icon: Users },
-  { label: 'Products', href: '/shopkeeper/products', icon: Package },
-  { label: 'Front Store', href: '/shopkeeper/dashboard/store', icon: Store },
-  { label: 'Orders', href: '/shopkeeper/dashboard/orders', icon: ShoppingCart },
-  { label: 'Messages', href: '/shopkeeper/dashboard/messages', icon: MessageSquare },
+  { label: 'Dashboard', href: '/shopkeeper/dashboard', icon: 'dashboard' },
+  { label: 'Calendar', href: '/shopkeeper/dashboard/calendar', icon: 'calendar_month' },
+  { label: 'Contacts', href: '/shopkeeper/dashboard/contacts', icon: 'group' },
+  { label: 'Products', href: '/shopkeeper/products', icon: 'package' },
+  { label: 'Front Store', href: '/shopkeeper/dashboard/store', icon: 'storefront' },
+  { label: 'Orders', href: '/shopkeeper/dashboard/orders', icon: 'shopping_cart' },
+  { label: 'Messages', href: '/shopkeeper/dashboard/messages', icon: 'chat' },
 ];
 
 const bottomItems = [
-  { label: 'Analytics', href: '/shopkeeper/dashboard/analytics', icon: BarChart3 },
-  { label: 'Payouts', href: '/shopkeeper/dashboard/payouts', icon: Wallet },
-  { label: 'Settings', href: '/shopkeeper/dashboard/settings', icon: Settings },
-  { label: 'Payments', href: '/shopkeeper/dashboard/payments', icon: CreditCard },
+  { label: 'Analytics', href: '/shopkeeper/dashboard/analytics', icon: 'bar_chart' },
+  { label: 'Payouts', href: '/shopkeeper/dashboard/payouts', icon: 'account_balance_wallet' },
+  { label: 'Settings', href: '/shopkeeper/dashboard/settings', icon: 'settings' },
+  { label: 'Payments', href: '/shopkeeper/dashboard/payments', icon: 'credit_card' },
 ];
 
 export default function ShopkeeperSidebar() {
@@ -48,7 +44,9 @@ export default function ShopkeeperSidebar() {
           onClick={() => setCollapsed(!collapsed)}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--dash-text-muted)] hover:bg-[var(--dash-card-border)] hover:text-[var(--brand-orange)] transition-colors"
         >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          <span className="material-symbols-outlined text-[20px]">
+            {collapsed ? 'chevron_right' : 'chevron_left'}
+          </span>
         </button>
       </div>
 
@@ -73,7 +71,7 @@ export default function ShopkeeperSidebar() {
                     transition={{ type: 'spring', bounce: 0.25, duration: 0.5 }}
                   />
                 )}
-                <item.icon className="h-5 w-5 shrink-0" />
+                <span className="material-symbols-outlined text-[20px] shrink-0">{item.icon}</span>
                 {!collapsed && <span>{item.label}</span>}
               </motion.div>
             </Link>
@@ -95,7 +93,7 @@ export default function ShopkeeperSidebar() {
                     : 'text-[var(--dash-text-muted)] hover:bg-[var(--dash-card-border)] hover:text-[var(--dash-text)]'
                 }`}
               >
-                <item.icon className="h-5 w-5 shrink-0" />
+                <span className="material-symbols-outlined text-[20px] shrink-0">{item.icon}</span>
                 {!collapsed && <span>{item.label}</span>}
               </motion.div>
             </Link>
@@ -105,7 +103,7 @@ export default function ShopkeeperSidebar() {
           whileHover={{ x: 4 }}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
         >
-          <LogOut className="h-5 w-5 shrink-0" />
+          <span className="material-symbols-outlined text-[20px] shrink-0">logout</span>
           {!collapsed && <span>Log out</span>}
         </motion.button>
       </div>

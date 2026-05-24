@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
 import ShopkeeperTopbar from '@/components/layout/ShopkeeperTopbar';
 import ProductFilters from '@/components/sections/shopkeeper/products/ProductFilters';
 import ProductTable from '@/components/sections/shopkeeper/products/ProductTable';
@@ -185,7 +184,7 @@ export default function ShopkeeperProductsPage() {
             className="flex items-center gap-2"
             onClick={handleAdd}
           >
-            <Plus className="h-4 w-4" />
+            <span className="material-symbols-outlined text-[18px]">add</span>
             Add Product
           </Button>
         </div>
