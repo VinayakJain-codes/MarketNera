@@ -130,17 +130,33 @@ export default function AddressesPage() {
                     const data = await res.json();
                     const addr = data.address;
 
-                    // Formulate highly precise point address details
-                    const houseNo = addr.house_number || addr.building || addr.office || "";
-                    const streetRoad = addr.road || addr.street || addr.pedestrian || "";
-                    const areaSuburb = addr.suburb || addr.neighbourhood || addr.residential || addr.subdistrict || "";
+                    // Formulate highly precise point address details with building, road, nearby amenities/landmarks, suburb, and city districts
+                    const houseNo = addr.house_number || "";
+                    const building = addr.building || addr.house_name || addr.office || addr.hotel || addr.shop || addr.retail || "";
+                    const road = addr.road || addr.street || addr.pedestrian || addr.footway || "";
+                    
+                    // Identify landmark features if available
+                    const amenity = addr.amenity || addr.historic || addr.tourism || addr.leisure || "";
+                    const commercial = addr.commercial || addr.industrial || "";
+                    const landmark = amenity || commercial || "";
+                    
+                    const suburb = addr.suburb || addr.neighbourhood || addr.residential || addr.subdistrict || "";
+                    const cityDistrict = addr.city_district || addr.quarter || "";
                     const cityVal = addr.city || addr.town || addr.village || addr.county || "";
                     const pincodeVal = addr.postcode || "";
 
-                    const addressParts = [houseNo, streetRoad, areaSuburb].filter(Boolean);
+                    // Combine house number and building/office name
+                    let houseAndBuilding = [houseNo, building].filter(Boolean).join(", ");
+                    
+                    // Prepend "Near [landmark]" if any major landmark is returned
+                    const landmarkSuffix = landmark ? `(Near ${landmark})` : "";
+                    
+                    const addressParts = [houseAndBuilding, road, landmarkSuffix, suburb, cityDistrict].filter(Boolean);
+                    
+                    // Fallback to display name if we couldn't resolve specific parts
                     const parsedAddressLine = addressParts.length > 0 
                         ? addressParts.join(", ") 
-                        : data.display_name.split(",").slice(0, 3).join(", ");
+                        : data.display_name.split(",").slice(0, 4).join(", ");
 
                     setDetectedAddr({
                         addressLine: parsedAddressLine,
