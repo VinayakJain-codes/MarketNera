@@ -328,22 +328,27 @@ export default function CustomerShopsPage() {
                             ) : (
                                 filteredShops.map((shop) => {
                                     const cfg = CATEGORY_CONFIG[shop.category] ?? CATEGORY_CONFIG.Other;
+                                    const [cleanAddress, shopPhoto] = (shop.address || "").split(" ||| ");
                                     return (
                                         <div
                                             key={shop.user_id}
                                             onClick={() => router.push(`/shop/${shop.user_id}`)}
                                             className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden premium-hover cursor-pointer flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                                         >
-                                            <div className="h-28 bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center relative">
-                                                <span className="material-symbols-outlined text-[56px] text-orange-200/80">{cfg.icon}</span>
-                                                <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 bg-[#22c55e] text-white rounded-full shadow-sm">
+                                            <div className="h-28 bg-gradient-to-br from-orange-50 to-orange-100 relative overflow-hidden flex items-center justify-center">
+                                                {shopPhoto ? (
+                                                    <Image src={shopPhoto} alt={shop.shop_name} width={280} height={112} className="w-full h-full object-cover" unoptimized />
+                                                ) : (
+                                                    <span className="material-symbols-outlined text-[56px] text-orange-200/80">{cfg.icon}</span>
+                                                )}
+                                                <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 bg-[#22c55e] text-white rounded-full shadow-sm z-10">
                                                     <span className="material-symbols-outlined text-[12px] font-bold">check</span>
                                                 </div>
                                             </div>
                                             <div className="p-4 flex flex-col flex-grow">
                                                 <h4 className="font-extrabold text-sm text-slate-900 line-clamp-1 mb-1">{shop.shop_name}</h4>
                                                 <p className="text-xs text-slate-400 font-medium line-clamp-1 mb-3 flex items-center gap-1">
-                                                    <span className="material-symbols-outlined text-[13px]">location_on</span> {shop.address}
+                                                    <span className="material-symbols-outlined text-[13px]">location_on</span> {cleanAddress}
                                                 </p>
                                                 <div className="flex items-center justify-between mt-auto">
                                                     <span className="bg-primary/10 text-primary text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">

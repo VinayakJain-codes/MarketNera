@@ -7,12 +7,19 @@ import { upsertShopkeeperProfile } from "@/lib/services/shopkeeper";
 import { ROUTES } from "@/constants/routes";
 import Button from "@/components/ui/Button";
 import Logo from "@/components/layout/Logo";
+import toast from "react-hot-toast";
 
 export default function ShopkeeperSetupPage() {
     const router = useRouter();
     const [userId, setUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [detectingLocation, setDetectingLocation] = useState(false);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
+    const [photoUrl, setPhotoUrl] = useState("");
+    const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+    const [proximityOptIn, setProximityOptIn] = useState(true);
+
     const [formData, setFormData] = useState({
         shop_name: "",
         category: "Grocery",
@@ -41,6 +48,74 @@ export default function ShopkeeperSetupPage() {
         }));
     };
 
+    const handleDetectLocation = () => {
+        if (!navigator.geolocation) {
+            toast.error("Geolocation is not supported by your browser");
+            return;
+        }
+        setDetectingLocation(true);
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                setCoords({ lat, lng });
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+                    const data = await res.json();
+                    const addr = data.address;
+                    const parts = [
+                        addr.house_number,
+                        addr.road || addr.street,
+                        addr.suburb || addr.neighbourhood,
+                        addr.city || addr.town || addr.village,
+                        addr.postcode
+                    ].filter(Boolean);
+                    const fullAddress = parts.length > 0 ? parts.join(", ") : data.display_name.split(",").slice(0, 3).join(", ");
+                    setFormData(prev => ({ ...prev, address: fullAddress }));
+                    toast.success("Coordinates geocoded successfully!");
+                } catch (e) {
+                    toast.error("Reverse-geocoding failed. Coordinates recorded.");
+                } finally {
+                    setDetectingLocation(false);
+                }
+            },
+            () => {
+                toast.error("Permission denied to browser location.");
+                setDetectingLocation(false);
+            }
+        );
+    };
+
+    const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !userId) return;
+
+        setUploadingPhoto(true);
+        try {
+            const fileExt = file.name.split(".").pop();
+            const fileName = `${userId}/shop_${Date.now()}.${fileExt}`;
+
+            const { error: uploadErr } = await supabase.storage
+                .from("product-images")
+                .upload(fileName, file);
+
+            if (uploadErr) throw uploadErr;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from("product-images")
+                .getPublicUrl(fileName);
+
+            setPhotoUrl(publicUrl);
+            toast.success("Shop photo uploaded successfully!");
+        } catch (err: any) {
+            console.error(err);
+            toast.error("Failed to upload photo. Using standard mock photo.");
+            setPhotoUrl("https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800&auto=format&fit=crop&q=80");
+        } finally {
+            setUploadingPhoto(false);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!userId) return;
@@ -49,11 +124,18 @@ export default function ShopkeeperSetupPage() {
         setError("");
 
         try {
+            // Encode the photo URL directly into the address column with standard separator
+            const serializedAddress = photoUrl ? `${formData.address} ||| ${photoUrl}` : formData.address;
+            const postgisLocation = coords && proximityOptIn ? `POINT(${coords.lng} ${coords.lat})` : null;
+
             await upsertShopkeeperProfile({
                 user_id: userId,
                 ...formData,
-            });
-            // Redirect to dashboard on success
+                address: serializedAddress,
+                location: postgisLocation
+            } as any);
+
+            toast.success("Shop setup completed!");
             router.push(ROUTES.SHOPKEEPER_DASHBOARD);
         } catch (err: any) {
             setError(err.message || "Failed to set up shop profile.");
@@ -83,10 +165,10 @@ export default function ShopkeeperSetupPage() {
 
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-extrabold text-slate-900 mb-2">
-                            Set up your Shop
+                            Register your Shop
                         </h1>
-                        <p className="text-slate-500">
-                            Provide your shop details to get started on Marketnera.
+                        <p className="text-slate-500 text-sm">
+                            Provide your shop details and location to connect with local buyers on Marketnera.
                         </p>
                     </div>
 
@@ -124,7 +206,7 @@ export default function ShopkeeperSetupPage() {
                                     required
                                     value={formData.category}
                                     onChange={handleChange}
-                                    className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-[#138808] focus:ring-2 focus:ring-[#138808]/20 outline-none transition-all"
+                                    className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-[#FF9933] focus:ring-2 focus:ring-[#FF9933]/20 outline-none transition-all"
                                 >
                                     <option value="Grocery">Grocery</option>
                                     <option value="Pharmacy">Pharmacy</option>
@@ -136,6 +218,44 @@ export default function ShopkeeperSetupPage() {
                                 <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                                     expand_more
                                 </span>
+                            </div>
+                        </div>
+
+                        {/* Location detection */}
+                        <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                            <div className="flex items-center justify-between mb-3">
+                                <span className="text-xs font-bold text-slate-950 uppercase tracking-wider flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-primary text-base">location_on</span>
+                                    Business Geolocation
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={handleDetectLocation}
+                                    disabled={detectingLocation}
+                                    className="text-xs font-bold text-primary hover:opacity-80 transition-opacity flex items-center gap-1"
+                                >
+                                    {detectingLocation ? (
+                                        <>
+                                            <div className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                            Detecting...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="material-symbols-outlined text-[15px]">my_location</span>
+                                            Locate Me
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3 text-xs">
+                                <div className="bg-white border border-slate-200 p-2.5 rounded-xl text-center">
+                                    <span className="text-slate-400 block text-[9px] font-bold uppercase tracking-wide">Latitude</span>
+                                    <span className="font-mono font-bold text-slate-700 mt-0.5 block">{coords ? coords.lat.toFixed(6) : "Not set"}</span>
+                                </div>
+                                <div className="bg-white border border-slate-200 p-2.5 rounded-xl text-center">
+                                    <span className="text-slate-400 block text-[9px] font-bold uppercase tracking-wide">Longitude</span>
+                                    <span className="font-mono font-bold text-slate-700 mt-0.5 block">{coords ? coords.lng.toFixed(6) : "Not set"}</span>
+                                </div>
                             </div>
                         </div>
 
@@ -167,17 +287,84 @@ export default function ShopkeeperSetupPage() {
                                 value={formData.phone}
                                 onChange={handleChange}
                                 placeholder="+1 (555) 000-0000"
-                                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 focus:border-[#138808] focus:ring-2 focus:ring-[#138808]/20 outline-none transition-all placeholder-slate-400"
+                                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 focus:border-[#FF9933] focus:ring-2 focus:ring-[#FF9933]/20 outline-none transition-all placeholder-slate-400"
                             />
                         </div>
 
-                        <div className="pt-4">
+                        {/* Photo upload */}
+                        <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3">
+                            <span className="text-xs font-bold text-slate-950 uppercase tracking-wider flex items-center gap-1.5">
+                                <span className="material-symbols-outlined text-primary text-base">image</span>
+                                Shop Profile Photo
+                            </span>
+                            <div className="flex items-center gap-4">
+                                {photoUrl ? (
+                                    <div className="w-20 h-20 rounded-xl overflow-hidden border border-slate-200 relative shrink-0">
+                                        <img src={photoUrl} alt="Shop Preview" className="w-full h-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => setPhotoUrl("")}
+                                            className="absolute top-1 right-1 w-5 h-5 bg-black/70 hover:bg-black text-white rounded-full flex items-center justify-center"
+                                        >
+                                            <span className="material-symbols-outlined text-[12px]">close</span>
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="w-20 h-20 bg-slate-200 border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center text-slate-400 shrink-0">
+                                        <span className="material-symbols-outlined text-2xl">add_a_photo</span>
+                                    </div>
+                                )}
+                                <div className="flex-1">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        id="shop_photo"
+                                        onChange={handlePhotoUpload}
+                                        className="hidden"
+                                    />
+                                    <label
+                                        htmlFor="shop_photo"
+                                        className="inline-flex px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 cursor-pointer shadow-sm hover:bg-slate-50 transition-colors"
+                                    >
+                                        {uploadingPhoto ? "Uploading..." : "Choose Photo File"}
+                                    </label>
+                                    <p className="text-[10px] text-slate-400 mt-1.5">Support JPEG, PNG, or GIF. Max 5MB.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Hyperlocal opt-in toggle */}
+                        <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                            <div className="pr-4">
+                                <span className="text-xs font-bold text-slate-950 uppercase tracking-wider block mb-1">
+                                    Hyperlocal Delivery
+                                </span>
+                                <span className="text-[10px] text-slate-400 block leading-tight">
+                                    Register this shop to accept distance-based geofenced orders from buyers.
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setProximityOptIn(!proximityOptIn)}
+                                className={`w-12 h-6 rounded-full flex items-center transition-all duration-300 px-0.5 cursor-pointer shrink-0 ${
+                                    proximityOptIn ? "bg-[#FF9933]" : "bg-slate-300"
+                                }`}
+                            >
+                                <div
+                                    className={`w-5 h-5 rounded-full bg-white shadow transition-all duration-300 ${
+                                        proximityOptIn ? "translate-x-6" : "translate-x-0"
+                                    }`}
+                                />
+                            </button>
+                        </div>
+
+                        <div className="pt-2">
                             <Button
                                 type="submit"
                                 variant="primary"
                                 size="lg"
                                 className="w-full bg-[#FF9933] hover:bg-[#FF9933]/90 text-white font-bold h-14"
-                                disabled={submitting}
+                                disabled={submitting || uploadingPhoto}
                             >
                                 {submitting ? (
                                     <div className="flex items-center gap-2">
@@ -185,7 +372,7 @@ export default function ShopkeeperSetupPage() {
                                         <span>Saving Profile...</span>
                                     </div>
                                 ) : (
-                                    "Complete Setup"
+                                    "Complete Setup & Register"
                                 )}
                             </Button>
                         </div>

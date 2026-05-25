@@ -145,9 +145,15 @@ export default function ShopDetailPage({ params }: { params: Promise<{ shopId: s
                     <h1 className="text-3xl md:text-4xl font-black drop-shadow-md tracking-tight mb-1">{shop.shop_name}</h1>
                     <p className="text-sm md:text-base font-medium text-white/80 flex items-center gap-1.5">
                         <span className="material-symbols-outlined text-[16px]">location_on</span>
-                        {shop.address}
+                        {(shop.address || "").split(" ||| ")[0]}
                     </p>
                 </div>
+                {/* Custom Shop Photo Banner Backdrop */}
+                {(shop.address || "").split(" ||| ")[1] && (
+                    <div className="absolute inset-0 z-0">
+                        <img src={(shop.address || "").split(" ||| ")[1]} className="w-full h-full object-cover opacity-40 blur-[1px]" alt="" />
+                    </div>
+                )}
                 <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-20 hidden md:block">
                     <span className="material-symbols-outlined text-[160px] text-white">{cfg.icon}</span>
                 </div>

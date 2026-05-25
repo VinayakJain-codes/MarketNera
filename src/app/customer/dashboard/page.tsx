@@ -523,6 +523,7 @@ export default function CustomerDashboard() {
                                 ) : (
                                     shops.map((shop, i) => {
                                         const cfg = CATEGORY_CONFIG[shop.category] ?? CATEGORY_CONFIG.Other;
+                                        const [cleanAddress, shopPhoto] = (shop.address || "").split(" ||| ");
                                         return (
                                             <div
                                                 key={shop.user_id}
@@ -530,10 +531,14 @@ export default function CustomerDashboard() {
                                                 className="min-w-[200px] md:min-w-0 bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden animate-slide-in-right premium-hover cursor-pointer flex flex-col"
                                                 style={{ animationDelay: `${0.3 + i * 0.1}s` }}
                                             >
-                                                {/* Shop banner using category gradient */}
-                                                <div className={`h-24 bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center relative`}>
-                                                    <span className={`material-symbols-outlined text-[48px] text-orange-200`}>{cfg.icon}</span>
-                                                    <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 bg-[#22c55e] text-white rounded-full shadow-sm">
+                                                {/* Shop banner using custom image if uploaded, fallback to category gradient */}
+                                                <div className={`h-24 bg-gradient-to-br from-orange-50 to-orange-100 relative overflow-hidden flex items-center justify-center`}>
+                                                    {shopPhoto ? (
+                                                        <Image src={shopPhoto} alt={shop.shop_name} width={200} height={96} className="w-full h-full object-cover" unoptimized />
+                                                    ) : (
+                                                        <span className={`material-symbols-outlined text-[48px] text-orange-200`}>{cfg.icon}</span>
+                                                    )}
+                                                    <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 bg-[#22c55e] text-white rounded-full shadow-sm z-10">
                                                         <span className="material-symbols-outlined text-[12px] font-bold">check</span>
                                                     </div>
                                                 </div>
