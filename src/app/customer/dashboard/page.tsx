@@ -655,13 +655,13 @@ export default function CustomerDashboard() {
 
                 {/* ─── Bottom Navigation (Mobile Only) ─── */}
                 <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] md:hidden bg-white border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] flex items-center justify-around pb-4 pt-3 z-50">
-                    <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href={ROUTES.CUSTOMER_DASHBOARD}>
-                        <span className="material-symbols-outlined">home</span>
+                    <a className="flex flex-col items-center gap-1 text-primary relative" href={ROUTES.CUSTOMER_DASHBOARD}>
+                        <div className="absolute -top-3 w-8 h-0.5 bg-primary rounded-b-full"></div>
+                        <span className="material-symbols-outlined fill-1">home</span>
                         <span className="text-[10px] font-bold">Home</span>
                     </a>
-                    <a className="flex flex-col items-center gap-1 text-primary relative" href="/customer/shops">
-                        <div className="absolute -top-3 w-8 h-0.5 bg-primary rounded-b-full"></div>
-                        <span className="material-symbols-outlined fill-1">storefront</span>
+                    <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href="/customer/shops">
+                        <span className="material-symbols-outlined">storefront</span>
                         <span className="text-[10px] font-bold">Shops</span>
                     </a>
                     <div className="relative -mt-10">
