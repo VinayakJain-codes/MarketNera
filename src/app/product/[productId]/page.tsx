@@ -64,7 +64,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ produc
 
                 // Fetch shop profile
                 const { data: shopData } = await supabase
-                    .from("shopkeeper_profiles")
+                    .from("shopkeeper")
                     .eq("user_id", prodData.shop_id)
                     .single();
 
