@@ -156,7 +156,7 @@ export default function AddressesPage() {
                     // Fallback to display name if we couldn't resolve specific parts
                     const parsedAddressLine = addressParts.length > 0 
                         ? addressParts.join(", ") 
-                        : data.display_name.split(",").slice(0, 4).join(", ");
+                        : data.display_name.replace(", India", "").trim();
 
                     setDetectedAddr({
                         addressLine: parsedAddressLine,

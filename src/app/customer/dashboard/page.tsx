@@ -90,20 +90,8 @@ export default function CustomerDashboard() {
                             `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
                         );
                         const data = await res.json();
-                        const addr = data.address;
-                        const preciseParts = [
-                            addr.house_number,
-                            addr.road || addr.street || addr.pedestrian,
-                            addr.suburb || addr.neighbourhood || addr.residential,
-                            addr.city || addr.town || addr.village,
-                            addr.postcode
-                        ].filter(Boolean);
-
-                        setLocation(
-                            preciseParts.length > 0
-                                ? preciseParts.join(", ")
-                                : data.display_name.split(",").slice(0, 3).join(", ")
-                        );
+                        const fullAddress = data.display_name ? data.display_name.replace(", India", "").trim() : "Location detected";
+                        setLocation(fullAddress);
                     } catch {
                         setLocation("Location unavailable");
                     }
@@ -363,15 +351,8 @@ export default function CustomerDashboard() {
                                                 `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`
                                             );
                                             const data = await res.json();
-                                            const addr = data.address;
-                                            const parts = [
-                                                addr.house_number,
-                                                addr.road || addr.street,
-                                                addr.suburb || addr.neighbourhood,
-                                                addr.city || addr.town || addr.village,
-                                                addr.postcode
-                                            ].filter(Boolean);
-                                            setLocation(parts.length > 0 ? parts.join(", ") : data.display_name.split(",").slice(0, 3).join(", "));
+                                            const fullAddress = data.display_name ? data.display_name.replace(", India", "").trim() : "Location detected";
+                                            setLocation(fullAddress);
                                         } catch {
                                             setLocation("Location unavailable");
                                         }

@@ -62,15 +62,7 @@ export default function ShopkeeperSetupPage() {
                 try {
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
                     const data = await res.json();
-                    const addr = data.address;
-                    const parts = [
-                        addr.house_number,
-                        addr.road || addr.street,
-                        addr.suburb || addr.neighbourhood,
-                        addr.city || addr.town || addr.village,
-                        addr.postcode
-                    ].filter(Boolean);
-                    const fullAddress = parts.length > 0 ? parts.join(", ") : data.display_name.split(",").slice(0, 3).join(", ");
+                    const fullAddress = data.display_name ? data.display_name.replace(", India", "").trim() : "Location detected";
                     setFormData(prev => ({ ...prev, address: fullAddress }));
                     toast.success("Coordinates geocoded successfully!");
                 } catch (e) {

@@ -215,6 +215,7 @@ export default function ShopkeeperProductsPage() {
             setEditingProduct(null);
           }}
           onSave={handleSaveProduct as any}
+          shopId={shopId}
         />
 
         <ProductAnalyticsDrawer

@@ -18,9 +18,10 @@ interface ProductModalProps {
   onClose: () => void;
   product?: Product | null;
   onSave: (payload: Product) => Promise<void>;
+  shopId?: string | null;
 }
 
-export default function ProductModal({ isOpen, onClose, product, onSave }: ProductModalProps) {
+export default function ProductModal({ isOpen, onClose, product, onSave, shopId }: ProductModalProps) {
   const [activeTab, setActiveTab] = useState<'basic' | 'pricing' | 'media'>('basic');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -108,7 +109,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave }: Produ
 
     try {
       const payload: ProductCreatePayload = {
-        shop_id: '00000000-0000-0000-0000-000000000000', // MOCK ID
+        shop_id: product?.shop_id || shopId || '00000000-0000-0000-0000-000000000000',
         name: formData.name,
         description: formData.description,
         category: formData.category,
