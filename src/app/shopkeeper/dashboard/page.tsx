@@ -17,6 +17,7 @@ import {
   getSalesByCategory,
   getRecentOrders,
   getTopProducts,
+  getShopkeeperSatisfactionScore,
 } from '@/lib/api/shopkeeper';
 import type {
   DashboardMetrics,
@@ -33,6 +34,7 @@ export default function ShopkeeperDashboardPage() {
   const [orders, setOrders] = useState<RecentOrder[]>([]);
   const [products, setProducts] = useState<TopProduct[]>([]);
   const [warnings, setWarnings] = useState<any[]>([]);
+  const [satisfactionScore, setSatisfactionScore] = useState<number>(5.0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,19 +43,21 @@ export default function ShopkeeperDashboardPage() {
         const { data: { user } } = await supabase.auth.getUser();
         const shopId = user?.id || null;
 
-        const [m, r, c, o, p, lowStockProducts] = await Promise.all([
+        const [m, r, c, o, p, lowStockProducts, score] = await Promise.all([
           getDashboardMetrics(shopId),
           getRevenueTrend(),
           getSalesByCategory(),
           getRecentOrders(shopId),
           getTopProducts(shopId),
           shopId ? getProducts(shopId, { status: 'low_stock' }) : Promise.resolve([]),
+          getShopkeeperSatisfactionScore(shopId),
         ]);
         setMetrics(m);
         setRevenue(r);
         setCategories(c);
         setOrders(o);
         setProducts(p);
+        setSatisfactionScore(score);
 
         // Map low stock products to WarningItem shape
         const mappedWarnings = lowStockProducts.map((prod: any) => ({
@@ -117,7 +121,7 @@ export default function ShopkeeperDashboardPage() {
             <DashboardChartsRow revenueData={revenue} categoryData={categories} />
 
             {/* Row 3: Data Tables */}
-            <DashboardDataRow orders={orders} products={products} />
+            <DashboardDataRow orders={orders} products={products} satisfactionScore={satisfactionScore} />
 
             {/* Row 4: Advanced Features */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

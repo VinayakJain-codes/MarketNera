@@ -213,3 +213,35 @@ export async function getTopProducts(shopId?: string | null): Promise<TopProduct
     return [];
   }
 }
+
+/**
+ * Calculate dynamic customer satisfaction score for a shop based on product reviews.
+ */
+export async function getShopkeeperSatisfactionScore(shopId?: string | null): Promise<number> {
+  if (!shopId) return 5.0;
+  try {
+    // 1. Get all product IDs for this shop
+    const { data: products, error: prodError } = await supabase
+      .from('shopkeeper_products')
+      .select('id')
+      .eq('shop_id', shopId);
+      
+    if (prodError || !products || products.length === 0) return 5.0; // Default to 5.0 if no products
+    
+    const productIds = products.map(p => p.id);
+    
+    // 2. Fetch all reviews for these products
+    const { data: reviews, error: revError } = await supabase
+      .from('product_reviews')
+      .select('rating')
+      .in('product_id', productIds);
+      
+    if (revError || !reviews || reviews.length === 0) return 5.0; // Default to 5.0 if no reviews yet
+    
+    const total = reviews.reduce((sum, r) => sum + r.rating, 0);
+    const average = parseFloat((total / reviews.length).toFixed(1));
+    return average;
+  } catch {
+    return 5.0;
+  }
+}
