@@ -9,6 +9,7 @@ import DashboardDataRow from '@/components/sections/shopkeeper/DashboardDataRow'
 import GamificationWidget from '@/components/sections/shopkeeper/GamificationWidget';
 import InventoryWarnings from '@/components/sections/shopkeeper/InventoryWarnings';
 import QuickActions from '@/components/sections/shopkeeper/QuickActions';
+import { getProducts } from '@/lib/api/products';
 import { supabase } from '@/lib/supabase';
 import {
   getDashboardMetrics,
@@ -31,6 +32,7 @@ export default function ShopkeeperDashboardPage() {
   const [categories, setCategories] = useState<CategorySale[]>([]);
   const [orders, setOrders] = useState<RecentOrder[]>([]);
   const [products, setProducts] = useState<TopProduct[]>([]);
+  const [warnings, setWarnings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,18 +41,28 @@ export default function ShopkeeperDashboardPage() {
         const { data: { user } } = await supabase.auth.getUser();
         const shopId = user?.id || null;
 
-        const [m, r, c, o, p] = await Promise.all([
+        const [m, r, c, o, p, lowStockProducts] = await Promise.all([
           getDashboardMetrics(shopId),
           getRevenueTrend(),
           getSalesByCategory(),
           getRecentOrders(shopId),
           getTopProducts(shopId),
+          shopId ? getProducts(shopId, { status: 'low_stock' }) : Promise.resolve([]),
         ]);
         setMetrics(m);
         setRevenue(r);
         setCategories(c);
         setOrders(o);
         setProducts(p);
+
+        // Map low stock products to WarningItem shape
+        const mappedWarnings = lowStockProducts.map((prod: any) => ({
+          id: prod.id,
+          name: prod.name,
+          type: 'low_stock',
+          detail: `${prod.stock_quantity} left`
+        }));
+        setWarnings(mappedWarnings);
       } catch (err) {
         console.error('Dashboard fetch error:', err);
       } finally {
@@ -110,7 +122,7 @@ export default function ShopkeeperDashboardPage() {
             {/* Row 4: Advanced Features */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <GamificationWidget currentRevenue={metrics?.totalRevenue || 0} />
-              <InventoryWarnings />
+              <InventoryWarnings warnings={warnings} />
             </div>
           </>
         )}

@@ -11,11 +11,26 @@ interface GamificationWidgetProps {
 }
 
 export default function GamificationWidget({
-  currentRevenue = 4500,
-  tierTarget = 5000,
-  tierName = 'Silver Seller',
-  nextTierName = 'Gold Seller',
-}: GamificationWidgetProps) {
+  currentRevenue = 0,
+}: { currentRevenue?: number }) {
+  let tierName = 'Bronze Seller';
+  let nextTierName = 'Silver Seller';
+  let tierTarget = 1000;
+
+  if (currentRevenue >= 20000) {
+    tierName = 'Platinum Seller';
+    nextTierName = '';
+    tierTarget = 20000;
+  } else if (currentRevenue >= 5000) {
+    tierName = 'Gold Seller';
+    nextTierName = 'Platinum Seller';
+    tierTarget = 20000;
+  } else if (currentRevenue >= 1000) {
+    tierName = 'Silver Seller';
+    nextTierName = 'Gold Seller';
+    tierTarget = 5000;
+  }
+
   const progress = Math.min((currentRevenue / tierTarget) * 100, 100);
   const remaining = Math.max(tierTarget - currentRevenue, 0);
 
