@@ -43,25 +43,32 @@ export interface TopProduct {
 
 // ── Fetchers (Supabase-backed with fallback) ──
 
-export async function getDashboardMetrics(): Promise<DashboardMetrics> {
+export async function getDashboardMetrics(shopId?: string | null): Promise<DashboardMetrics> {
   try {
     // Note: 'shopkeeper_metrics' is a view or table you might have created.
     // If it doesn't exist, this will trigger the fallback.
-    const { data, error } = await supabase
+    let query = supabase
       .from('shopkeeper_metrics')
-      .select('*')
-      .single();
+      .select('*');
+    if (shopId) {
+      query = query.eq('shopkeeper_id', shopId);
+    }
+    const { data, error } = await query.single();
     if (error || !data) throw error;
     return data as DashboardMetrics;
   } catch {
     // Fallback: compute from orders table if it exists, else return zeros
-    return computeMetricsFromOrders();
+    return computeMetricsFromOrders(shopId);
   }
 }
 
-async function computeMetricsFromOrders(): Promise<DashboardMetrics> {
+async function computeMetricsFromOrders(shopId?: string | null): Promise<DashboardMetrics> {
   try {
-    const { data: orders } = await supabase.from('orders').select('*');
+    let query = supabase.from('orders').select('*');
+    if (shopId) {
+      query = query.eq('shopkeeper_id', shopId);
+    }
+    const { data: orders } = await query;
 
     // Use correct column name: total_amount (not total)
     const totalRevenue = orders?.reduce((sum, o) => sum + (parseFloat(o.total_amount) || 0), 0) ?? 0;
@@ -118,11 +125,11 @@ export async function getSalesByCategory(): Promise<CategorySale[]> {
   }
 }
 
-export async function getRecentOrders(): Promise<RecentOrder[]> {
+export async function getRecentOrders(shopId?: string | null): Promise<RecentOrder[]> {
   try {
     // Use correct columns: customer_id, total_amount, created_at
     // Join with order_items to get the first product name per order
-    const { data, error } = await supabase
+    let query = supabase
       .from('orders')
       .select(`
         id,
@@ -133,7 +140,13 @@ export async function getRecentOrders(): Promise<RecentOrder[]> {
         order_items (
           product_name
         )
-      `)
+      `);
+
+    if (shopId) {
+      query = query.eq('shopkeeper_id', shopId);
+    }
+
+    const { data, error } = await query
       .order('created_at', { ascending: false })
       .limit(8);
 
@@ -173,12 +186,18 @@ export async function getRecentOrders(): Promise<RecentOrder[]> {
   }
 }
 
-export async function getTopProducts(): Promise<TopProduct[]> {
+export async function getTopProducts(shopId?: string | null): Promise<TopProduct[]> {
   try {
     // Use the real table name 'shopkeeper_products'
-    const { data, error } = await supabase
+    let query = supabase
       .from('shopkeeper_products')
-      .select('id, name, category, price')
+      .select('id, name, category, price');
+
+    if (shopId) {
+      query = query.eq('shop_id', shopId);
+    }
+
+    const { data, error } = await query
       .order('created_at', { ascending: false })
       .limit(5);
     

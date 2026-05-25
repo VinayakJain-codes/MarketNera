@@ -9,6 +9,7 @@ import DashboardDataRow from '@/components/sections/shopkeeper/DashboardDataRow'
 import GamificationWidget from '@/components/sections/shopkeeper/GamificationWidget';
 import InventoryWarnings from '@/components/sections/shopkeeper/InventoryWarnings';
 import QuickActions from '@/components/sections/shopkeeper/QuickActions';
+import { supabase } from '@/lib/supabase';
 import {
   getDashboardMetrics,
   getRevenueTrend,
@@ -35,12 +36,15 @@ export default function ShopkeeperDashboardPage() {
   useEffect(() => {
     async function fetchAll() {
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        const shopId = user?.id || null;
+
         const [m, r, c, o, p] = await Promise.all([
-          getDashboardMetrics(),
+          getDashboardMetrics(shopId),
           getRevenueTrend(),
           getSalesByCategory(),
-          getRecentOrders(),
-          getTopProducts(),
+          getRecentOrders(shopId),
+          getTopProducts(shopId),
         ]);
         setMetrics(m);
         setRevenue(r);
