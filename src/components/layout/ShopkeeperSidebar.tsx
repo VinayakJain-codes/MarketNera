@@ -1,18 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 const navItems = [
   { label: 'Dashboard', href: '/shopkeeper/dashboard', icon: 'dashboard' },
-  { label: 'Calendar', href: '/shopkeeper/dashboard/calendar', icon: 'calendar_month' },
   { label: 'Contacts', href: '/shopkeeper/dashboard/contacts', icon: 'group' },
   { label: 'Products', href: '/shopkeeper/products', icon: 'package' },
   { label: 'Front Store', href: '/shopkeeper/dashboard/store', icon: 'storefront' },
   { label: 'Orders', href: '/shopkeeper/dashboard/orders', icon: 'shopping_cart' },
-  { label: 'Messages', href: '/shopkeeper/dashboard/messages', icon: 'chat' },
 ];
 
 const bottomItems = [
@@ -24,14 +23,20 @@ const bottomItems = [
 
 export default function ShopkeeperSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login/shopkeeper');
+  };
 
   return (
     <motion.aside
       initial={{ x: -20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className={`sticky top-0 flex h-screen flex-col justify-between border-r border-[var(--dash-card-border)] bg-[var(--dash-card)] transition-all duration-300 ${collapsed ? 'w-[72px]' : 'w-[240px]'}`}
+      className={`hidden md:flex sticky top-0 h-screen flex-col justify-between border-r border-[var(--dash-card-border)] bg-[var(--dash-card)] transition-all duration-300 ${collapsed ? 'w-[72px]' : 'w-[240px]'}`}
     >
       {/* Logo */}
       <div className="flex items-center justify-between px-4 py-5 border-b border-[var(--dash-card-border)]">
@@ -100,6 +105,7 @@ export default function ShopkeeperSidebar() {
           );
         })}
         <motion.button
+          onClick={handleLogout}
           whileHover={{ x: 4 }}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
         >

@@ -6,6 +6,8 @@ export interface ShopkeeperProfile {
     category: string;
     address: string;
     phone: string;
+    tagline?: string | null;
+    banner_url?: string | null;
     created_at?: string;
     updated_at?: string;
 }

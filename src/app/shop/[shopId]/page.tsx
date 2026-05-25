@@ -143,6 +143,9 @@ export default function ShopDetailPage({ params }: { params: Promise<{ shopId: s
                         </span>
                     </div>
                     <h1 className="text-3xl md:text-4xl font-black drop-shadow-md tracking-tight mb-1">{shop.shop_name}</h1>
+                    {shop.tagline && (
+                        <p className="text-sm md:text-lg font-medium text-white/90 italic mb-2 drop-shadow-sm">{shop.tagline}</p>
+                    )}
                     <p className="text-sm md:text-base font-medium text-white/80 flex items-center gap-1.5">
                         <span className="material-symbols-outlined text-[16px]">location_on</span>
                         {(shop.address || "").split(" ||| ")[0]}
