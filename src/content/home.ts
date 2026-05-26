@@ -13,6 +13,7 @@ export const navItems: NavItem[] = [
     { label: "Home", href: ROUTES.HOME },
     { label: "Features", href: ROUTES.FEATURES },
     { label: "Pricing", href: ROUTES.PRICING },
+    { label: "About", href: ROUTES.ABOUT },
 ];
 
 export const heroContent: HeroContent = {
@@ -57,7 +58,7 @@ export const footerColumns: FooterColumn[] = [
     {
         heading: "Company",
         links: [
-            { label: "About Us",        href: "#" },
+            { label: "About Us",        href: ROUTES.ABOUT },
             { label: "Success Stories", href: "#" },
             { label: "Careers",         href: "#" },
         ],

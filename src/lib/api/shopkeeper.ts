@@ -44,6 +44,18 @@ export interface TopProduct {
 // ── Fetchers (Supabase-backed with fallback) ──
 
 export async function getDashboardMetrics(shopId?: string | null): Promise<DashboardMetrics> {
+  if (shopId === 'mock-shopkeeper-uuid-12345') {
+    return {
+      totalRevenue: 84250,
+      activeCustomers: 142,
+      totalOrders: 328,
+      conversionRate: 3.4,
+      revenueChange: 12.5,
+      customerChange: 8.2,
+      orderChange: 15.3,
+      conversionChange: 0.4,
+    };
+  }
   try {
     // Note: 'shopkeeper_metrics' is a view or table you might have created.
     // If it doesn't exist, this will trigger the fallback.
@@ -109,7 +121,13 @@ export async function getRevenueTrend(): Promise<RevenueTrend[]> {
     if (error || !data?.length) throw error;
     return data as RevenueTrend[];
   } catch {
-    return [];
+    return [
+      { month: 'Jan', revenue: 45000 },
+      { month: 'Feb', revenue: 52000 },
+      { month: 'Mar', revenue: 61000 },
+      { month: 'Apr', revenue: 70000 },
+      { month: 'May', revenue: 84250 },
+    ];
   }
 }
 
@@ -121,11 +139,25 @@ export async function getSalesByCategory(): Promise<CategorySale[]> {
     if (error || !data?.length) throw error;
     return data as CategorySale[];
   } catch {
-    return [];
+    return [
+      { name: 'Groceries', value: 45, color: '#138808' },
+      { name: 'Beverages', value: 25, color: '#FF9933' },
+      { name: 'Personal Care', value: 18, color: '#000080' },
+      { name: 'Household', value: 12, color: '#F97316' },
+    ];
   }
 }
 
 export async function getRecentOrders(shopId?: string | null): Promise<RecentOrder[]> {
+  if (shopId === 'mock-shopkeeper-uuid-12345') {
+    return [
+      { id: '1', customer: 'Rahul Sharma', product: 'Aashirvaad Atta & Milk', date: 'Today', status: 'Delivered', total: 380 },
+      { id: '2', customer: 'Priya Patel', product: 'Premium Basmati Rice', date: 'Yesterday', status: 'Processing', total: 650 },
+      { id: '3', customer: 'Amit Verma', product: 'Organic Green Tea', date: '2 days ago', status: 'Delivered', total: 220 },
+      { id: '4', customer: 'Sneha Gupta', product: 'Household Cleaners', date: '3 days ago', status: 'Cancelled', total: 480 },
+      { id: '5', customer: 'Rajesh Kumar', product: 'Fortune Cooking Oil', date: '4 days ago', status: 'Pending', total: 310 },
+    ];
+  }
   try {
     // Use correct columns: customer_id, total_amount, created_at
     // Join with order_items to get the first product name per order
@@ -187,6 +219,15 @@ export async function getRecentOrders(shopId?: string | null): Promise<RecentOrd
 }
 
 export async function getTopProducts(shopId?: string | null): Promise<TopProduct[]> {
+  if (shopId === 'mock-shopkeeper-uuid-12345') {
+    return [
+      { id: 'p1', name: 'Aashirvaad Atta 5kg', category: 'Groceries', price: 260, sold: 48, image: '' },
+      { id: 'p2', name: 'Surf Excel Easy Wash 1kg', category: 'Household', price: 140, sold: 32, image: '' },
+      { id: 'p3', name: 'Fortune Mustard Oil 1L', category: 'Groceries', price: 175, sold: 29, image: '' },
+      { id: 'p4', name: 'Tata Salt 1kg', category: 'Groceries', price: 28, sold: 25, image: '' },
+      { id: 'p5', name: 'Amul Butter 500g', category: 'Dairy', price: 275, sold: 22, image: '' },
+    ];
+  }
   try {
     // Use the real table name 'shopkeeper_products'
     let query = supabase

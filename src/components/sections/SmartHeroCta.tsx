@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { ROUTES } from "@/constants/routes";
-import { LayoutDashboard, Store } from "lucide-react";
+import { LayoutDashboard, Store, Info } from "lucide-react";
 
 type UserRole = "shopkeeper" | "customer" | null;
 
@@ -72,7 +72,7 @@ export default function SmartHeroCta() {
         );
     }
 
-    // Logged-in user: show "Go to Dashboard" + "Shop Now"
+    // Logged-in user: show "Go to Dashboard" + "Shop Now" + "About"
     if (role !== null) {
         return (
             <div className="flex flex-wrap gap-4">
@@ -95,11 +95,22 @@ export default function SmartHeroCta() {
                 >
                     Shop Now
                 </motion.button>
+
+                <motion.a
+                    href={ROUTES.ABOUT}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all cursor-pointer border-2 border-slate-300 text-slate-600 hover:border-[#f97316] hover:text-[#f97316] h-14 px-6 text-base"
+                >
+                    <Info className="h-5 w-5" />
+                    About Us
+                </motion.a>
             </div>
         );
     }
 
-    // Logged-out: show original CTAs
+    // Logged-out: show original CTAs + About Us
     return (
         <div className="flex flex-wrap gap-4">
             <motion.button
@@ -120,6 +131,16 @@ export default function SmartHeroCta() {
                 <Store className="h-5 w-5" />
                 Register Your Shop
             </motion.button>
+            <motion.a
+                href={ROUTES.ABOUT}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-all cursor-pointer border-2 border-slate-300 text-slate-600 hover:border-[#f97316] hover:text-[#f97316] h-14 px-6 text-base"
+            >
+                <Info className="h-5 w-5" />
+                About Us
+            </motion.a>
         </div>
     );
 }

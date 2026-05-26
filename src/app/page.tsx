@@ -4,6 +4,7 @@ import HeroSection from "@/components/sections/HeroSection";
 import FeaturesSection from "@/components/sections/FeaturesSection";
 import CategoriesSection from "@/components/sections/CategoriesSection";
 import CtaSection from "@/components/sections/CtaSection";
+import WaitlistSection from "@/components/sections/WaitlistSection";
 
 export default function Page() {
   return (
@@ -16,6 +17,7 @@ export default function Page() {
             <FeaturesSection />
             <CategoriesSection />
             <CtaSection />
+            <WaitlistSection />
           </main>
           <Footer />
         </div>

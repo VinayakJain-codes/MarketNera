@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ROUTES } from "@/constants/routes";
-import { getURL } from "@/lib/utils";
+
 import Button from "@/components/ui/Button";
 import Logo from "@/components/layout/Logo";
 
@@ -20,6 +20,13 @@ export default function CustomerLoginPage() {
     const [otp, setOtp] = useState("");
     const [otpSent, setOtpSent] = useState(false);
     const [countdown, setCountdown] = useState(0);
+    const [isDev, setIsDev] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+            setIsDev(true);
+        }
+    }, []);
 
     useEffect(() => {
         if (countdown > 0) {
@@ -117,22 +124,7 @@ export default function CustomerLoginPage() {
         setLoading(false);
     };
 
-    const handleGoogleLogin = async () => {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: "google",
-            options: {
-                redirectTo: `${getURL()}auth/callback?next=${encodeURIComponent(ROUTES.CUSTOMER_DASHBOARD)}`,
-                queryParams: {
-                    access_type: "offline",
-                    prompt: "consent",
-                },
-            },
-        });
-        if (error) {
-            setMessage(error.message);
-            setIsError(true);
-        }
-    };
+
 
     return (
         <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50 px-4">
@@ -298,12 +290,11 @@ export default function CustomerLoginPage() {
                         </div>
                     </div>
 
-                    {/* Google Button */}
+                    {/* Google Button — Coming Soon */}
                     <div className="animate-fade-in-up delay-200">
-                        <button
-                            type="button"
-                            onClick={handleGoogleLogin}
-                            className="google-btn flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 cursor-pointer border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+                        <a
+                            href="/coming-soon"
+                            className="google-btn flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 border border-slate-200 bg-white hover:bg-slate-50 transition-colors relative"
                         >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -312,15 +303,42 @@ export default function CustomerLoginPage() {
                                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                             </svg>
                             Continue with Google
-                        </button>
+                            <span className="absolute -top-2 -right-2 rounded-full bg-orange-500 px-1.5 py-0.5 text-[9px] font-black text-white uppercase tracking-wide">Soon</span>
+                        </a>
                     </div>
 
                     <p className="mt-6 text-center text-xs text-slate-400 animate-fade-in delay-500">
-                        Don&apos;t have an account?{" "}
-                        <a href={ROUTES.SIGNUP_CUSTOMER} className="font-bold text-primary hover:text-green-600 transition-colors">
-                            Create one
+                        New to MarketNera?{" "}
+                        <a href="/coming-soon" className="font-bold text-primary hover:text-orange-600 transition-colors">
+                            Join the waitlist →
                         </a>
                     </p>
+
+                    {/* Developer Sandbox Bypass Options */}
+                    {isDev && (
+                        <div className="mt-6 border-t border-slate-100 pt-6 animate-fade-in delay-700">
+                            <div className="rounded-2xl bg-amber-50/60 border border-amber-200/80 p-4">
+                                <h4 className="text-xs font-black text-amber-800 uppercase tracking-widest flex items-center gap-1.5 mb-2">
+                                    <span className="material-symbols-outlined text-sm font-bold">construction</span>
+                                    Developer Sandbox
+                                </h4>
+                                <p className="text-[11px] text-amber-700/90 mb-3 leading-relaxed">
+                                    Supabase auth is offline or credentials aren't initialized? Use this instant bypass to test the fully functional customer dashboard.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        document.cookie = "dev_bypass_role=customer; path=/";
+                                        window.location.href = ROUTES.CUSTOMER_DASHBOARD;
+                                    }}
+                                    className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black tracking-wider uppercase shadow-md shadow-orange-500/10 hover:shadow-lg transition-all flex items-center justify-center gap-1.5"
+                                >
+                                    <span className="material-symbols-outlined text-sm font-bold">login</span>
+                                    Customer Sandbox Login
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

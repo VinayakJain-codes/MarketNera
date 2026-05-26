@@ -54,6 +54,95 @@ export interface ProductFilters {
  * Fetch products for a specific shop, optionally filtered.
  */
 export async function getProducts(shopId: string, filters?: ProductFilters): Promise<Product[]> {
+  if (shopId === 'mock-shopkeeper-uuid-12345') {
+    const mockProducts: Product[] = [
+      {
+        id: 'mock-p1',
+        shop_id: 'mock-shopkeeper-uuid-12345',
+        name: 'Aashirvaad Atta 5kg',
+        description: 'Premium quality whole wheat flour',
+        category: 'Groceries',
+        sub_category: 'Flours',
+        price: 260,
+        sale_price: 245,
+        price_valid_from: null,
+        price_valid_to: null,
+        stock_quantity: 48,
+        low_stock_threshold: 10,
+        unit_type: '5kg',
+        sku: 'ASH-ATT-5',
+        tags: ['atta', 'wheat', 'grocery'],
+        is_published: true,
+        published_at: new Date().toISOString(),
+        scheduled_live_at: null,
+        is_featured: true,
+        hide_from_search: false,
+        restock_notification: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: 'mock-p2',
+        shop_id: 'mock-shopkeeper-uuid-12345',
+        name: 'Surf Excel Easy Wash 1kg',
+        description: 'Detergent powder for easy stains removal',
+        category: 'Household',
+        sub_category: 'Detergents',
+        price: 140,
+        sale_price: null,
+        price_valid_from: null,
+        price_valid_to: null,
+        stock_quantity: 3,
+        low_stock_threshold: 5,
+        unit_type: '1kg',
+        sku: 'SURF-1KG',
+        tags: ['surf', 'detergent', 'cleaning'],
+        is_published: true,
+        published_at: new Date().toISOString(),
+        scheduled_live_at: null,
+        is_featured: false,
+        hide_from_search: false,
+        restock_notification: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: 'mock-p3',
+        shop_id: 'mock-shopkeeper-uuid-12345',
+        name: 'Amul Gold Milk 1L',
+        description: 'Fresh pasteurized full cream milk',
+        category: 'Dairy',
+        sub_category: 'Milk',
+        price: 66,
+        sale_price: null,
+        price_valid_from: null,
+        price_valid_to: null,
+        stock_quantity: 2,
+        low_stock_threshold: 10,
+        unit_type: '1L',
+        sku: 'AMUL-GOLD-1',
+        tags: ['milk', 'dairy', 'amul'],
+        is_published: true,
+        published_at: new Date().toISOString(),
+        scheduled_live_at: null,
+        is_featured: true,
+        hide_from_search: false,
+        restock_notification: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+    ];
+
+    let results = mockProducts;
+    if (filters?.category && filters.category !== 'All') {
+      results = results.filter(p => p.category === filters.category);
+    }
+    if (filters?.status === 'low_stock') {
+      results = results.filter(p => p.stock_quantity > 0 && p.stock_quantity <= p.low_stock_threshold);
+    }
+    return results;
+  }
+
   let query = supabase
     .from('shopkeeper_products')
     .select(`

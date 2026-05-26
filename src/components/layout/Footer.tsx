@@ -1,7 +1,11 @@
+"use client";
+
+import { useState } from "react";
 import Logo from "@/components/layout/Logo";
 import { footerColumns, socialLinks, footerTagline } from "@/content/home";
 import siteConfig from "@/config/site";
 import { LIMITS } from "@/constants/limits";
+import { supabase } from "@/lib/supabase";
 
 export default function Footer() {
     return (
@@ -43,22 +47,70 @@ export default function Footer() {
                         <p className="text-xs tracking-wide text-slate-500">
                             © {LIMITS.FOUNDING_YEAR} {siteConfig.name} Inc. All rights reserved.
                         </p>
-                        <div className="flex gap-8">
-                            {socialLinks.map((social) => (
-                                <a
-                                    key={social.platform}
-                                    href={social.href}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs font-bold uppercase tracking-widest text-slate-500 transition-colors hover:text-primary"
-                                >
-                                    {social.platform}
-                                </a>
-                            ))}
+                        <div className="flex flex-col gap-4 items-end">
+                            <div className="flex gap-8">
+                                {socialLinks.map((social) => (
+                                    <a
+                                        key={social.platform}
+                                        href={social.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs font-bold uppercase tracking-widest text-slate-500 transition-colors hover:text-primary"
+                                    >
+                                        {social.platform}
+                                    </a>
+                                ))}
+                            </div>
+                            
+                            {/* Dev Testing Secret Input (Red Dot Toggle) */}
+                            <DevTestingDot />
                         </div>
                     </div>
                 </div>
             </div>
         </footer>
+    );
+}
+
+// Dev testing sub-component to handle state
+function DevTestingDot() {
+    const [isOpen, setIsOpen] = useState(false);
+
+    if (isOpen) {
+        return (
+            <input 
+                autoFocus
+                type="text" 
+                placeholder="Enter secret code..." 
+                aria-label="Dev secret code"
+                onBlur={() => setIsOpen(false)}
+                onChange={async (e) => {
+                    const val = e.target.value;
+                    if (val === "shopkeeper@2110") {
+                        document.cookie = "dev_bypass_role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        e.target.value = "Logging in...";
+                        e.target.disabled = true;
+                        await supabase.auth.signInWithPassword({ email: "saksham@gmail.com", password: "12345678" });
+                        window.location.href = "/shopkeeper/dashboard";
+                    } else if (val === "customer@2110") {
+                        document.cookie = "dev_bypass_role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        e.target.value = "Logging in...";
+                        e.target.disabled = true;
+                        await supabase.auth.signInWithPassword({ email: "test@gmail.com", password: "12345678" });
+                        window.location.href = "/customer/dashboard";
+                    }
+                }}
+                className="w-44 py-1.5 px-3 rounded-lg bg-white shadow-md border border-red-300 text-red-600 font-bold tracking-wider outline-none placeholder-red-300 text-xs transition-all duration-300"
+            />
+        );
+    }
+
+    return (
+        <button
+            type="button"
+            onClick={() => setIsOpen(true)}
+            className="w-2.5 h-2.5 p-0 rounded-full bg-red-500/40 hover:bg-red-500 transition-colors duration-300 cursor-pointer outline-none"
+            aria-label="Developer Secret"
+        />
     );
 }

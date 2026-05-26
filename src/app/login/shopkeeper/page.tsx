@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ROUTES } from "@/constants/routes";
-import { getURL } from "@/lib/utils";
+
 import Button from "@/components/ui/Button";
 import Logo from "@/components/layout/Logo";
 
@@ -13,6 +13,13 @@ export default function ShopkeeperLoginPage() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
+    const [isDev, setIsDev] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+            setIsDev(true);
+        }
+    }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -45,22 +52,7 @@ export default function ShopkeeperLoginPage() {
         }
     };
 
-    const handleGoogleLogin = async () => {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: "google",
-            options: {
-                redirectTo: `${getURL()}auth/callback?next=${encodeURIComponent(ROUTES.SHOPKEEPER_SETUP)}`,
-                queryParams: {
-                    access_type: "offline",
-                    prompt: "consent",
-                },
-            },
-        });
-        if (error) {
-            setMessage(error.message);
-            setIsError(true);
-        }
-    };
+
 
     return (
         <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-white px-4">
@@ -84,11 +76,11 @@ export default function ShopkeeperLoginPage() {
                         </p>
                     </div>
 
-                    {/* Google Button */}
+                    {/* Google Button — Coming Soon */}
                     <div className="mt-8 animate-fade-in-up delay-200">
-                        <button
-                            onClick={handleGoogleLogin}
-                            className="google-btn flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 cursor-pointer shadow-sm hover:bg-slate-50 transition-colors"
+                        <a
+                            href="/coming-soon"
+                            className="google-btn flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors relative"
                         >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -97,7 +89,8 @@ export default function ShopkeeperLoginPage() {
                                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                             </svg>
                             Sign in with Google
-                        </button>
+                            <span className="absolute -top-2 -right-2 rounded-full bg-orange-500 px-1.5 py-0.5 text-[9px] font-black text-white uppercase tracking-wide">Soon</span>
+                        </a>
                     </div>
 
                     {/* Divider */}
@@ -157,11 +150,37 @@ export default function ShopkeeperLoginPage() {
                     </form>
 
                     <p className="mt-6 text-center text-xs text-slate-400 animate-fade-in delay-500">
-                        Don't have a shop account yet?{" "}
-                        <a href={ROUTES.SIGNUP_SHOPKEEPER} className="font-semibold text-[#138808] hover:text-[#FF9933] transition-colors">
-                            Partner with Us
+                        Want to list your shop?{" "}
+                        <a href="/coming-soon" className="font-semibold text-[#138808] hover:text-[#FF9933] transition-colors">
+                            Join the waitlist →
                         </a>
                     </p>
+
+                    {/* Developer Sandbox Bypass Options */}
+                    {isDev && (
+                        <div className="mt-6 border-t border-slate-100 pt-6 animate-fade-in delay-700">
+                            <div className="rounded-2xl bg-amber-50/60 border border-amber-200/80 p-4">
+                                <h4 className="text-xs font-black text-amber-800 uppercase tracking-widest flex items-center gap-1.5 mb-2">
+                                    <span className="material-symbols-outlined text-sm font-bold">construction</span>
+                                    Developer Sandbox
+                                </h4>
+                                <p className="text-[11px] text-amber-700/90 mb-3 leading-relaxed">
+                                    Supabase auth is offline or credentials aren't initialized? Use this instant bypass to test the fully functional shopkeeper dashboard.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        document.cookie = "dev_bypass_role=shopkeeper; path=/";
+                                        window.location.href = ROUTES.SHOPKEEPER_DASHBOARD;
+                                    }}
+                                    className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black tracking-wider uppercase shadow-md shadow-orange-500/10 hover:shadow-lg transition-all flex items-center justify-center gap-1.5"
+                                >
+                                    <span className="material-symbols-outlined text-sm font-bold">storefront</span>
+                                    Shopkeeper Sandbox Login
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

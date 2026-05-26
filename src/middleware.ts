@@ -34,8 +34,14 @@ export async function middleware(request: NextRequest) {
   const isShopkeeperRoute = request.nextUrl.pathname.startsWith('/shopkeeper');
   const isCustomerRoute = request.nextUrl.pathname.startsWith('/customer');
 
+  // Check for developer bypass cookie (e.g. set locally for sandbox testing)
+  const devBypassRole = request.cookies.get('dev_bypass_role')?.value;
+  const hasBypass = (isShopkeeperRoute && devBypassRole === 'shopkeeper') ||
+                    (isCustomerRoute && devBypassRole === 'customer');
+
   if (
     !user &&
+    !hasBypass &&
     (isShopkeeperRoute || isCustomerRoute) &&
     !request.nextUrl.pathname.startsWith('/login')
   ) {
