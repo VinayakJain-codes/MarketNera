@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Store Setup - My Front Store</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#004b74",
+                        "background": "#f8f9ff",
+                        "surface-variant": "#d3e4fe",
+                        "outline-variant": "#e0c0b1",
+                        "on-secondary-container": "#007126",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#38fd69",
+                        "tertiary-fixed": "#cde5ff",
+                        "surface-bright": "#f8f9ff",
+                        "secondary": "#006e25",
+                        "surface": "#f8f9ff",
+                        "surface-container": "#e5eeff",
+                        "primary": "#9d4300",
+                        "tertiary-container": "#00a2f4",
+                        "on-secondary-fixed-variant": "#00531a",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#584237",
+                        "primary-fixed-dim": "#ffb690",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "on-surface": "#0b1c30",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#6cff81",
+                        "surface-tint": "#9d4300",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-background": "#0b1c30",
+                        "secondary-fixed-dim": "#00e556",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#341100",
+                        "inverse-primary": "#ffb690",
+                        "on-primary-container": "#582200",
+                        "inverse-surface": "#213145",
+                        "primary-fixed": "#ffdbca",
+                        "surface-container-high": "#dce9ff",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-secondary-fixed": "#002106",
+                        "tertiary": "#006398",
+                        "on-tertiary-container": "#003554",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#001d32",
+                        "primary-container": "#f97316",
+                        "tertiary-fixed-dim": "#93ccff",
+                        "outline": "#8c7164",
+                        "surface-container-highest": "#d3e4fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "24px",
+                        "stack-lg": "40px",
+                        "base": "8px",
+                        "gutter": "24px",
+                        "container-margin-desktop": "48px",
+                        "container-margin-mobile": "16px",
+                        "stack-sm": "12px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .card-shadow {
+            box-shadow: 0 4px 12px rgba(148, 163, 184, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim shadow-sm docked full-width top-0 sticky z-50 flex items-center justify-between px-container-mobile md:px-container-desktop h-16 w-full">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-primary dark:text-primary-fixed-dim hover:bg-surface-container transition-colors p-2 rounded-full active:scale-95 transition-transform">menu</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Store Setup</h1>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border-2 border-primary-container">
+<img alt="Merchant Profile" class="w-full h-full object-cover" data-alt="A high-quality studio portrait of a professional female store manager with a warm, confident expression. The lighting is soft and professional, using a shallow depth of field against a minimalist office background. The overall aesthetic is clean and modern, consistent with a high-end corporate dashboard environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJzKQpkPI97GO0ZkSQh2jH-j0ByGeyctpwqeAcA0CVSTFpneVHa0Yi-SLNlWMMrPL-k878sxx8jwQj_9tDohk7_l4l1equTnFhBtK849DDx6z-aYX6LIIXN6KiiNPi-TippE_KEJ1bgzsStmznKGMwDwQkaIrd3WN-2CEK79jrf4wH3Wx3W9jPfpFoALJV5lGlvtZLNhkwB6b8dAS9VCbpNBKK9DC9FrG-96CeQjiTwcteAagC4eVH9coocl298LU7cx_5eNGfuFo"/>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-container-mobile md:px-container-desktop py-stack-md pb-32 flex flex-col gap-gutter lg:grid lg:grid-cols-12">
+<!-- Left Column: Previews & Visuals -->
+<div class="lg:col-span-5 flex flex-col gap-gutter">
+<!-- Live Store Preview Card -->
+<section class="bg-surface-container-lowest rounded-2xl p-6 card-shadow border border-surface-container-low overflow-hidden">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-headline-md text-headline-md text-primary">Live Store Preview</h2>
+<div class="flex items-center gap-2 bg-secondary-container/20 px-3 py-1 rounded-full border border-secondary-container">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-on-secondary-container">Live</span>
+</div>
+</div>
+<div class="rounded-xl overflow-hidden mb-4 relative aspect-[21/9]">
+<img alt="Shop Banner" class="w-full h-full object-cover" data-alt="A beautifully organized, high-end grocery store storefront at golden hour. The image features vibrant, fresh organic produce in wooden crates under warm, inviting lighting. The aesthetic is clean and professional with a modern corporate feel, emphasizing freshness and quality. The color palette is rich with greens, oranges, and earthy tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDT7Qm8dMOGbF2-YkbUMBnpZi4O9LR_0byQQuMXYr9A00gYWpPmgaDScnEOUpZffbx2vzuW0hXQtgdQ5pJSzYIBDdLljxUu69cqZDXRGKoUuqh-Dg8wpPxiXU9cR-V_-SipeM8DGRZfAf6R9L_AHdjtfcyPTV8YBs1VOe5NP4r9WheD6KB6PPpXYQp1XCEn47pJ__aOhMq1KYtr1pGMyLheuRCy0t4tT8kR3y56XIJrZxRBDNTrUlpeASfzIXoXCSv83DPuxjM0R8s"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<span class="bg-primary-container text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded tracking-wider mb-1 inline-block">Top Rated</span>
+<p class="font-headline-md text-headline-md leading-tight">Green Grocery</p>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<div class="flex items-center gap-1 mb-1">
+<span class="material-symbols-outlined text-[#FFD700] text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[#FFD700] text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[#FFD700] text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[#FFD700] text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[#FFD700] text-sm" style="font-variation-settings: 'FILL' 0.5;">star_half</span>
+<span class="font-label-sm text-label-sm ml-1 text-on-surface-variant">4.5 (1.2k)</span>
+</div>
+<span class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-3 py-1 rounded-full">Grocery</span>
+</div>
+<div class="flex flex-col items-end gap-1">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+<span class="font-label-sm text-label-sm text-secondary font-bold">Open</span>
+</div>
+</div>
+</section>
+<!-- Banner Image Uploader -->
+<section class="bg-surface-container-lowest rounded-2xl p-6 card-shadow border border-surface-container-low">
+<h3 class="font-headline-md text-headline-md text-primary mb-4">Banner Image</h3>
+<div class="border-2 border-dashed border-outline-variant rounded-xl aspect-[3/1] flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-outline text-4xl mb-2 group-hover:scale-110 transition-transform">add_a_photo</span>
+<p class="font-label-md text-label-md text-on-surface-variant">Click or Drag to Upload</p>
+<p class="text-[10px] text-outline mt-1 uppercase tracking-widest">Recommended: 1200 x 400px</p>
+</div>
+</section>
+</div>
+<!-- Right Column: Forms & Settings -->
+<div class="lg:col-span-7 flex flex-col gap-gutter">
+<!-- Store Info Form -->
+<section class="bg-surface-container-lowest rounded-2xl p-6 card-shadow border border-surface-container-low">
+<h3 class="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined">storefront</span>
+                    Store Identity
+                </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Store Name</label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="Green Grocery"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Category</label>
+<select class="w-full h-12 px-4 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all bg-white">
+<option>Grocery</option>
+<option>Fashion</option>
+<option>Electronics</option>
+</select>
+</div>
+<div class="md:col-span-2 flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Tagline</label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="Freshly picked for your family" type="text"/>
+</div>
+<div class="md:col-span-2 flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Full Address</label>
+<textarea class="w-full p-4 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="2">123 Market Street, Silicon Valley, CA 94025</textarea>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Phone Number</label>
+<div class="flex">
+<span class="h-12 px-3 flex items-center border border-r-0 border-outline-variant rounded-l-lg bg-surface-container text-on-surface-variant font-label-md">+91</span>
+<input class="w-full h-12 px-4 rounded-r-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="tel" value="9876543210"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">WhatsApp Business</label>
+<div class="flex">
+<span class="h-12 px-3 flex items-center border border-r-0 border-outline-variant rounded-l-lg bg-surface-container text-on-surface-variant font-label-md">+91</span>
+<input class="w-full h-12 px-4 rounded-r-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="tel" value="9876543210"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Operating Hours Grid -->
+<section class="bg-surface-container-lowest rounded-2xl p-6 card-shadow border border-surface-container-low">
+<h3 class="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined">schedule</span>
+                    Operating Hours
+                </h3>
+<div class="flex flex-col gap-3">
+<!-- Day Row Helper Component Style -->
+<script>
+                        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+                    </script>
+<div class="space-y-4" id="hours-container">
+<!-- Repeated for each day -->
+<div class="flex flex-wrap items-center justify-between gap-4 p-3 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-3 w-32">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+<span class="font-label-md text-label-md font-bold text-on-surface">Monday</span>
+</div>
+<div class="flex items-center gap-2 flex-grow justify-end md:justify-start">
+<input class="px-2 py-1 rounded border border-outline-variant bg-white text-on-surface text-sm" type="time" value="09:00"/>
+<span class="text-on-surface-variant">to</span>
+<input class="px-2 py-1 rounded border border-outline-variant bg-white text-on-surface text-sm" type="time" value="21:00"/>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-4 p-3 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-3 w-32">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+<span class="font-label-md text-label-md font-bold text-on-surface">Tuesday</span>
+</div>
+<div class="flex items-center gap-2 flex-grow justify-end md:justify-start">
+<input class="px-2 py-1 rounded border border-outline-variant bg-white text-on-surface text-sm" type="time" value="09:00"/>
+<span class="text-on-surface-variant">to</span>
+<input class="px-2 py-1 rounded border border-outline-variant bg-white text-on-surface text-sm" type="time" value="21:00"/>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-4 p-3 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-3 w-32">
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+<span class="font-label-md text-label-md font-bold text-on-surface-variant">Sunday</span>
+</div>
+<div class="flex items-center gap-2 flex-grow justify-end md:justify-start opacity-40">
+<span class="font-label-md text-label-md text-error italic">Closed for Business</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Delivery Settings -->
+<section class="bg-surface-container-lowest rounded-2xl p-6 card-shadow border border-surface-container-low">
+<h3 class="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined">local_shipping</span>
+                    Logistics &amp; Delivery
+                </h3>
+<div class="flex flex-col gap-6">
+<div class="flex flex-col gap-4">
+<div class="flex justify-between">
+<label class="font-label-md text-label-md text-on-surface-variant">Delivery Radius</label>
+<span class="font-label-md text-label-md text-primary font-bold"><span id="radius-val">10</span> km</span>
+</div>
+<input class="w-full h-2 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" max="50" min="1" oninput="document.getElementById('radius-val').innerText = this.value" type="range" value="10"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-stack-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Min Order ₹</label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant focus:border-primary outline-none" type="number" value="250"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">ETA (mins)</label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant focus:border-primary outline-none" type="number" value="45"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Delivery Fee ₹</label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant focus:border-primary outline-none" type="number" value="30"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Social Links -->
+<section class="bg-surface-container-lowest rounded-2xl p-6 card-shadow border border-surface-container-low">
+<h3 class="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined">share</span>
+                    Connect Channels
+                </h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4 bg-white p-3 rounded-xl border border-outline-variant focus-within:border-primary transition-all">
+<img alt="Instagram" class="w-8 h-8" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4x0kdlLIALOR2gQSDvrsnMCQX0VIRRe-6nFcy5uJvEYVAZCP5cnEtqbFSJkRpX0OJyf7hFcQDg-ScAx8KHSnKCdOpSWKB91cP3wSvFXiFEDxZpsrxoDWRe25vdqgD_ZaE8r6MQTu-ZF0fogB2_kRIsA199M0hkvjIEjrmZ5Hy-LrHjrKL-G-ZCMJGlNUbuxpqXoBD4-4_UQJBfWB-8kp_eFaEzIByGhOe0OujkqQXyT8bD7IBX9nhGnEe5hy82Wu5i3aqfKCzYGM"/>
+<div class="flex-grow">
+<label class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Instagram Username</label>
+<input class="w-full border-none p-0 focus:ring-0 text-on-surface font-label-md" type="text" value="@greengrocery_official"/>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-white p-3 rounded-xl border border-outline-variant focus-within:border-primary transition-all">
+<span class="material-symbols-outlined text-4xl text-[#4285F4]">location_on</span>
+<div class="flex-grow">
+<label class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Google Maps URL</label>
+<input class="w-full border-none p-0 focus:ring-0 text-on-surface font-label-md overflow-ellipsis" type="text" value="https://maps.google.com/..."/>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Action Bar -->
+<div class="fixed bottom-0 left-0 w-full bg-surface shadow-[0_-4px_20px_rgba(0,0,0,0.08)] p-container-mobile md:p-container-desktop z-[55] flex justify-center border-t border-surface-container">
+<button class="bg-primary-container text-on-primary-container w-full max-w-4xl h-14 rounded-2xl font-headline-md text-headline-md font-bold flex items-center justify-center gap-3 hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary-container/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">save</span>
+            Save Changes
+        </button>
+</div>
+<!-- Navigation Shell Logic - Mobile Bottom Nav -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center py-2 px-4 pb-safe bg-surface dark:bg-surface-dim shadow-[0_-4px_12px_rgba(0,0,0,0.05)] z-50 rounded-t-xl hidden">
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-4 py-1">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-label-sm">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary-container dark:bg-on-primary-fixed-variant text-on-primary-container dark:text-primary-fixed rounded-2xl px-4 py-1">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-label-sm text-label-sm">Store</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-4 py-1">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="font-label-sm text-label-sm">Orders</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-4 py-1">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-sm text-label-sm">Settings</span>
+</div>
+</nav>
+<script>
+        // Micro-interaction: Update Star Fill on Rating Hover (Simulated)
+        const stars = document.querySelectorAll('.material-symbols-outlined[style*="star"]');
+        stars.forEach((star, idx) => {
+            star.addEventListener('click', () => {
+                stars.forEach((s, i) => {
+                    s.style.fontVariationSettings = i <= idx ? "'FILL' 1" : "'FILL' 0";
+                });
+            });
+        });
+
+        // Floating Header Effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md');
+                header.classList.add('bg-white/80');
+                header.classList.add('backdrop-blur-md');
+            } else {
+                header.classList.remove('shadow-md');
+                header.classList.remove('bg-white/80');
+                header.classList.remove('backdrop-blur-md');
+            }
+        });
+    </script>
+</body></html>

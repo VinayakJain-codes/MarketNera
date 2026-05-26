@@ -11,7 +11,7 @@ import {
     clearCart,
     CartItem,
 } from "@/lib/services/cart";
-import { placeOrder } from "@/lib/services/orders";
+import { placeOrder, cancelOrder } from "@/lib/services/orders";
 import { loadRazorpayScript } from "@/lib/services/razorpay";
 import { ROUTES } from "@/constants/routes";
 import { User } from "@supabase/supabase-js";
@@ -295,9 +295,10 @@ export default function CartPage() {
                           color: "#F97316", // brand primary orange
                       },
                       modal: {
-                          ondismiss: () => {
+                          ondismiss: async () => {
                               setPlacing(false);
                               setPlaceError("Payment cancelled.");
+                              await cancelOrder(order.id, user.id);
                           },
                       },
                   };

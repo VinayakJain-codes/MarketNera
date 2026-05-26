@@ -153,6 +153,7 @@ export async function getShopkeeperOrders(
         .from("orders")
         .select(`*, order_items (*)`)
         .eq("shopkeeper_id", shopkeeperId)
+        .or("payment_method.eq.cod,payment_status.eq.paid")
         .order("created_at", { ascending: false });
 
     if (status) {
@@ -223,6 +224,7 @@ export async function getActiveOrderCount(shopkeeperId: string): Promise<number>
         .from("orders")
         .select("id", { count: "exact", head: true })
         .eq("shopkeeper_id", shopkeeperId)
+        .or("payment_method.eq.cod,payment_status.eq.paid")
         .in("status", ["pending", "accepted", "preparing", "ready"]);
 
     if (error) return 0;

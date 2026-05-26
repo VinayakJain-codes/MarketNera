@@ -27,6 +27,11 @@ const siteMetadata: Metadata = {
         follow: true,
     },
     manifest: "/manifest.json",
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: "default",
+        title: "MarketNera",
+    },
 };
 
 export default siteMetadata;

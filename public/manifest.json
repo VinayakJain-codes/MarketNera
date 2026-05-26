@@ -1,6 +1,6 @@
 {
-    "name": "Marketnera",
-    "short_name": "Marketnera",
+    "name": "MarketNera",
+    "short_name": "MarketNera",
     "description": "Growth. Local. Yours. Empowering local shopkeepers.",
     "start_url": "/",
     "display": "standalone",
@@ -12,6 +12,23 @@
             "src": "/favicon.ico",
             "sizes": "48x48",
             "type": "image/x-icon"
+        },
+        {
+            "src": "/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
         }
     ],
     "categories": [
@@ -19,4 +36,4 @@
         "shopping"
     ],
     "lang": "en-IN"
-}   
+}
