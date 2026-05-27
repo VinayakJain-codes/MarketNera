@@ -18,12 +18,6 @@ interface MapplsLocationPickerProps {
 
 import { mappls } from "mappls-web-maps";
 
-// Ensure TypeScript knows about the window.mappls object
-declare global {
-    interface Window {
-        mappls: any;
-    }
-}
 
 export default function MapplsLocationPicker({
     isOpen,
@@ -98,7 +92,7 @@ export default function MapplsLocationPicker({
                         });
 
                         mapInstance.on("load", () => {
-                            markerInstance = new window.mappls.Marker({
+                            markerInstance = new (window as any).mappls.Marker({
                                 map: mapInstance,
                                 position: { lat, lng },
                                 fitbounds: false,
