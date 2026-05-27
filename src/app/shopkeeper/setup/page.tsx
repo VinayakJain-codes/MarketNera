@@ -8,13 +8,14 @@ import { ROUTES } from "@/constants/routes";
 import Button from "@/components/ui/Button";
 import Logo from "@/components/layout/Logo";
 import toast from "react-hot-toast";
+import MapplsLocationPicker from "@/components/ui/MapplsLocationPicker";
 
 export default function ShopkeeperSetupPage() {
     const router = useRouter();
     const [userId, setUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const [detectingLocation, setDetectingLocation] = useState(false);
+    const [showMapplsPicker, setShowMapplsPicker] = useState(false);
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
     const [photoUrl, setPhotoUrl] = useState("");
     const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -49,33 +50,7 @@ export default function ShopkeeperSetupPage() {
     };
 
     const handleDetectLocation = () => {
-        if (!navigator.geolocation) {
-            toast.error("Geolocation is not supported by your browser");
-            return;
-        }
-        setDetectingLocation(true);
-        navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                setCoords({ lat, lng });
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
-                    const data = await res.json();
-                    const fullAddress = data.display_name ? data.display_name.replace(", India", "").trim() : "Location detected";
-                    setFormData(prev => ({ ...prev, address: fullAddress }));
-                    toast.success("Coordinates geocoded successfully!");
-                } catch (e) {
-                    toast.error("Reverse-geocoding failed. Coordinates recorded.");
-                } finally {
-                    setDetectingLocation(false);
-                }
-            },
-            () => {
-                toast.error("Permission denied to browser location.");
-                setDetectingLocation(false);
-            }
-        );
+        setShowMapplsPicker(true);
     };
 
     const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -223,20 +198,10 @@ export default function ShopkeeperSetupPage() {
                                 <button
                                     type="button"
                                     onClick={handleDetectLocation}
-                                    disabled={detectingLocation}
                                     className="text-xs font-bold text-primary hover:opacity-80 transition-opacity flex items-center gap-1"
                                 >
-                                    {detectingLocation ? (
-                                        <>
-                                            <div className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                            Detecting...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <span className="material-symbols-outlined text-[15px]">my_location</span>
-                                            Locate Me
-                                        </>
-                                    )}
+                                    <span className="material-symbols-outlined text-[15px]">my_location</span>
+                                    Locate on Map
                                 </button>
                             </div>
                             <div className="grid grid-cols-2 gap-3 text-xs">
@@ -371,6 +336,17 @@ export default function ShopkeeperSetupPage() {
                     </form>
                 </div>
             </div>
+
+            {/* Mappls Location Picker */}
+            <MapplsLocationPicker
+                isOpen={showMapplsPicker}
+                onClose={() => setShowMapplsPicker(false)}
+                onLocationSelected={(locationDetails) => {
+                    setShowMapplsPicker(false);
+                    setFormData(prev => ({ ...prev, address: locationDetails.addressLine }));
+                    setCoords({ lat: locationDetails.lat, lng: locationDetails.lng });
+                }}
+            />
         </div>
     );
 }

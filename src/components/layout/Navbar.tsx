@@ -27,12 +27,13 @@ export default function Navbar() {
                 </div>
 
                 {/* Desktop Nav */}
-                <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation">
+                <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation" suppressHydrationWarning>
                     {navItems.map((item) => (
                         <a
                             key={item.label}
                             href={item.href}
                             className="text-sm font-medium text-slate-600 transition-colors hover:text-[#2D9E4B]"
+                            suppressHydrationWarning
                         >
                             {item.label}
                         </a>
@@ -47,3 +48,4 @@ export default function Navbar() {
         </header>
     );
 }
+ 

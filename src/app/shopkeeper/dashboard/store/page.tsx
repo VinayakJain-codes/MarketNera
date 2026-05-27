@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
+import MapplsLocationPicker from '@/components/ui/MapplsLocationPicker';
 
 export default function StoreSetupPage() {
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,7 @@ export default function StoreSetupPage() {
   const [instagram, setInstagram] = useState('');
   const [bannerUrl, setBannerUrl] = useState('');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [showMapplsPicker, setShowMapplsPicker] = useState(false);
   const [operatingHours, setOperatingHours] = useState<Record<string, { open: boolean, start: string, end: string }>>({
     Monday: { open: true, start: '09:00', end: '21:00' },
     Tuesday: { open: true, start: '09:00', end: '21:00' },
@@ -258,7 +260,17 @@ export default function StoreSetupPage() {
               />
             </div>
             <div className="md:col-span-2 flex flex-col gap-1">
-              <label className="text-sm font-medium text-[#584237]">Full Address</label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-[#584237]">Full Address</label>
+                <button
+                    type="button"
+                    onClick={() => setShowMapplsPicker(true)}
+                    className="text-xs font-bold text-[#f97316] hover:text-[#9d4300] transition-colors flex items-center gap-1 bg-[#fff5eb] px-2 py-1 rounded-md"
+                >
+                    <span className="material-symbols-outlined text-[14px]">location_on</span>
+                    Locate on Map
+                </button>
+              </div>
               <textarea 
                 rows={2}
                 value={address}
@@ -428,6 +440,15 @@ export default function StoreSetupPage() {
           {saving ? 'Saving...' : 'Save Changes'}
         </motion.button>
       </div>
+
+      <MapplsLocationPicker
+          isOpen={showMapplsPicker}
+          onClose={() => setShowMapplsPicker(false)}
+          onLocationSelected={(loc) => {
+              setShowMapplsPicker(false);
+              setAddress(loc.addressLine);
+          }}
+      />
     </div>
   );
 }

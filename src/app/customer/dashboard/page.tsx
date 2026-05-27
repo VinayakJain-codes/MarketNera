@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getWishlist, toggleWishlist } from "@/lib/services/wishlist";
 import toast from "react-hot-toast";
+import MapplsLocationPicker from "@/components/ui/MapplsLocationPicker";
 
 /* ── Category config (UI metadata only, not dummy data) ── */
 const CATEGORY_CONFIG: Record<string, { icon: string; bg: string; border: string; text: string }> = {
@@ -334,52 +335,16 @@ export default function CustomerDashboard() {
                 </header>
 
                 {/* ─── Location Modal ─── */}
-                {showLocationModal && (
-                    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/30 backdrop-blur-sm animate-fade-in">
-                        <div className="bg-white w-full max-w-[480px] rounded-t-3xl p-6 pb-10 shadow-2xl animate-fade-in-up">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-bold text-slate-900">Choose your location</h3>
-                                <button onClick={() => setShowLocationModal(false)} className="text-slate-400 hover:text-slate-600">
-                                    <span className="material-symbols-outlined">close</span>
-                                </button>
-                            </div>
-                            <button
-                                onClick={() => {
-                                    navigator.geolocation?.getCurrentPosition(async (pos) => {
-                                        try {
-                                            const res = await fetch(
-                                                `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`
-                                            );
-                                            const data = await res.json();
-                                            const fullAddress = data.display_name ? data.display_name.replace(", India", "").trim() : "Location detected";
-                                            setLocation(fullAddress);
-                                        } catch {
-                                            setLocation("Location unavailable");
-                                        }
-                                    });
-                                    setShowLocationModal(false);
-                                }}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 text-primary font-semibold text-sm hover:bg-primary/10 transition-colors"
-                            >
-                                <span className="material-symbols-outlined">my_location</span>
-                                Use my current location
-                            </button>
-                            <div className="mt-4">
-                                <input
-                                    type="text"
-                                    placeholder="Search for area, street name..."
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-primary placeholder-slate-400"
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                            setLocation((e.target as HTMLInputElement).value);
-                                            setShowLocationModal(false);
-                                        }
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                )}
+                <MapplsLocationPicker
+                    isOpen={showLocationModal}
+                    onClose={() => setShowLocationModal(false)}
+                    title="Search / Choose drop Location"
+                    onLocationSelected={(loc) => {
+                        setShowLocationModal(false);
+                        setLocation(loc.addressLine);
+                        setCoords({ lat: loc.lat, lng: loc.lng });
+                    }}
+                />
 
                 {/* ─── Outer Flex for Desktop Sidebar & Main Content ─── */}
                 <div className="flex max-w-7xl mx-auto w-full min-h-[calc(100vh-4rem)]">

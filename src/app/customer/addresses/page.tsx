@@ -7,6 +7,7 @@ import { User } from "@supabase/supabase-js";
 import { ROUTES } from "@/constants/routes";
 import { getAddresses, addAddress, deleteAddress, setDefaultAddress, CustomerAddress } from "@/lib/services/addresses";
 import toast from "react-hot-toast";
+import MapplsLocationPicker from "@/components/ui/MapplsLocationPicker";
 
 export default function AddressesPage() {
     const router = useRouter();
@@ -30,6 +31,9 @@ export default function AddressesPage() {
     const [confirmLabel, setConfirmLabel] = useState("Home");
     const [confirmIsDefault, setConfirmIsDefault] = useState(false);
     const [savingDetected, setSavingDetected] = useState(false);
+    
+    // Mappls Picker state
+    const [showMapplsPicker, setShowMapplsPicker] = useState(false);
 
     // Fetch addresses
     const fetchAddresses = async (userId: string) => {
@@ -112,85 +116,7 @@ export default function AddressesPage() {
     };
 
     const handleAutoDetect = () => {
-        if (!navigator.geolocation) {
-            toast.error("Geolocation is not supported by your browser");
-            return;
-        }
-
-        setDetecting(true);
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const { latitude, longitude } = position.coords;
-                try {
-                    const res = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-                    );
-                    if (!res.ok) throw new Error("Failed to reverse-geocode");
-                    
-                    const data = await res.json();
-                    const addr = data.address;
-
-                    // Formulate highly precise point address details with building, road, nearby amenities/landmarks, suburb, and city districts
-                    const houseNo = addr.house_number || "";
-                    const building = addr.building || addr.house_name || addr.office || addr.hotel || addr.shop || addr.retail || "";
-                    const road = addr.road || addr.street || addr.pedestrian || addr.footway || "";
-                    
-                    // Identify landmark features if available
-                    const amenity = addr.amenity || addr.historic || addr.tourism || addr.leisure || "";
-                    const commercial = addr.commercial || addr.industrial || "";
-                    const landmark = amenity || commercial || "";
-                    
-                    const suburb = addr.suburb || addr.neighbourhood || addr.residential || addr.subdistrict || "";
-                    const cityDistrict = addr.city_district || addr.quarter || "";
-                    const cityVal = addr.city || addr.town || addr.village || addr.county || "";
-                    const pincodeVal = addr.postcode || "";
-
-                    // Combine house number and building/office name
-                    let houseAndBuilding = [houseNo, building].filter(Boolean).join(", ");
-                    
-                    // Prepend "Near [landmark]" if any major landmark is returned
-                    const landmarkSuffix = landmark ? `(Near ${landmark})` : "";
-                    
-                    const addressParts = [houseAndBuilding, road, landmarkSuffix, suburb, cityDistrict].filter(Boolean);
-                    
-                    // Fallback to display name if we couldn't resolve specific parts
-                    const parsedAddressLine = addressParts.length > 0 
-                        ? addressParts.join(", ") 
-                        : data.display_name.replace(", India", "").trim();
-
-                    setDetectedAddr({
-                        addressLine: parsedAddressLine,
-                        city: cityVal,
-                        pincode: pincodeVal
-                    });
-                    
-                    setShowConfirmModal(true);
-                } catch (error) {
-                    console.error("Error geocoding:", error);
-                    toast.error("Could not determine precise address details");
-                } finally {
-                    setDetecting(false);
-                }
-            },
-            (error) => {
-                console.error("Geolocation error:", error);
-                let message = "Unable to retrieve location";
-                if (error.code === error.PERMISSION_DENIED) {
-                    message = "Location permission denied. Please allow location access in your browser.";
-                } else if (error.code === error.POSITION_UNAVAILABLE) {
-                    message = "Location position unavailable.";
-                } else if (error.code === error.TIMEOUT) {
-                    message = "Location request timed out.";
-                }
-                toast.error(message);
-                setDetecting(false);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 12000,
-                maximumAge: 0
-            }
-        );
+        setShowMapplsPicker(true);
     };
 
     const handleSaveDetected = async () => {
@@ -587,6 +513,21 @@ export default function AddressesPage() {
                     </div>
                 </div>
             )}
+
+            {/* Mappls Location Picker */}
+            <MapplsLocationPicker
+                isOpen={showMapplsPicker}
+                onClose={() => setShowMapplsPicker(false)}
+                onLocationSelected={(locationDetails) => {
+                    setShowMapplsPicker(false);
+                    setAddressLine(locationDetails.addressLine);
+                    setCity(locationDetails.city);
+                    setPincode(locationDetails.pincode);
+                    setShowAddForm(true);
+                    // Scroll to top where the form is
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+            />
         </div>
     );
 }
