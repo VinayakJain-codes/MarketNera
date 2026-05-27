@@ -30,6 +30,7 @@ export default function MapplsLocationPicker({
     title = "Search / Choose Location"
 }: MapplsLocationPickerProps) {
     const mapRef = useRef<HTMLDivElement>(null);
+    const isMapInitialized = useRef(false);
     const [isLoading, setIsLoading] = useState(true);
     
     const [currentLat, setCurrentLat] = useState<number>(28.6139); // Default to New Delhi
@@ -59,16 +60,21 @@ export default function MapplsLocationPicker({
             }
 
             const script = document.createElement("script");
-            script.src = `https://apis.mappls.com/advancedmaps/api/${apiKey}/map_sdk?layer=vector&v=3.0`;
+            script.src = `https://sdk.mappls.com/map/sdk/web?v=3.0&layer=vector&access_token=${apiKey}`;
             script.async = true;
             script.defer = true;
             
             script.onload = () => {
+                if (!window.mappls) {
+                    toast.error("Map SDK failed to initialize. Please check API Key.");
+                    setIsLoading(false);
+                    return;
+                }
                 initMap();
             };
             
             script.onerror = () => {
-                toast.error("Failed to load map");
+                toast.error("Failed to load map script. Check your internet or API Key.");
                 setIsLoading(false);
             };
 
@@ -96,45 +102,58 @@ export default function MapplsLocationPicker({
         };
 
         const setupMap = (lat: number, lng: number) => {
-            const mapObj = new (window.mappls as any).Map(mapRef.current, {
-                center: [lat, lng],
-                zoom: 15,
-                zoomControl: true,
-                location: true,
-            });
+            if (isMapInitialized.current) {
+                setIsLoading(false);
+                return;
+            }
             
-            // Add a marker to the center
-            const marker = new (window.mappls as any).Marker({
-                map: mapObj,
-                position: { lat, lng },
-                fitbounds: false,
-                draggable: true,
-            });
-            
-            setCurrentLat(lat);
-            setCurrentLng(lng);
-            fetchAddress(lat, lng);
-            setIsLoading(false);
+            try {
+                isMapInitialized.current = true;
+                const mapObj = new (window.mappls as any).Map("mappls-map", {
+                    center: [lat, lng],
+                    zoom: 15,
+                    zoomControl: true,
+                    location: true,
+                });
+                
+                // Add a marker to the center
+                const marker = new (window.mappls as any).Marker({
+                    map: mapObj,
+                    position: { lat, lng },
+                    fitbounds: false,
+                    draggable: true,
+                });
+                
+                setCurrentLat(lat);
+                setCurrentLng(lng);
+                fetchAddress(lat, lng);
+                setIsLoading(false);
 
-            // Update marker and address when map is dragged
-            mapObj.addListener('dragend', () => {
-                const center = mapObj.getCenter();
-                marker.setPosition(center);
-                handlePositionChange(center.lat, center.lng);
-            });
-            
-            // Update address when marker is dragged
-            marker.addListener('dragend', () => {
-                const pos = marker.getPosition();
-                mapObj.setCenter(pos);
-                handlePositionChange(pos.lat, pos.lng);
-            });
+                // Update marker and address when map is dragged
+                mapObj.addListener('dragend', () => {
+                    const center = mapObj.getCenter();
+                    marker.setPosition(center);
+                    handlePositionChange(center.lat, center.lng);
+                });
+                
+                // Update address when marker is dragged
+                marker.addListener('dragend', () => {
+                    const pos = marker.getPosition();
+                    mapObj.setCenter(pos);
+                    handlePositionChange(pos.lat, pos.lng);
+                });
+            } catch (err) {
+                console.error("Mappls setup error:", err);
+                toast.error("Error setting up map. Invalid API key or script failure.");
+                setIsLoading(false);
+            }
         };
 
         loadMapplsScript();
         
         return () => {
-            // Cleanup logic if needed, though usually map persists in the DOM node
+            // Cleanup on unmount or close
+            isMapInitialized.current = false;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, apiKey]);
