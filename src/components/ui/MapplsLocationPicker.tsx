@@ -16,10 +16,12 @@ interface MapplsLocationPickerProps {
     title?: string;
 }
 
+import { mappls } from "mappls-web-maps";
+
 // Ensure TypeScript knows about the window.mappls object
 declare global {
     interface Window {
-        mappls: unknown;
+        mappls: any;
     }
 }
 
@@ -47,116 +49,112 @@ export default function MapplsLocationPicker({
     useEffect(() => {
         if (!isOpen) return;
         
-        const loadMapplsScript = () => {
-            if (window.mappls) {
-                initMap();
-                return;
-            }
+        let mapInstance: any = null;
+        let markerInstance: any = null;
+        const mapplsClassObject = new mappls();
 
+        const loadMap = async () => {
+            const apiKey = process.env.NEXT_PUBLIC_MAPPLS_API_KEY;
+            
             if (!apiKey) {
                 toast.error("Mappls API key is missing");
                 setIsLoading(false);
                 return;
             }
 
-            const script = document.createElement("script");
-            script.src = `https://sdk.mappls.com/map/sdk/web?v=3.0&layer=vector&access_token=${apiKey}`;
-            script.async = true;
-            script.defer = true;
-            
-            script.onload = () => {
-                if (!window.mappls) {
-                    toast.error("Map SDK failed to initialize. Please check API Key.");
-                    setIsLoading(false);
-                    return;
-                }
-                initMap();
-            };
-            
-            script.onerror = () => {
-                toast.error("Failed to load map script. Check your internet or API Key.");
-                setIsLoading(false);
-            };
-
-            document.head.appendChild(script);
-        };
-
-        const initMap = () => {
-            if (!mapRef.current || !window.mappls) return;
-            
-            // If we can get user's current location, use it for initial center
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        setupMap(latitude, longitude);
-                    },
-                    (error) => {
-                        console.warn("Geolocation error, using default location", error);
-                        setupMap(28.6139, 77.2090); // Default to Delhi
-                    }
-                );
-            } else {
-                setupMap(28.6139, 77.2090);
-            }
-        };
-
-        const setupMap = (lat: number, lng: number) => {
-            if (isMapInitialized.current) {
-                setIsLoading(false);
-                return;
-            }
-            
             try {
-                isMapInitialized.current = true;
-                const mapObj = new (window.mappls as any).Map("mappls-map", {
-                    center: [lat, lng],
-                    zoom: 15,
-                    zoomControl: true,
-                    location: true,
-                });
+                // Determine user's location or default to New Delhi
+                let lat = currentLat;
+                let lng = currentLng;
                 
-                // Add a marker to the center
-                const marker = new (window.mappls as any).Marker({
-                    map: mapObj,
-                    position: { lat, lng },
-                    fitbounds: false,
-                    draggable: true,
-                });
-                
-                setCurrentLat(lat);
-                setCurrentLng(lng);
-                fetchAddress(lat, lng);
-                setIsLoading(false);
+                if (navigator.geolocation) {
+                    try {
+                        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+                        });
+                        lat = pos.coords.latitude;
+                        lng = pos.coords.longitude;
+                        setCurrentLat(lat);
+                        setCurrentLng(lng);
+                    } catch (e) {
+                        console.warn("Geolocation blocked or timeout, using default.");
+                    }
+                }
 
-                // Update marker and address when map is dragged
-                mapObj.addListener('dragend', () => {
-                    const center = mapObj.getCenter();
-                    marker.setPosition(center);
-                    handlePositionChange(center.lat, center.lng);
-                });
-                
-                // Update address when marker is dragged
-                marker.addListener('dragend', () => {
-                    const pos = marker.getPosition();
-                    mapObj.setCenter(pos);
-                    handlePositionChange(pos.lat, pos.lng);
+                // Initialize mappls SDK via official package
+                mapplsClassObject.initialize(apiKey, {
+                    map: true,
+                    layer: 'vector',
+                }, () => {
+                    try {
+                        mapInstance = mapplsClassObject.Map({
+                            id: "mappls-map",
+                            properties: {
+                                center: [lat, lng],
+                                zoom: 15,
+                                zoomControl: true,
+                                location: true,
+                            }
+                        });
+
+                        mapInstance.on("load", () => {
+                            markerInstance = new window.mappls.Marker({
+                                map: mapInstance,
+                                position: { lat, lng },
+                                fitbounds: false,
+                                draggable: true,
+                            });
+                            
+                            setIsLoading(false);
+                            fetchAddress(lat, lng);
+
+                            // Update marker and address when map is dragged
+                            mapInstance.addListener('dragend', () => {
+                                const center = mapInstance.getCenter();
+                                markerInstance.setPosition(center);
+                                handlePositionChange(center.lat, center.lng);
+                            });
+                            
+                            // Update address when marker is dragged
+                            markerInstance.addListener('dragend', () => {
+                                const pos = markerInstance.getPosition();
+                                mapInstance.setCenter(pos);
+                                handlePositionChange(pos.lat, pos.lng);
+                            });
+                        });
+                        
+                        // If there is an authentication error during load
+                        mapInstance.on("error", (e: any) => {
+                            console.error("Map load error:", e);
+                            toast.error("Map authentication failed. Please check your API key.");
+                            setIsLoading(false);
+                        });
+
+                    } catch (err) {
+                        console.error("Mappls Map creation error:", err);
+                        toast.error("Error setting up map. Invalid API key or script failure.");
+                        setIsLoading(false);
+                    }
                 });
             } catch (err) {
-                console.error("Mappls setup error:", err);
-                toast.error("Error setting up map. Invalid API key or script failure.");
+                console.error("Mappls initialization error:", err);
+                toast.error("Failed to load map. Check your internet or API Key.");
                 setIsLoading(false);
             }
         };
 
-        loadMapplsScript();
+        loadMap();
         
         return () => {
             // Cleanup on unmount or close
-            isMapInitialized.current = false;
+            if (mapInstance && typeof mapInstance.remove === 'function') {
+                try {
+                    mapInstance.remove();
+                } catch(e) {}
+            }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isOpen, apiKey]);
+    }, [isOpen]);
 
     const handlePositionChange = (lat: number, lng: number) => {
         setCurrentLat(lat);
