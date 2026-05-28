@@ -1,16 +1,11 @@
 // lib/leaflet-icon-fix.ts
-// Turbopack/Next.js: DO NOT call L.divIcon() at module level.
-// Instead export a factory function that is called only inside the component (client-side).
+import L from "leaflet";
 import type { DivIcon } from "leaflet";
 
 let _icon: DivIcon | null = null;
 let _fixed = false;
 
 export function getLeafletIcon() {
-    // Safe to import here — this function is only called client-side inside components
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const L = require("leaflet") as typeof import("leaflet");
-
     if (!_fixed) {
         // Next.js Leaflet fix: disable the default icon image path resolution
         delete (L.Icon.Default.prototype as any)._getIconUrl;
