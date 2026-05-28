@@ -4,13 +4,26 @@
 import type L from "leaflet";
 
 let _icon: ReturnType<typeof L.prototype.divIcon> | null = null;
+let _fixed = false;
 
 export function getLeafletIcon() {
-    if (_icon) return _icon;
-
     // Safe to import here — this function is only called client-side inside components
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const L = require("leaflet") as typeof import("leaflet");
+
+    if (!_fixed) {
+        // Next.js Leaflet fix: disable the default icon image path resolution
+        delete (L.Icon.Default.prototype as any)._getIconUrl;
+        const transparentPixel = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+        L.Icon.Default.mergeOptions({
+            iconUrl: transparentPixel,
+            iconRetinaUrl: transparentPixel,
+            shadowUrl: transparentPixel,
+        });
+        _fixed = true;
+    }
+
+    if (_icon) return _icon;
 
     _icon = L.divIcon({
         className: "",
