@@ -1,4 +1,5 @@
 import "./globals.css";
+import "leaflet/dist/leaflet.css";
 import siteMetadata from "@/config/metadata";
 import { Toaster } from "react-hot-toast";
 import { Work_Sans } from "next/font/google";

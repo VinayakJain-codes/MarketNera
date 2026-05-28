@@ -8,7 +8,7 @@ import { ROUTES } from "@/constants/routes";
 import Button from "@/components/ui/Button";
 import Logo from "@/components/layout/Logo";
 import toast from "react-hot-toast";
-import MapplsLocationPicker from "@/components/ui/MapplsLocationPicker";
+import LeafletLocationPicker from "@/components/ui/LeafletLocationPicker";
 
 export default function ShopkeeperSetupPage() {
     const router = useRouter();
@@ -338,7 +338,7 @@ export default function ShopkeeperSetupPage() {
             </div>
 
             {/* Mappls Location Picker */}
-            <MapplsLocationPicker
+            <LeafletLocationPicker
                 isOpen={showMapplsPicker}
                 onClose={() => setShowMapplsPicker(false)}
                 onLocationSelected={(locationDetails) => {

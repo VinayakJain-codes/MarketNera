@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getWishlist, toggleWishlist } from "@/lib/services/wishlist";
 import toast from "react-hot-toast";
-import MapplsLocationPicker from "@/components/ui/MapplsLocationPicker";
+import LeafletLocationPicker from "@/components/ui/LeafletLocationPicker";
 
 /* ── Category config (UI metadata only, not dummy data) ── */
 const CATEGORY_CONFIG: Record<string, { icon: string; bg: string; border: string; text: string }> = {
@@ -335,7 +335,7 @@ export default function CustomerDashboard() {
                 </header>
 
                 {/* ─── Location Modal ─── */}
-                <MapplsLocationPicker
+                <LeafletLocationPicker
                     isOpen={showLocationModal}
                     onClose={() => setShowLocationModal(false)}
                     title="Search / Choose drop Location"

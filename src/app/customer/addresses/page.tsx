@@ -7,7 +7,7 @@ import { User } from "@supabase/supabase-js";
 import { ROUTES } from "@/constants/routes";
 import { getAddresses, addAddress, deleteAddress, setDefaultAddress, CustomerAddress } from "@/lib/services/addresses";
 import toast from "react-hot-toast";
-import MapplsLocationPicker from "@/components/ui/MapplsLocationPicker";
+import LeafletLocationPicker from "@/components/ui/LeafletLocationPicker";
 
 export default function AddressesPage() {
     const router = useRouter();
@@ -515,7 +515,7 @@ export default function AddressesPage() {
             )}
 
             {/* Mappls Location Picker */}
-            <MapplsLocationPicker
+            <LeafletLocationPicker
                 isOpen={showMapplsPicker}
                 onClose={() => setShowMapplsPicker(false)}
                 onLocationSelected={(locationDetails) => {

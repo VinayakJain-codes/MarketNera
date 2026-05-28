@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
-import MapplsLocationPicker from '@/components/ui/MapplsLocationPicker';
+import LeafletLocationPicker from '@/components/ui/LeafletLocationPicker';
 
 export default function StoreSetupPage() {
   const [loading, setLoading] = useState(true);
@@ -441,7 +441,7 @@ export default function StoreSetupPage() {
         </motion.button>
       </div>
 
-      <MapplsLocationPicker
+      <LeafletLocationPicker
           isOpen={showMapplsPicker}
           onClose={() => setShowMapplsPicker(false)}
           onLocationSelected={(loc) => {
