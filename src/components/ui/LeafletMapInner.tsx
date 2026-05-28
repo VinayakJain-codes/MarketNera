@@ -1,6 +1,6 @@
 "use client";
 
-import { defaultLeafletIcon } from "@/lib/leaflet-icon-fix";
+import { getLeafletIcon } from "@/lib/leaflet-icon-fix";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
@@ -39,7 +39,7 @@ function LocationMarker({ onMove }: { onMove: (lat: number, lng: number) => void
         setPosition(center);
     }, [map]);
 
-    return position ? <Marker position={position} draggable icon={defaultLeafletIcon} /> : null;
+    return position ? <Marker position={position} draggable icon={getLeafletIcon()} /> : null;
 }
 
 export default function LeafletMapInner({ onLocationSelected }: LeafletMapInnerProps) {
