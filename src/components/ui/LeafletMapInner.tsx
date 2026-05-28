@@ -52,28 +52,43 @@ export default function LeafletMapInner({ onLocationSelected }: LeafletMapInnerP
     const [mapCenter, setMapCenter] = useState<[number, number]>([28.6139, 77.2090]);
     const [locationAcquired, setLocationAcquired] = useState(false);
 
+    const parseAddressData = (addr: Record<string, string>, displayName: string) => {
+        const road = addr.road || addr.street || "";
+        const suburb = addr.suburb || addr.neighbourhood || "";
+        const house = addr.house_number || addr.building || "";
+        const line = [house, road, suburb].filter(Boolean).join(", ");
+        setAddress(line || displayName || "Unknown Location");
+        setCity(addr.city || addr.town || addr.village || addr.county || "");
+        setPincode(addr.postcode || "");
+    };
+
     const reverseGeocode = useCallback(async (latToFetch: number, lngToFetch: number) => {
         setIsFetching(true);
         try {
             const key = process.env.NEXT_PUBLIC_LOCATIONIQ_API_KEY;
-            if (!key) throw new Error("API key not found");
 
+            // Try LocationIQ first if key exists
+            if (key) {
+                const res = await fetch(
+                    `https://us1.locationiq.com/v1/reverse?key=${key}&lat=${latToFetch}&lon=${lngToFetch}&format=json`
+                );
+                if (res.ok) {
+                    const data = await res.json();
+                    parseAddressData(data.address || {}, data.display_name);
+                    return;
+                }
+                console.warn("LocationIQ failed, falling back to Nominatim");
+            }
+
+            // Fallback: Nominatim (no API key needed, always works)
             const res = await fetch(
-                `https://us1.locationiq.com/v1/reverse?key=${key}&lat=${latToFetch}&lon=${lngToFetch}&format=json`
+                `https://nominatim.openstreetmap.org/reverse?lat=${latToFetch}&lon=${lngToFetch}&format=json`,
+                { headers: { "Accept-Language": "en", "User-Agent": "Marketnera/1.0" } }
             );
-            if (!res.ok) throw new Error("Geocoding failed");
-            
+            if (!res.ok) throw new Error("Nominatim failed");
             const data = await res.json();
-            const addr = data.address || {};
-            
-            const road = addr.road || addr.street || "";
-            const suburb = addr.suburb || addr.neighbourhood || "";
-            const house = addr.house_number || addr.building || "";
-            
-            const line = [house, road, suburb].filter(Boolean).join(", ");
-            setAddress(line || data.display_name || "Unknown Location");
-            setCity(addr.city || addr.town || addr.village || addr.county || "");
-            setPincode(addr.postcode || "");
+            parseAddressData(data.address || {}, data.display_name);
+
         } catch (error) {
             console.error("Reverse geocode error:", error);
             setAddress("Could not determine address");
@@ -165,7 +180,7 @@ export default function LeafletMapInner({ onLocationSelected }: LeafletMapInnerP
 
                 <button
                     onClick={() => onLocationSelected({ addressLine: address, city, pincode, lat, lng })}
-                    disabled={isFetching || address === "Could not determine address"}
+                    disabled={isFetching}
                     className="w-full py-4 mt-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700 text-white text-sm font-bold transition-all shadow-md flex items-center justify-center disabled:bg-slate-300 disabled:cursor-not-allowed"
                 >
                     Proceed to add details
