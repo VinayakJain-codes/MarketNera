@@ -16,9 +16,6 @@ interface MapplsLocationPickerProps {
     title?: string;
 }
 
-import { mappls } from "mappls-web-maps";
-
-
 export default function MapplsLocationPicker({
     isOpen,
     onClose,
@@ -26,7 +23,7 @@ export default function MapplsLocationPicker({
     title = "Search / Choose Location"
 }: MapplsLocationPickerProps) {
     const mapRef = useRef<HTMLDivElement>(null);
-    const isMapInitialized = useRef(false);
+    const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     
     const [currentLat, setCurrentLat] = useState<number>(28.6139); // Default to New Delhi
@@ -39,24 +36,33 @@ export default function MapplsLocationPicker({
     
     const apiKey = process.env.NEXT_PUBLIC_MAPPLS_API_KEY;
 
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     // Load Mappls Script
     useEffect(() => {
-        if (!isOpen) return;
+        if (!isMounted || !isOpen) return;
         
         let mapInstance: any = null;
         let markerInstance: any = null;
-        const mapplsClassObject = new mappls();
 
         const loadMap = async () => {
-            const apiKey = process.env.NEXT_PUBLIC_MAPPLS_API_KEY;
+            if (!mapRef.current) return;
             
-            if (!apiKey) {
-                toast.error("Mappls API key is missing");
-                setIsLoading(false);
-                return;
-            }
-
             try {
+                // Dynamically import mappls to avoid SSR issues
+                const { mappls } = await import("mappls-web-maps");
+                const mapplsClassObject = new mappls();
+                
+                const apiKey = process.env.NEXT_PUBLIC_MAPPLS_API_KEY;
+                
+                if (!apiKey) {
+                    toast.error("Mappls API key is missing");
+                    setIsLoading(false);
+                    return;
+                }
+
                 // Determine user's location or default to New Delhi
                 let lat = currentLat;
                 let lng = currentLng;
@@ -137,9 +143,13 @@ export default function MapplsLocationPicker({
             }
         };
 
-        loadMap();
+        // Small delay to ensure the DOM element is fully painted
+        const timer = setTimeout(() => {
+            loadMap();
+        }, 100);
         
         return () => {
+            clearTimeout(timer);
             // Cleanup on unmount or close
             if (mapInstance && typeof mapInstance.remove === 'function') {
                 try {
@@ -148,7 +158,7 @@ export default function MapplsLocationPicker({
             }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isOpen]);
+    }, [isMounted, isOpen]);
 
     const handlePositionChange = (lat: number, lng: number) => {
         setCurrentLat(lat);
@@ -218,7 +228,7 @@ export default function MapplsLocationPicker({
         }
     };
 
-    if (!isOpen) return null;
+    if (!isMounted || !isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
@@ -235,19 +245,14 @@ export default function MapplsLocationPicker({
                 </div>
 
                 {/* Map Container */}
-                <div className="relative flex-grow bg-slate-100 min-h-[300px] h-[50vh]">
+                <div className="relative flex-grow bg-slate-100 min-h-[400px]">
                     {isLoading && (
                         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-50/80 backdrop-blur-sm">
                             <span className="material-symbols-outlined text-4xl text-emerald-500 animate-spin mb-2">sync</span>
                             <p className="text-sm font-semibold text-slate-600">Loading Map...</p>
                         </div>
                     )}
-                    <div ref={mapRef} className="w-full h-full" id="mappls-map" />
-                    
-                    {/* Fixed Center Marker alternative if draggable marker is hard to use - we are using draggable marker above, but keeping a crosshair can also help */}
-                    {/* <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10">
-                        <span className="material-symbols-outlined text-4xl text-red-500 drop-shadow-md">location_on</span>
-                    </div> */}
+                    <div ref={mapRef} className="w-full h-[400px]" id="mappls-map" />
                 </div>
 
                 {/* Bottom Details Section */}
@@ -264,8 +269,6 @@ export default function MapplsLocationPicker({
                         </div>
                         <button 
                             onClick={() => {
-                                // In a real app this might open a search autocomplete
-                                // For now it acts as a visual prompt
                                 toast("Drag the map to change location", { icon: '👆' });
                             }}
                             className="px-4 py-2 text-sm font-bold text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 transition-colors shrink-0"
@@ -294,3 +297,4 @@ export default function MapplsLocationPicker({
         </div>
     );
 }
+
