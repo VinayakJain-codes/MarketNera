@@ -18,6 +18,10 @@ interface LeafletLocationPickerProps {
     onClose: () => void;
     onLocationSelected: (locationDetails: {
         addressLine: string;
+        houseNo: string;
+        building?: string;
+        landmark?: string;
+        label?: "Home" | "Work" | "Other";
         city: string;
         pincode: string;
         lat: number;
