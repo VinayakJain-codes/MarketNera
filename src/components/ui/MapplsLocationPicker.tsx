@@ -75,9 +75,11 @@ export default function MapplsLocationPicker({
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<any>(null);
     const markerInstanceRef = useRef<any>(null);
+    const isLoadingRef = useRef(true);
     const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
+    const [retryCount, setRetryCount] = useState(0);
     
     const [currentLat, setCurrentLat] = useState<number>(28.6139);
     const [currentLng, setCurrentLng] = useState<number>(77.2090);
@@ -93,39 +95,7 @@ export default function MapplsLocationPicker({
         setIsMounted(true);
     }, []);
 
-    const handlePositionChange = useCallback((lat: number, lng: number) => {
-        setCurrentLat(lat);
-        setCurrentLng(lng);
-        fetchAddress(lat, lng);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [apiKey]);
-
-    const fetchAddress = async (lat: number, lng: number) => {
-        setIsFetchingAddress(true);
-        try {
-            const url = `https://apis.mappls.com/advancedmaps/v1/${apiKey}/rev_geocode?lat=${lat}&lng=${lng}`;
-            const res = await fetch(url);
-            
-            if (res.ok) {
-                const data = await res.json();
-                if (data.results && data.results.length > 0) {
-                    const result = data.results[0];
-                    setCurrentAddress(result.formatted_address || "Address not found");
-                    setCity(result.city || result.district || "");
-                    setPincode(result.pincode || "");
-                }
-            } else {
-                fallbackReverseGeocode(lat, lng);
-            }
-        } catch (error) {
-            console.error("Error fetching address from Mappls, falling back...", error);
-            fallbackReverseGeocode(lat, lng);
-        } finally {
-            setIsFetchingAddress(false);
-        }
-    };
-
-    const fallbackReverseGeocode = async (lat: number, lng: number) => {
+    const fallbackReverseGeocode = useCallback(async (lat: number, lng: number) => {
         try {
             const res = await fetch(
                 `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
@@ -155,7 +125,40 @@ export default function MapplsLocationPicker({
             setCity("");
             setPincode("");
         }
-    };
+    }, []);
+
+    const fetchAddress = useCallback(async (lat: number, lng: number) => {
+        setIsFetchingAddress(true);
+        try {
+            const url = `https://apis.mappls.com/advancedmaps/v1/${apiKey}/rev_geocode?lat=${lat}&lng=${lng}`;
+            const res = await fetch(url);
+            
+            if (res.ok) {
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    const result = data.results[0];
+                    setCurrentAddress(result.formatted_address || "Address not found");
+                    setCity(result.city || result.district || "");
+                    setPincode(result.pincode || "");
+                }
+            } else {
+                fallbackReverseGeocode(lat, lng);
+            }
+        } catch (error) {
+            console.error("Error fetching address from Mappls, falling back...", error);
+            fallbackReverseGeocode(lat, lng);
+        } finally {
+            setIsFetchingAddress(false);
+        }
+    }, [apiKey, fallbackReverseGeocode]);
+
+    const handlePositionChange = useCallback((lat: number, lng: number) => {
+        setCurrentLat(lat);
+        setCurrentLng(lng);
+        fetchAddress(lat, lng);
+    }, [fetchAddress]);
+
+
 
     // Main map initialization effect
     useEffect(() => {
@@ -164,6 +167,7 @@ export default function MapplsLocationPicker({
         let cancelled = false;
 
         const initMap = async () => {
+            isLoadingRef.current = true;
             setIsLoading(true);
             setLoadError(null);
 
@@ -222,6 +226,7 @@ export default function MapplsLocationPicker({
                     });
                     
                     markerInstanceRef.current = marker;
+                    isLoadingRef.current = false;
                     setIsLoading(false);
                     fetchAddress(lat, lng);
 
@@ -244,14 +249,16 @@ export default function MapplsLocationPicker({
                     console.error("Map load error:", e);
                     if (!cancelled) {
                         setLoadError("Map authentication failed. Check your API key.");
+                        isLoadingRef.current = false;
                         setIsLoading(false);
                     }
                 });
 
                 // Timeout fallback — if map doesn't load in 15s, show error
                 setTimeout(() => {
-                    if (!cancelled && isLoading) {
+                    if (!cancelled && isLoadingRef.current) {
                         setLoadError("Map took too long to load. Please try again.");
+                        isLoadingRef.current = false;
                         setIsLoading(false);
                     }
                 }, 15000);
@@ -278,7 +285,7 @@ export default function MapplsLocationPicker({
             markerInstanceRef.current = null;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isMounted, isOpen, apiKey]);
+    }, [isMounted, isOpen, apiKey, retryCount]);
 
     if (!isMounted || !isOpen) return null;
 
@@ -312,8 +319,8 @@ export default function MapplsLocationPicker({
                                 onClick={() => {
                                     setLoadError(null);
                                     setIsLoading(true);
-                                    // Force re-mount by toggling
-                                    window.location.reload();
+                                    mapInstanceRef.current = null;
+                                    setRetryCount(c => c + 1);
                                 }}
                                 className="px-4 py-2 text-sm font-bold text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 transition-colors"
                             >
