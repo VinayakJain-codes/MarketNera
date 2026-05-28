@@ -1,9 +1,9 @@
 // lib/leaflet-icon-fix.ts
 // Turbopack/Next.js: DO NOT call L.divIcon() at module level.
 // Instead export a factory function that is called only inside the component (client-side).
-import type L from "leaflet";
+import type { DivIcon } from "leaflet";
 
-let _icon: ReturnType<typeof L.prototype.divIcon> | null = null;
+let _icon: DivIcon | null = null;
 let _fixed = false;
 
 export function getLeafletIcon() {
