@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabase";
 import { Order, OrderStatus, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/lib/services/orders";
 import { ShopkeeperProfile } from "@/lib/services/shopkeeper";
 import toast from "react-hot-toast";
-import Image from "next/image";
 
 // ── Category Icons matching customer pages ──
 const CATEGORY_CONFIG: Record<string, { icon: string; bg: string; text: string }> = {
@@ -47,18 +46,33 @@ export default function AdminDashboardPage() {
         }
     }, []);
 
-    const handleUnlock = (e: React.FormEvent) => {
+    const handleUnlock = async (e: React.FormEvent) => {
         e.preventDefault();
         setPasscodeError(false);
         
-        // Premium Secure Passcode check
-        if (passcode === "VICINIX2026" || passcode === "admin123") {
-            sessionStorage.setItem("vicinix_admin_auth", "true");
-            setIsAuthenticated(true);
-            toast.success("Welcome back, Platform Administrator ✓");
-        } else {
+        try {
+            const res = await fetch("/api/admin/verify", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ passcode }),
+            });
+            
+            const data = await res.json();
+            
+            if (res.ok && data.success) {
+                sessionStorage.setItem("vicinix_admin_auth", "true");
+                setIsAuthenticated(true);
+                toast.success("Welcome back, Platform Administrator ✓");
+            } else {
+                setPasscodeError(true);
+                toast.error(data.error || "Incorrect administrative credentials.");
+            }
+        } catch (err) {
+            console.error("Authentication error:", err);
             setPasscodeError(true);
-            toast.error("Incorrect administrative credentials.");
+            toast.error("Network or server error during authentication.");
         }
     };
 
@@ -93,7 +107,7 @@ export default function AdminDashboardPage() {
 
             setOrders(ordersData as Order[] || []);
             setShops(shopsData as ShopkeeperProfile[] || []);
-        } catch (err: any) {
+        } catch (err) {
             console.error("Failed to load platform dashboard data:", err);
             toast.error("Failed to sync platform metrics.");
         } finally {
