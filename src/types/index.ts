@@ -6,11 +6,27 @@ export interface NavItem {
     href: string;
 }
 
+export type FeatureCategory = "all" | "shopkeeper" | "customer" | "delivery" | "tech";
+
 /** A feature/benefit card displayed in the Features section */
 export interface Feature {
-    icon: string; // Material Symbols icon name
+    id?: string;
+    icon: string; // Lucide or Material Symbols icon name
     title: string;
     description: string;
+    category?: FeatureCategory;
+    badge?: string;
+    highlight?: string;
+    stat?: {
+        value: string;
+        label: string;
+    };
+    gradient?: string;
+    action?: {
+        label: string;
+        href: string;
+    };
+    isHero?: boolean;
 }
 
 /** A product category card */
