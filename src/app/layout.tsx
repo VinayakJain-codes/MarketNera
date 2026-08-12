@@ -4,6 +4,7 @@ import siteMetadata from "@/config/metadata";
 import { Toaster } from "react-hot-toast";
 import { Work_Sans } from "next/font/google";
 import PWARegister from "@/components/PWARegister";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const workSans = Work_Sans({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
         <PWARegister />
         <Toaster position="top-center" />
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
