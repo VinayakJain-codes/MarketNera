@@ -33,6 +33,12 @@ export const ROUTES = {
     LOGIN_SHOPKEEPER: "/login/shopkeeper",
     SHOPKEEPER_DASHBOARD: "/shopkeeper/dashboard",
     SHOPKEEPER_SETUP: "/shopkeeper/setup",
+    SHOPS_HOME: "/shops",
+    SHOPS_FEATURES: "/shops#features",
+    SHOPS_PRICING: "/shops#pricing",
+    SHOPS_CATEGORIES: "/shops#categories",
+    SHOPS_REGISTER: "/shops/register",
+    SHOPS_LOGIN: "/shops/login",
 } as const;
 
 export type Route = (typeof ROUTES)[keyof typeof ROUTES];

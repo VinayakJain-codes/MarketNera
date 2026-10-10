@@ -31,7 +31,9 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isShopkeeperRoute = request.nextUrl.pathname.startsWith('/shopkeeper');
+  const isShopkeeperRoute =
+    request.nextUrl.pathname.startsWith('/shopkeeper') ||
+    request.nextUrl.pathname.startsWith('/shops/dashboard');
   const isCustomerRoute = request.nextUrl.pathname.startsWith('/customer');
 
   // Check for developer bypass cookie (e.g. set locally for sandbox testing)
@@ -39,11 +41,16 @@ export async function middleware(request: NextRequest) {
   const hasBypass = (isShopkeeperRoute && devBypassRole === 'shopkeeper') ||
                     (isCustomerRoute && devBypassRole === 'customer');
 
+  const isPublicAuthRoute =
+    request.nextUrl.pathname.startsWith('/login') ||
+    request.nextUrl.pathname.startsWith('/shops/login') ||
+    request.nextUrl.pathname.startsWith('/shops/register');
+
   if (
     !user &&
     !hasBypass &&
     (isShopkeeperRoute || isCustomerRoute) &&
-    !request.nextUrl.pathname.startsWith('/login')
+    !isPublicAuthRoute
   ) {
     const loginType = isShopkeeperRoute ? 'shopkeeper' : 'customer';
     const url = request.nextUrl.clone();

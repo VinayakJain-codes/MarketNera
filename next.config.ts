@@ -21,6 +21,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/shops/dashboard",
+        destination: "/shopkeeper/dashboard",
+        permanent: false,
+      },
+      {
+        source: "/shops/marketnera.com",
+        destination: "/shops",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
