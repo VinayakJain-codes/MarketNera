@@ -1,75 +1,80 @@
 "use client";
 
-import Image from "next/image";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Clock, ShieldCheck, Store } from "lucide-react";
+import Link from "next/link";
+import { ROUTES } from "@/constants/routes";
 
 interface CustomerHeroBannerProps {
     onShopNowClick?: () => void;
+    totalProducts?: number;
+    totalShops?: number;
 }
 
-export default function CustomerHeroBanner({ onShopNowClick }: CustomerHeroBannerProps) {
+export default function CustomerHeroBanner({
+    onShopNowClick,
+    totalProducts = 0,
+    totalShops = 0,
+}: CustomerHeroBannerProps) {
     return (
-        <section className="relative w-full overflow-hidden rounded-3xl bg-gradient-to-r from-[#185a2b] via-[#1f7337] to-[#2c8d45] text-white shadow-xl">
-            {/* Background pattern */}
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
+        <section className="relative w-full overflow-hidden rounded-3xl bg-slate-900 text-white shadow-md border border-slate-800">
+            {/* Subtle background glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/70 via-slate-900 to-slate-900 pointer-events-none" />
 
-            <div className="relative grid grid-cols-1 lg:grid-cols-12 items-center p-6 sm:p-10 lg:p-12 gap-8">
-                {/* Left Text & CTA */}
-                <div className="lg:col-span-7 space-y-4 sm:space-y-6 z-10">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-400/20 border border-emerald-300/30 text-emerald-200 text-xs font-black uppercase tracking-wider">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>Hyperlocal Delivery In 15 Mins</span>
+            <div className="relative p-6 sm:p-8 lg:p-10 z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="max-w-xl space-y-3">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>Hyperlocal Delivery · Meerut</span>
                     </div>
 
-                    <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] text-white drop-shadow-sm">
-                        Stock up on daily essentials
+                    <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                        Order from local stores in your neighborhood
                     </h1>
 
-                    <p className="text-emerald-100 text-sm sm:text-lg max-w-xl font-medium leading-relaxed">
-                        Get farm-fresh goodness &amp; a range of exotic fruits, vegetables, eggs, dairy &amp; everyday pantry staples delivered directly to your doorstep.
+                    <p className="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">
+                        Groceries, dairy, and everyday essentials delivered directly from verified neighborhood merchants in 15 to 30 minutes.
                     </p>
 
-                    <div className="pt-2 flex flex-wrap items-center gap-4">
+                    <div className="pt-2 flex flex-wrap items-center gap-3">
                         <button
                             onClick={onShopNowClick}
-                            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-white text-emerald-950 font-black text-sm sm:text-base shadow-xl hover:bg-emerald-50 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-xs active:scale-95"
                         >
-                            <span>Shop Now</span>
-                            <ArrowRight className="w-4 h-4 text-emerald-700" />
+                            <span>Browse Catalogue</span>
+                            <ArrowRight className="w-4 h-4" />
                         </button>
 
-                        <div className="flex items-center gap-2 text-xs font-bold text-emerald-200">
-                            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                            <span>Over 1,200+ local products available</span>
-                        </div>
+                        <Link
+                            href={ROUTES.SHOPS_HOME}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs transition-colors"
+                        >
+                            <Store className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Partner As Shopkeeper</span>
+                        </Link>
                     </div>
                 </div>
 
-                {/* Right Image Composition matching Blinkit reference */}
-                <div className="lg:col-span-5 relative flex justify-center items-center">
-                    <div className="relative w-full max-w-[480px] aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl ring-2 ring-white/20 group">
-                        <Image
-                            src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80"
-                            alt="Fresh organic fruits, vegetables, dairy and essentials"
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-700"
-                            priority
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                        
-                        {/* Live Delivery Stamp */}
-                        <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-xl p-3 flex items-center justify-between text-slate-900 shadow-lg">
-                            <div className="flex items-center gap-2">
-                                <span className="text-xl">⚡</span>
-                                <div>
-                                    <p className="text-xs font-black">Direct from Meerut Mandi</p>
-                                    <p className="text-[11px] text-slate-500 font-medium">Harvested &amp; delivered fresh daily</p>
-                                </div>
-                            </div>
-                            <span className="text-[11px] font-black text-emerald-700 bg-emerald-100 px-2 py-1 rounded-md">
-                                100% Genuine
-                            </span>
-                        </div>
+                {/* Right stats pill */}
+                <div className="flex md:flex-col gap-3 shrink-0">
+                    <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 min-w-[150px] space-y-1">
+                        <span className="text-xs text-slate-400 font-semibold block">Active Merchants</span>
+                        <p className="text-xl sm:text-2xl font-black text-white">
+                            {totalShops > 0 ? `${totalShops} Verified` : "Local"}
+                        </p>
+                        <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                            <span>Direct store pickup</span>
+                        </span>
+                    </div>
+
+                    <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 min-w-[150px] space-y-1">
+                        <span className="text-xs text-slate-400 font-semibold block">Catalog Items</span>
+                        <p className="text-xl sm:text-2xl font-black text-white">
+                            {totalProducts > 0 ? `${totalProducts} Listed` : "Available"}
+                        </p>
+                        <span className="text-[11px] text-slate-400 font-medium">
+                            Updated live by merchants
+                        </span>
                     </div>
                 </div>
             </div>
