@@ -27,6 +27,7 @@ export const ROUTES = {
     CUSTOMER_DASHBOARD: "/customer/dashboard",
     CUSTOMER_CART: "/customer/cart",
     CUSTOMER_ORDERS: "/customer/orders",
+    ORDER_SUCCESS: "/order-success",
     CUSTOMER_PROFILE: "/customer/profile",
     CUSTOMER_WISHLIST: "/customer/wishlist",
     CUSTOMER_ADDRESSES: "/customer/addresses",

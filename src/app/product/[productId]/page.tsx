@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { ROUTES } from "@/constants/routes";
-import { addToCart, getCartCount } from "@/lib/services/cart";
+import { addToCart, getCartCount, getGuestCart, addGuestCartItem } from "@/lib/services/cart";
 import { toggleWishlist, getWishlist } from "@/lib/services/wishlist";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -82,30 +82,36 @@ export default function ProductDetailPage({ params }: { params: Promise<{ produc
 
     // Check cart and wishlist status
     useEffect(() => {
-        if (!user || !product) return;
+        if (!product) return;
 
-        getCartCount(user.id).then(setCartCount);
-        
-        getWishlist(user.id).then((items) => {
-            setIsWishlisted(items.some((i) => i.product_id === product.id));
-        });
-
-        // Check if current product is already in user's cart
-        supabase
-            .from("cart_items")
-            .select("id")
-            .eq("customer_id", user.id)
-            .eq("product_id", product.id)
-            .then(({ data }) => {
-                if (data && data.length > 0) setIsAdded(true);
+        if (user) {
+            getCartCount(user.id).then(setCartCount);
+            
+            getWishlist(user.id).then((items) => {
+                setIsWishlisted(items.some((i) => i.product_id === product.id));
             });
+
+            // Check if current product is already in user's cart
+            supabase
+                .from("cart_items")
+                .select("id")
+                .eq("user_id", user.id)
+                .eq("product_id", product.id)
+                .then(({ data }) => {
+                    if (data && data.length > 0) setIsAdded(true);
+                });
+        } else {
+            const guestCart = getGuestCart();
+            const total = guestCart.reduce((acc, i) => acc + (i.quantity || 1), 0);
+            setCartCount(total);
+            if (guestCart.some((i) => i.id === product.id)) {
+                setIsAdded(true);
+            }
+        }
     }, [user, product]);
 
     const handleAddToCart = async () => {
-        if (!user) {
-            router.push(ROUTES.LOGIN_CUSTOMER);
-            return;
-        }
+        if (!product) return;
 
         if (isAdded) {
             router.push(ROUTES.CUSTOMER_CART);
@@ -113,13 +119,27 @@ export default function ProductDetailPage({ params }: { params: Promise<{ produc
         }
 
         setIsAdded(true);
-        const result = await addToCart(user.id, product.id, product.shop_id);
-        if (result.success) {
+        if (user) {
+            const result = await addToCart(user.id, product.id, product.shop_id);
+            if (result.success) {
+                setCartCount((c) => c + 1);
+                toast.success("Added to Cart!");
+            } else {
+                setIsAdded(false);
+                toast.error("Could not add to cart.");
+            }
+        } else {
+            addGuestCartItem({
+                id: product.id,
+                name: product.name,
+                price: product.sale_price ?? product.price,
+                shopId: product.shop_id,
+                quantity: 1,
+                unit: product.unit_type,
+                image: media[0]?.media_url,
+            });
             setCartCount((c) => c + 1);
             toast.success("Added to Cart!");
-        } else {
-            setIsAdded(false);
-            toast.error("Could not add to cart.");
         }
     };
 

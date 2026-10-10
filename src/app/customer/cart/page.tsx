@@ -10,14 +10,19 @@ import {
     computeSubtotal,
     clearCart,
     CartItem,
+    getGuestCart,
+    updateGuestCartQty,
+    removeGuestCartItem,
+    clearGuestCart,
 } from "@/lib/services/cart";
-import { placeOrder, cancelOrder } from "@/lib/services/orders";
+import { cancelOrder } from "@/lib/services/orders";
 import { loadRazorpayScript } from "@/lib/services/razorpay";
 import { ROUTES } from "@/constants/routes";
 import { User } from "@supabase/supabase-js";
 import { getAddresses, CustomerAddress } from "@/lib/services/addresses";
 import { validateCoupon } from "@/lib/services/coupons";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 // ── Category icon map (reused from dashboard) ──
 const CATEGORY_CONFIG: Record<string, { icon: string; bg: string; text: string }> = {
@@ -58,6 +63,14 @@ export default function CartPage() {
     const [selectedAddress, setSelectedAddress] = useState<CustomerAddress | null>(null);
     const [showAddressModal, setShowAddressModal] = useState(false);
 
+    // Guest delivery form state
+    const [guestName, setGuestName] = useState("");
+    const [guestPhone, setGuestPhone] = useState("");
+    const [guestAddress, setGuestAddress] = useState("");
+    const [guestLandmark, setGuestLandmark] = useState("");
+    const [guestCity, setGuestCity] = useState("Meerut");
+    const [guestPincode, setGuestPincode] = useState("250001");
+
     // Coupon states
     const [couponCode, setCouponCode] = useState("");
     const [appliedCoupon, setAppliedCoupon] = useState<any | null>(null);
@@ -69,15 +82,19 @@ export default function CartPage() {
     // ── Auth check ──
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
-            if (!session?.user) {
-                router.push(ROUTES.LOGIN_CUSTOMER);
-                return;
-            }
-            setUser(session.user);
+            setUser(session?.user ?? null);
         });
-    }, [router]);
 
-    // ── Fetch saved addresses ──
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
+
+    // ── Fetch saved addresses (logged-in user only) ──
     useEffect(() => {
         if (!user) return;
         getAddresses(user.id).then((list) => {
@@ -87,12 +104,71 @@ export default function CartPage() {
         });
     }, [user]);
 
-    // ── Fetch cart ──
+    // ── Fetch cart (handles user & guest) ──
     const fetchCart = useCallback(async () => {
-        if (!user) return;
         setLoading(true);
-        const cartItems = await getCart(user.id);
-        setItems(cartItems);
+        if (user) {
+            const cartItems = await getCart(user.id);
+            setItems(cartItems);
+        } else {
+            try {
+                const guestItems = getGuestCart();
+                if (guestItems.length === 0) {
+                    setItems([]);
+                    setLoading(false);
+                    return;
+                }
+
+                // Hydrate with latest product details from DB
+                const productIds = guestItems.map((i) => i.id).filter(Boolean);
+                const { data: dbProducts } = await supabase
+                    .from("shopkeeper_products")
+                    .select(`
+                        id,
+                        name,
+                        price,
+                        sale_price,
+                        unit_type,
+                        shop_id,
+                        product_media (media_url, is_primary, sort_order)
+                    `)
+                    .in("id", productIds);
+
+                const mapped: CartItem[] = guestItems.map((item) => {
+                    const dbProd = dbProducts?.find((p) => p.id === item.id);
+                    return {
+                        id: item.id,
+                        user_id: "guest",
+                        product_id: item.id,
+                        shopkeeper_id: dbProd?.shop_id || item.shopId || "",
+                        quantity: Number(item.quantity) || 1,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                        product: dbProd ? {
+                            id: dbProd.id,
+                            name: dbProd.name,
+                            price: dbProd.price,
+                            sale_price: dbProd.sale_price,
+                            unit_type: dbProd.unit_type,
+                            shop_id: dbProd.shop_id,
+                            product_media: dbProd.product_media || (item.image ? [{ media_url: item.image, is_primary: true, sort_order: 0 }] : []),
+                        } : {
+                            id: item.id,
+                            name: item.name || "Product",
+                            price: item.price || 0,
+                            sale_price: null,
+                            unit_type: item.unit || "unit",
+                            shop_id: item.shopId || "",
+                            product_media: item.image ? [{ media_url: item.image, is_primary: true, sort_order: 0 }] : [],
+                        },
+                    };
+                });
+                setItems(mapped);
+            } catch (err) {
+                console.error("Failed to read guest cart:", err);
+                setItems([]);
+            }
+        }
         setLoading(false);
     }, [user]);
 
@@ -100,29 +176,59 @@ export default function CartPage() {
         fetchCart();
     }, [fetchCart]);
 
+    useEffect(() => {
+        const handleCartUpdated = () => {
+            fetchCart();
+        };
+        window.addEventListener("marketnera_cart_updated", handleCartUpdated);
+        return () => {
+            window.removeEventListener("marketnera_cart_updated", handleCartUpdated);
+        };
+    }, [fetchCart]);
+
     // ── Actions ──
     const handleQtyChange = async (item: CartItem, delta: number) => {
-        if (!user || updatingId) return;
+        if (updatingId) return;
         const newQty = item.quantity + delta;
         setUpdatingId(item.id);
 
         // Optimistic update
-        setItems(prev =>
+        setItems((prev) =>
             newQty <= 0
-                ? prev.filter(i => i.id !== item.id)
-                : prev.map(i => i.id === item.id ? { ...i, quantity: newQty } : i)
+                ? prev.filter((i) => i.id !== item.id)
+                : prev.map((i) => (i.id === item.id ? { ...i, quantity: newQty } : i))
         );
 
-        await updateCartQty(user.id, item.id, newQty);
+        if (user) {
+            await updateCartQty(user.id, item.id, newQty);
+        } else {
+            updateGuestCartQty(item.product_id, newQty);
+        }
         setUpdatingId(null);
     };
 
     const handleRemove = async (item: CartItem) => {
-        if (!user || updatingId) return;
+        if (updatingId) return;
         setUpdatingId(item.id);
-        setItems(prev => prev.filter(i => i.id !== item.id));
-        await removeFromCart(user.id, item.product_id);
+        setItems((prev) => prev.filter((i) => i.id !== item.id));
+
+        if (user) {
+            await removeFromCart(user.id, item.product_id);
+        } else {
+            removeGuestCartItem(item.product_id);
+        }
         setUpdatingId(null);
+    };
+
+    const handleClearAll = async () => {
+        setLoading(true);
+        if (user) {
+            await clearCart(user.id);
+        } else {
+            clearGuestCart();
+        }
+        setItems([]);
+        setLoading(false);
     };
 
     // ── Compute totals ──
@@ -163,7 +269,7 @@ export default function CartPage() {
 
     // ── Place Order ──
     const handlePlaceOrder = async () => {
-        if (!user || items.length === 0 || placing) return;
+        if (items.length === 0 || placing) return;
         setPlaceError(null);
         setPlacing(true);
 
@@ -173,22 +279,50 @@ export default function CartPage() {
             return;
         }
 
-        if (!selectedAddress) {
-            setPlaceError("Please select or add a delivery address to complete your order.");
-            setPlacing(false);
-            return;
+        // Validate address
+        let deliveryAddressString = "";
+        if (user) {
+            if (!selectedAddress) {
+                setPlaceError("Please select or add a delivery address to complete your order.");
+                setPlacing(false);
+                return;
+            }
+            deliveryAddressString = `${selectedAddress.label}: ${selectedAddress.address_line}, ${selectedAddress.city} - ${selectedAddress.pincode}`;
+        } else {
+            if (!guestName.trim()) {
+                setPlaceError("Please enter your name for delivery.");
+                setPlacing(false);
+                return;
+            }
+            const cleanPhone = guestPhone.replace(/\D/g, "");
+            if (cleanPhone.length < 10) {
+                setPlaceError("Please enter a valid 10-digit mobile number for order delivery & status.");
+                setPlacing(false);
+                return;
+            }
+            if (!guestAddress.trim()) {
+                setPlaceError("Please enter your street address / house number.");
+                setPlacing(false);
+                return;
+            }
+            if (!guestPincode.trim() || guestPincode.replace(/\D/g, "").length < 6) {
+                setPlaceError("Please enter a valid 6-digit pincode.");
+                setPlacing(false);
+                return;
+            }
+
+            deliveryAddressString = `${guestAddress.trim()}${guestLandmark.trim() ? `, Landmark: ${guestLandmark.trim()}` : ""}, ${guestCity.trim()} - ${guestPincode.trim()}`;
         }
 
-        const deliveryAddressString = `${selectedAddress.label}: ${selectedAddress.address_line}, ${selectedAddress.city} - ${selectedAddress.pincode}`;
-
-        // Group items by shopkeeper and validate
+        // Group items by shopkeeper and validate single shop constraint
         const shopkeeperId = items[0].shopkeeper_id;
-        const hasMultipleShops = items.some(item => item.shopkeeper_id !== shopkeeperId);
+        const hasMultipleShops = items.some((item) => item.shopkeeper_id !== shopkeeperId);
         if (hasMultipleShops) {
             setPlaceError("You can only order items from one shop at a time. Please remove items from other shops to checkout.");
             setPlacing(false);
             return;
         }
+
         const orderItems = items.map((item) => ({
             productId: item.product_id,
             productName: item.product?.name ?? "Product",
@@ -196,132 +330,123 @@ export default function CartPage() {
             quantity: item.quantity,
         }));
 
-        if (paymentMethod === "cod") {
-            const { order, error } = await placeOrder({
-                customerId: user.id,
-                shopkeeperId,
-                items: orderItems,
-                totalAmount: total,
-                deliveryAddress: deliveryAddressString,
-                paymentMethod: "cod",
-                paymentStatus: "pending",
-            });
-
-            if (error || !order) {
-                setPlaceError(error ?? "Failed to place order. Please try again.");
-                setPlacing(false);
-                return;
-            }
-
-            // Clear cart then redirect to orders
-            await clearCart(user.id);
-            router.push(ROUTES.CUSTOMER_ORDERS);
-        } else {
-            // Razorpay Flow
-            try {
-                // 1. Create order record in Supabase with payment_method = 'razorpay'
-                const { order, error } = await placeOrder({
-                    customerId: user.id,
+        try {
+            // Place order through backend API (handles guest user provisioning & atomic DB insert)
+            const placeRes = await fetch("/api/orders/place", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
                     shopkeeperId,
                     items: orderItems,
                     totalAmount: total,
                     deliveryAddress: deliveryAddressString,
-                    paymentMethod: "razorpay",
-                    paymentStatus: "pending",
-                });
+                    customerName: user ? undefined : guestName.trim(),
+                    customerPhone: user ? undefined : guestPhone.trim(),
+                    notes: user ? undefined : "Guest Checkout",
+                    paymentMethod,
+                }),
+            });
 
-                if (error || !order) {
-                    setPlaceError(error ?? "Failed to initialize order. Please try again.");
-                    setPlacing(false);
-                    return;
+            const placeData = await placeRes.json();
+            if (!placeRes.ok || !placeData.success || !placeData.order) {
+                setPlaceError(placeData.error || "Failed to place order. Please try again.");
+                setPlacing(false);
+                return;
+            }
+
+            const createdOrder = placeData.order;
+
+            if (paymentMethod === "cod") {
+                // Clear cart then redirect to confirmation
+                if (user) {
+                    await clearCart(user.id);
+                } else {
+                    clearGuestCart();
                 }
-
-                // 2. Call backend create-order API
+                router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${createdOrder.id}`);
+            } else {
+                // Razorpay Flow
                 const response = await fetch("/api/payments/razorpay/create-order", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ orderId: order.id }),
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ orderId: createdOrder.id }),
                 });
 
                 const createOrderResult = await response.json();
-
                 if (!response.ok || !createOrderResult.success) {
                     throw new Error(createOrderResult.error || "Failed to initiate transaction.");
                 }
 
                 const { keyId, order: razorpayOrder } = createOrderResult;
 
-                // 3. Dynamically load the Razorpay checkout script
                 const scriptLoaded = await loadRazorpayScript();
                 if (!scriptLoaded) {
                     throw new Error("Unable to load payment SDK. Check your internet connection.");
                 }
 
-                // 4. Configure Razorpay checkout options
                 const options = {
                     key: keyId,
                     amount: razorpayOrder.amount,
                     currency: razorpayOrder.currency,
                     name: "MarketNera",
-                    description: `Order Payment for #${order.id.slice(0, 8)}`,
+                    description: `Order Payment for #${createdOrder.id.slice(0, 8)}`,
                     order_id: razorpayOrder.id,
                     handler: async (paymentResponse: any) => {
                         setPlacing(true);
                         try {
-                            // 5. Send verify-payment request to backend
                             const verifyResponse = await fetch("/api/payments/razorpay/verify-payment", {
                                 method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
+                                headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({
                                     razorpay_payment_id: paymentResponse.razorpay_payment_id,
                                     razorpay_order_id: paymentResponse.razorpay_order_id,
                                     razorpay_signature: paymentResponse.razorpay_signature,
                                 }),
-                              });
+                            });
 
-                              const verifyResult = await verifyResponse.json();
+                            const verifyResult = await verifyResponse.json();
+                            if (!verifyResponse.ok || !verifyResult.success) {
+                                throw new Error(verifyResult.error || "Payment verification failed.");
+                            }
 
-                              if (!verifyResponse.ok || !verifyResult.success) {
-                                  throw new Error(verifyResult.error || "Payment verification failed.");
-                              }
+                            if (user) {
+                                await clearCart(user.id);
+                            } else {
+                                clearGuestCart();
+                            }
+                            router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${createdOrder.id}&payment=success`);
+                        } catch (err: any) {
+                            setPlaceError(err.message || "Payment verification failed. Please contact support.");
+                            setPlacing(false);
+                        }
+                    },
+                    prefill: {
+                        name: user ? undefined : guestName.trim(),
+                        contact: user ? undefined : guestPhone.trim(),
+                        email: user?.email || "",
+                    },
+                    theme: {
+                        color: "#059669",
+                    },
+                    modal: {
+                        ondismiss: async () => {
+                            setPlacing(false);
+                            setPlaceError("Payment cancelled.");
+                            if (user) {
+                                await cancelOrder(createdOrder.id, user.id);
+                            }
+                        },
+                    },
+                };
 
-                              // 6. Clear cart and redirect to success
-                              await clearCart(user.id);
-                              router.push(`${ROUTES.CUSTOMER_ORDERS}?payment=success`);
-                          } catch (err: any) {
-                              setPlaceError(err.message || "Payment verification failed. Please contact support.");
-                              setPlacing(false);
-                          }
-                      },
-                      prefill: {
-                          email: user.email || "",
-                      },
-                      theme: {
-                          color: "#F97316", // brand primary orange
-                      },
-                      modal: {
-                          ondismiss: async () => {
-                              setPlacing(false);
-                              setPlaceError("Payment cancelled.");
-                              await cancelOrder(order.id, user.id);
-                          },
-                      },
-                  };
-
-                  // 5. Open checkout modal
-                  const rzp = new window.Razorpay(options);
-                  rzp.open();
-
-              } catch (err: any) {
-                  setPlaceError(err.message || "Payment initiation failed. Please try again.");
-                  setPlacing(false);
-              }
-          }
-      };
+                const rzp = new window.Razorpay(options);
+                rzp.open();
+            }
+        } catch (err: any) {
+            setPlaceError(err.message || "Payment initiation failed. Please try again.");
+            setPlacing(false);
+        }
+    };
 
     // ── Product image helper ──
     const getProductImage = (item: CartItem): string => {
@@ -353,13 +478,10 @@ export default function CartPage() {
                     </div>
                 </div>
                 {!loading && items.length > 0 && (
-                    <button onClick={async () => {
-                        if (!user) return;
-                        setLoading(true);
-                        await clearCart(user.id);
-                        setItems([]);
-                        setLoading(false);
-                    }} className="text-red-500 font-bold text-xs uppercase tracking-wide hover:text-red-600 transition-colors">
+                    <button
+                        onClick={handleClearAll}
+                        className="text-red-500 font-bold text-xs uppercase tracking-wide hover:text-red-600 transition-colors"
+                    >
                         Clear all
                     </button>
                 )}
@@ -374,7 +496,7 @@ export default function CartPage() {
                     <h2 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Your cart is empty</h2>
                     <p className="text-sm font-medium text-slate-500 mb-8">Browse nearby shops and add some items to your cart.</p>
                     <button
-                        onClick={() => router.push(ROUTES.CUSTOMER_DASHBOARD)}
+                        onClick={() => router.push(ROUTES.HOME)}
                         className="px-8 py-3.5 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/30 premium-hover premium-active"
                     >
                         Start Shopping
@@ -471,48 +593,167 @@ export default function CartPage() {
             {!loading && items.length > 0 && (
                 <section className="px-4 py-2 animate-fade-in-up">
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary text-lg">location_on</span>
-                                Delivery Address
-                            </h2>
-                            <button
-                                onClick={() => {
-                                    if (addresses.length > 0) {
-                                        setShowAddressModal(true);
-                                    } else {
-                                        router.push(ROUTES.CUSTOMER_ADDRESSES);
-                                    }
-                                }}
-                                className="text-primary font-bold text-xs uppercase tracking-wide hover:opacity-85 transition-opacity"
-                            >
-                                {selectedAddress ? "Change" : "Add Address"}
-                            </button>
-                        </div>
+                        {user ? (
+                            <>
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-primary text-lg">location_on</span>
+                                        Delivery Address
+                                    </h2>
+                                    <button
+                                        onClick={() => {
+                                            if (addresses.length > 0) {
+                                                setShowAddressModal(true);
+                                            } else {
+                                                router.push(ROUTES.CUSTOMER_ADDRESSES);
+                                            }
+                                        }}
+                                        className="text-primary font-bold text-xs uppercase tracking-wide hover:opacity-85 transition-opacity"
+                                    >
+                                        {selectedAddress ? "Change" : "Add Address"}
+                                    </button>
+                                </div>
 
-                        {selectedAddress ? (
-                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-3">
-                                <span className="material-symbols-outlined text-slate-400 text-lg mt-0.5">
-                                    {selectedAddress.label === "Home" ? "home" : selectedAddress.label === "Work" ? "work" : "location_on"}
-                                </span>
-                                <div>
-                                    <p className="text-xs font-black text-slate-800 uppercase tracking-wide">{selectedAddress.label}</p>
-                                    <p className="text-xs font-semibold text-slate-500 mt-1 leading-relaxed">{selectedAddress.address_line}</p>
-                                    {(selectedAddress.city || selectedAddress.pincode) && (
-                                        <p className="text-[11px] font-semibold text-slate-400 mt-0.5">
-                                            {[selectedAddress.city, selectedAddress.pincode].filter(Boolean).join(" - ")}
-                                        </p>
-                                    )}
+                                {selectedAddress ? (
+                                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-3">
+                                        <span className="material-symbols-outlined text-slate-400 text-lg mt-0.5">
+                                            {selectedAddress.label === "Home" ? "home" : selectedAddress.label === "Work" ? "work" : "location_on"}
+                                        </span>
+                                        <div>
+                                            <p className="text-xs font-black text-slate-800 uppercase tracking-wide">{selectedAddress.label}</p>
+                                            <p className="text-xs font-semibold text-slate-500 mt-1 leading-relaxed">{selectedAddress.address_line}</p>
+                                            {(selectedAddress.city || selectedAddress.pincode) && (
+                                                <p className="text-[11px] font-semibold text-slate-400 mt-0.5">
+                                                    {[selectedAddress.city, selectedAddress.pincode].filter(Boolean).join(" - ")}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => router.push(ROUTES.CUSTOMER_ADDRESSES)}
+                                        className="w-full py-4 rounded-xl border-2 border-dashed border-slate-200 text-slate-500 text-xs font-bold flex items-center justify-center gap-1.5 hover:border-primary hover:text-primary transition-all"
+                                    >
+                                        <span className="material-symbols-outlined text-base">add_circle</span>
+                                        Add a delivery address to checkout
+                                    </button>
+                                )}
+                            </>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                                    <div>
+                                        <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-primary text-lg">local_shipping</span>
+                                            Delivery Details
+                                        </h2>
+                                        <p className="text-[11px] text-slate-500 mt-0.5">No account required. Enter details to receive your order.</p>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                        Guest
+                                    </span>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                                Full Name <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="e.g. Rahul Sharma"
+                                                value={guestName}
+                                                onChange={(e) => setGuestName(e.target.value)}
+                                                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-slate-50/50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                                Mobile Number <span className="text-red-500">*</span>
+                                            </label>
+                                            <div className="flex rounded-xl border border-slate-200 overflow-hidden bg-slate-50/50 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20">
+                                                <span className="px-2.5 py-2.5 bg-slate-100 text-[11px] font-bold text-slate-600 border-r border-slate-200 flex items-center">
+                                                    +91
+                                                </span>
+                                                <input
+                                                    type="tel"
+                                                    maxLength={10}
+                                                    placeholder="10-digit number"
+                                                    value={guestPhone}
+                                                    onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                                                    className="w-full px-3 py-2.5 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                            Street Address / House No. <span className="text-red-500">*</span>
+                                        </label>
+                                        <textarea
+                                            rows={2}
+                                            placeholder="House / Flat / Floor no., Building name, Street / Locality"
+                                            value={guestAddress}
+                                            onChange={(e) => setGuestAddress(e.target.value)}
+                                            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-slate-50/50 resize-none"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                            Landmark <span className="text-slate-400 font-normal">(Optional)</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Nearby temple, school, park, or shop"
+                                            value={guestLandmark}
+                                            onChange={(e) => setGuestLandmark(e.target.value)}
+                                            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-slate-50/50"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                                City <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="City"
+                                                value={guestCity}
+                                                onChange={(e) => setGuestCity(e.target.value)}
+                                                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-slate-50/50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                                Pincode <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                maxLength={6}
+                                                placeholder="6-digit pincode"
+                                                value={guestPincode}
+                                                onChange={(e) => setGuestPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                                                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-slate-50/50"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Existing Account Prompt */}
+                                    <div className="pt-1 flex items-center justify-between text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                        <span>Have an account with saved addresses?</span>
+                                        <Link
+                                            href={`${ROUTES.LOGIN_CUSTOMER}?redirect=${encodeURIComponent(ROUTES.CUSTOMER_CART)}`}
+                                            className="text-primary font-bold hover:underline"
+                                        >
+                                            Log In
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
-                        ) : (
-                            <button
-                                onClick={() => router.push(ROUTES.CUSTOMER_ADDRESSES)}
-                                className="w-full py-4 rounded-xl border-2 border-dashed border-slate-200 text-slate-500 text-xs font-bold flex items-center justify-center gap-1.5 hover:border-primary hover:text-primary transition-all"
-                            >
-                                <span className="material-symbols-outlined text-base">add_circle</span>
-                                Add a delivery address to checkout
-                            </button>
                         )}
                     </div>
                 </section>

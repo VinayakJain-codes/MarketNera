@@ -227,3 +227,73 @@ export async function reorderPastOrder(
         return { success: false, error: err?.message || "An unexpected error occurred." };
     }
 }
+
+// ── Guest Cart Helpers (LocalStorage) ────────────────────────────────────────
+
+export interface GuestCartItem {
+    id: string; // product_id
+    name: string;
+    price: number;
+    shopId: string;
+    quantity: number;
+    unit?: string;
+    image?: string;
+}
+
+export function getGuestCart(): GuestCartItem[] {
+    if (typeof window === "undefined") return [];
+    try {
+        const raw = localStorage.getItem("marketnera_guest_cart");
+        return raw ? JSON.parse(raw) : [];
+    } catch {
+        return [];
+    }
+}
+
+export function saveGuestCart(items: GuestCartItem[]): void {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("marketnera_guest_cart", JSON.stringify(items));
+    window.dispatchEvent(new Event("marketnera_cart_updated"));
+}
+
+export function addGuestCartItem(item: Omit<GuestCartItem, "quantity"> & { quantity?: number }): void {
+    const items = getGuestCart();
+    const existing = items.find((i) => i.id === item.id);
+    if (existing) {
+        existing.quantity += item.quantity || 1;
+    } else {
+        items.push({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            shopId: item.shopId,
+            quantity: item.quantity || 1,
+            unit: item.unit,
+            image: item.image,
+        });
+    }
+    saveGuestCart(items);
+}
+
+export function updateGuestCartQty(productId: string, quantity: number): void {
+    const items = getGuestCart();
+    let updated: GuestCartItem[];
+    if (quantity <= 0) {
+        updated = items.filter((i) => i.id !== productId);
+    } else {
+        updated = items.map((i) => (i.id === productId ? { ...i, quantity } : i));
+    }
+    saveGuestCart(updated);
+}
+
+export function removeGuestCartItem(productId: string): void {
+    const items = getGuestCart();
+    const updated = items.filter((i) => i.id !== productId);
+    saveGuestCart(updated);
+}
+
+export function clearGuestCart(): void {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem("marketnera_guest_cart");
+    window.dispatchEvent(new Event("marketnera_cart_updated"));
+}

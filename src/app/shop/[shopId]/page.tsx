@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { getShopkeeperProfile, ShopkeeperProfile } from "@/lib/services/shopkeeper";
 import { getProducts, Product } from "@/lib/api/products";
-import { addToCart } from "@/lib/services/cart";
+import { addToCart, addGuestCartItem, getGuestCart } from "@/lib/services/cart";
 import { User } from "@supabase/supabase-js";
 import toast from "react-hot-toast";
 import Image from "next/image";
@@ -33,6 +33,10 @@ export default function ShopDetailPage({ params }: { params: Promise<{ shopId: s
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null);
+            if (!session?.user) {
+                const guestItems = getGuestCart();
+                setAddedProductIds(new Set(guestItems.map((i) => i.id)));
+            }
         });
     }, []);
 
@@ -62,10 +66,6 @@ export default function ShopDetailPage({ params }: { params: Promise<{ shopId: s
     }, [shopId]);
 
     const handleAdd = async (product: Product) => {
-        if (!user) {
-            toast.error("Please log in to add items to cart");
-            return;
-        }
         const alreadyAdded = addedProductIds.has(product.id);
         setAddedProductIds((prev) => {
             const next = new Set(prev);
@@ -73,13 +73,27 @@ export default function ShopDetailPage({ params }: { params: Promise<{ shopId: s
             else next.add(product.id);
             return next;
         });
+
         if (!alreadyAdded) {
-            const result = await addToCart(user.id, product.id, product.shop_id);
-            if (result.success) {
-                toast.success("Added to cart");
+            if (user) {
+                const result = await addToCart(user.id, product.id, product.shop_id);
+                if (result.success) {
+                    toast.success("Added to cart");
+                } else {
+                    setAddedProductIds((prev) => { const next = new Set(prev); next.delete(product.id); return next; });
+                    toast.error("Could not add to cart");
+                }
             } else {
-                setAddedProductIds((prev) => { const next = new Set(prev); next.delete(product.id); return next; });
-                toast.error("Could not add to cart");
+                addGuestCartItem({
+                    id: product.id,
+                    name: product.name,
+                    price: product.sale_price ?? product.price,
+                    shopId: product.shop_id,
+                    quantity: 1,
+                    unit: product.unit_type,
+                    image: getProductImage(product as any),
+                });
+                toast.success("Added to cart");
             }
         }
     };

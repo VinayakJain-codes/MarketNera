@@ -34,12 +34,17 @@ export async function middleware(request: NextRequest) {
   const isShopkeeperRoute =
     request.nextUrl.pathname.startsWith('/shopkeeper') ||
     request.nextUrl.pathname.startsWith('/shops/dashboard');
-  const isCustomerRoute = request.nextUrl.pathname.startsWith('/customer');
+  const isProtectedCustomerRoute =
+    request.nextUrl.pathname.startsWith('/customer/dashboard') ||
+    request.nextUrl.pathname.startsWith('/customer/orders') ||
+    request.nextUrl.pathname.startsWith('/customer/profile') ||
+    request.nextUrl.pathname.startsWith('/customer/wishlist') ||
+    request.nextUrl.pathname.startsWith('/customer/addresses');
 
   // Check for developer bypass cookie (e.g. set locally for sandbox testing)
   const devBypassRole = request.cookies.get('dev_bypass_role')?.value;
   const hasBypass = (isShopkeeperRoute && devBypassRole === 'shopkeeper') ||
-                    (isCustomerRoute && devBypassRole === 'customer');
+                    (isProtectedCustomerRoute && devBypassRole === 'customer');
 
   const isPublicAuthRoute =
     request.nextUrl.pathname.startsWith('/login') ||
@@ -49,7 +54,7 @@ export async function middleware(request: NextRequest) {
   if (
     !user &&
     !hasBypass &&
-    (isShopkeeperRoute || isCustomerRoute) &&
+    (isShopkeeperRoute || isProtectedCustomerRoute) &&
     !isPublicAuthRoute
   ) {
     const loginType = isShopkeeperRoute ? 'shopkeeper' : 'customer';
