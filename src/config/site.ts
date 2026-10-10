@@ -1,8 +1,8 @@
 const siteConfig = {
     name: "Marketnera",
-    tagline: "Growth. Local. Yours.",
+    tagline: "15-Minute Local Delivery & Essentials",
     description:
-        "Help your local business compete and thrive online with modern tools for inventory, delivery, and marketing.",
+        "Order groceries, dairy, vegetables, and daily essentials from trusted neighborhood stores in Meerut with guaranteed 15–30 minute doorstep delivery.",
     url: "https://marketnera.com",
     founding_year: 2024,
     shopkeeper_count: 5000,

@@ -183,9 +183,10 @@ export const footerColumns: FooterColumn[] = [
     {
         heading: "Platform",
         links: [
-            { label: "Features",       href: "/#features" },
-            { label: "Categories",     href: "/#categories" },
-            { label: "Register Shop",  href: ROUTES.REGISTER },
+            { label: "Marketplace",    href: ROUTES.HOME },
+            { label: "Categories",     href: ROUTES.CATEGORIES },
+            { label: "Local Shops",    href: ROUTES.CUSTOMER_SHOPS },
+            { label: "Register Shop",  href: ROUTES.SHOPS_HOME },
         ],
     },
     {

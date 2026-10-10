@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, useTransition } from "react";
+import { useState, useEffect, useRef, useTransition, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import CustomerNavbar from "@/components/layout/CustomerNavbar";
 import CustomerHeroBanner from "@/components/customer/CustomerHeroBanner";
 import CustomerCategoryStrip from "@/components/customer/CustomerCategoryStrip";
 import CustomerProductGrid from "@/components/customer/CustomerProductGrid";
 import NeighborhoodShops from "@/components/customer/NeighborhoodShops";
+import CustomerBottomNav from "@/components/layout/CustomerBottomNav";
 import Footer from "@/components/layout/Footer";
 import {
     getLiveCatalogProducts,
@@ -17,9 +19,13 @@ import {
 } from "@/lib/services/customerCatalog";
 import { Clock, Store, ShieldCheck, Zap } from "lucide-react";
 
-export default function CustomerHomePage() {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+function CustomerHomePageContent() {
+    const searchParams = useSearchParams();
+    const initialCategory = searchParams.get("category");
+    const initialQuery = searchParams.get("q") || "";
+
+    const [searchQuery, setSearchQuery] = useState(initialQuery);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(initialCategory);
 
     const [products, setProducts] = useState<LiveCatalogProduct[]>([]);
     const [categories, setCategories] = useState<LiveCategorySummary[]>([]);
@@ -37,7 +43,10 @@ export default function CustomerHomePage() {
             setLoadingData(true);
             try {
                 const [prods, cats, shs] = await Promise.all([
-                    getLiveCatalogProducts(),
+                    getLiveCatalogProducts({
+                        category: selectedCategory,
+                        search: searchQuery,
+                    }),
                     getLiveCategories(),
                     getLiveShops(),
                 ]);
@@ -85,7 +94,7 @@ export default function CustomerHomePage() {
             startTransition(() => {
                 filterProducts();
             });
-        }, 200);
+        }, 150);
 
         return () => {
             isMounted = false;
@@ -103,7 +112,7 @@ export default function CustomerHomePage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
+        <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900 pb-16 lg:pb-0">
             {/* Top Customer Navigation Bar */}
             <CustomerNavbar
                 searchQuery={searchQuery}
@@ -194,6 +203,17 @@ export default function CustomerHomePage() {
 
             {/* Footer */}
             <Footer />
+
+            {/* Mobile Bottom Navigation */}
+            <CustomerBottomNav />
         </div>
+    );
+}
+
+export default function CustomerHomePage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#fafaf9]" />}>
+            <CustomerHomePageContent />
+        </Suspense>
     );
 }
