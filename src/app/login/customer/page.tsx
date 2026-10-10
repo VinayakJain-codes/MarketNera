@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ROUTES } from "@/constants/routes";
+import { getURL } from "@/lib/utils";
 
 import Button from "@/components/ui/Button";
 import Logo from "@/components/layout/Logo";
@@ -34,6 +35,25 @@ export default function CustomerLoginPage() {
             return () => clearTimeout(timer);
         }
     }, [countdown]);
+
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        setMessage("");
+        setIsError(false);
+
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo: `${getURL()}auth/callback?next=${encodeURIComponent(ROUTES.CUSTOMER_DASHBOARD)}`,
+            },
+        });
+
+        if (error) {
+            setMessage(error.message);
+            setIsError(true);
+            setLoading(false);
+        }
+    };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -290,11 +310,13 @@ export default function CustomerLoginPage() {
                         </div>
                     </div>
 
-                    {/* Google Button — Coming Soon */}
+                    {/* Google Button */}
                     <div className="animate-fade-in-up delay-200">
-                        <a
-                            href="/coming-soon"
-                            className="google-btn flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 border border-slate-200 bg-white hover:bg-slate-50 transition-colors relative"
+                        <button
+                            type="button"
+                            onClick={handleGoogleLogin}
+                            disabled={loading}
+                            className="google-btn flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 border border-slate-200 bg-white hover:bg-slate-50 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
                         >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -303,14 +325,13 @@ export default function CustomerLoginPage() {
                                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                             </svg>
                             Continue with Google
-                            <span className="absolute -top-2 -right-2 rounded-full bg-orange-500 px-1.5 py-0.5 text-[9px] font-black text-white uppercase tracking-wide">Soon</span>
-                        </a>
+                        </button>
                     </div>
 
                     <p className="mt-6 text-center text-xs text-slate-400 animate-fade-in delay-500">
                         New to MarketNera?{" "}
-                        <a href="/coming-soon" className="font-bold text-primary hover:text-orange-600 transition-colors">
-                            Join the waitlist →
+                        <a href={ROUTES.SIGNUP_CUSTOMER} className="font-bold text-primary hover:text-orange-600 transition-colors">
+                            Create an account →
                         </a>
                     </p>
 

@@ -36,11 +36,32 @@ export async function GET(request: NextRequest) {
     if (!error) {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const role = user.user_metadata?.role || "customer";
+        let role = user.user_metadata?.role;
+
+        // If role not yet stored in user_metadata, infer from destination or existing store profile
+        if (!role) {
+          if (next.includes("shopkeeper")) {
+            role = "shopkeeper";
+            await supabase.auth.updateUser({
+              data: { role: "shopkeeper" },
+            });
+          } else {
+            const { data: profile } = await supabase
+              .from("shopkeeper")
+              .select("user_id")
+              .eq("user_id", user.id)
+              .maybeSingle();
+
+            role = profile ? "shopkeeper" : "customer";
+            await supabase.auth.updateUser({
+              data: { role },
+            });
+          }
+        }
         
         let finalRedirect = next;
         if (role === "shopkeeper" && finalRedirect.startsWith("/customer")) {
-          finalRedirect = "/shopkeeper/setup";
+          finalRedirect = "/shopkeeper/dashboard";
         } else if (role === "customer" && finalRedirect.startsWith("/shopkeeper")) {
           finalRedirect = "/customer/dashboard";
         }

@@ -16,9 +16,14 @@ export default function WaitlistSection({ dark = false }: WaitlistSectionProps) 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [agreed, setAgreed] = useState(true);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!agreed) {
+      setError("Please agree to the Terms and Privacy Policy to continue.");
+      return;
+    }
     setLoading(true);
     setError("");
 
@@ -159,6 +164,24 @@ export default function WaitlistSection({ dark = false }: WaitlistSectionProps) 
               />
             </div>
 
+            {/* Agreement Checkbox */}
+            <div className="flex items-start gap-2.5 pt-1 text-left">
+              <input
+                id="waitlist-agree"
+                type="checkbox"
+                required
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="mt-0.5 rounded border-slate-300 text-orange-500 focus:ring-orange-400 h-4 w-4"
+              />
+              <label htmlFor="waitlist-agree" className={`text-xs ${subColor} cursor-pointer select-none leading-snug`}>
+                I agree to the{" "}
+                <a href="/terms" target="_blank" className="font-bold underline hover:text-orange-500">Terms &amp; Conditions</a>
+                {" "}and{" "}
+                <a href="/privacy" target="_blank" className="font-bold underline hover:text-orange-500">Privacy Policy</a>.
+              </label>
+            </div>
+
             {error && (
               <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-center text-xs text-red-600">
                 {error}
@@ -167,7 +190,7 @@ export default function WaitlistSection({ dark = false }: WaitlistSectionProps) 
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !agreed}
               className="btn-glow w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:from-orange-600 hover:to-orange-700 hover:shadow-orange-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? (

@@ -23,7 +23,7 @@ export default function AboutPage() {
       solutionText: "Marketnera changes that. We're building the digital backbone for neighborhood commerce — making it easy for local shops to list products, accept orders, and connect with customers right in their area.",
       tagline: "Hyperlocal. Neighborhood-first. Built for Bharat.",
       ctaTitle: "Be a Part of the Future",
-      ctaText: "We're currently in development and growing fast. If you're a local business owner or someone who believes in the potential of small-town India — this is for you."
+      ctaText: "We are live in Meerut and growing fast. If you're a local business owner or customer who believes in the potential of neighborhood commerce — join us today."
     },
     hi: {
       eyebrow: "हमारी कहानी और दृष्टिकोण",
@@ -37,7 +37,7 @@ export default function AboutPage() {
       solutionText: "Marketnera यही बदलने आया है। हम neighborhood commerce की digital नींव बना रहे हैं — ताकि local shops आसानी से products list कर सकें, orders ले सकें, और अपने आस-पास के customers से जुड़ सकें।",
       tagline: "Hyperlocal. Neighborhood-first. Built for Bharat.",
       ctaTitle: "भविष्य का हिस्सा बनें",
-      ctaText: "हम अभी development में हैं और तेज़ी से आगे बढ़ रहे हैं। अगर आप एक local business owner हैं या छोटे शहरों की ताकत में यकीन रखते हैं — यह platform आपके लिए है।"
+      ctaText: "हम अब मेरठ में live हैं और तेज़ी से आगे बढ़ रहे हैं। अगर आप एक local business owner हैं या स्थानीय बाज़ार की ताकत में यकीन रखते हैं — आज ही हमसे जुड़ें।"
     }
   };
 

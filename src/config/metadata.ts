@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import siteConfig from "./site";
 
+const extractGoogleToken = (val?: string) => {
+    if (!val) return "google-site-verification-marketnera";
+    const contentMatch = val.match(/content=["']([^"']+)["']/i);
+    if (contentMatch) return contentMatch[1];
+    return val.replace(/^google-site-verification=/, "").replace(/['"]/g, "").trim();
+};
+
 const siteMetadata: Metadata = {
     title: {
         default: `${siteConfig.name} — ${siteConfig.tagline}`,
@@ -8,6 +15,12 @@ const siteMetadata: Metadata = {
     },
     description: siteConfig.description,
     metadataBase: new URL(siteConfig.url),
+    verification: {
+        google: extractGoogleToken(
+            process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ||
+            process.env.GOOGLE_SITE_VERIFICATION
+        ),
+    },
     openGraph: {
         type: "website",
         locale: "en_IN",

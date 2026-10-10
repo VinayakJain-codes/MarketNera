@@ -63,6 +63,9 @@ export default function CartPage() {
     const [appliedCoupon, setAppliedCoupon] = useState<any | null>(null);
     const [couponError, setCouponError] = useState<string | null>(null);
 
+    // Terms & Checkout notice state
+    const [agreedToTerms, setAgreedToTerms] = useState(true);
+
     // ── Auth check ──
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -163,6 +166,12 @@ export default function CartPage() {
         if (!user || items.length === 0 || placing) return;
         setPlaceError(null);
         setPlacing(true);
+
+        if (!agreedToTerms) {
+            setPlaceError("Please agree to the Terms & Conditions and Privacy Policy to proceed.");
+            setPlacing(false);
+            return;
+        }
 
         if (!selectedAddress) {
             setPlaceError("Please select or add a delivery address to complete your order.");
@@ -707,6 +716,28 @@ export default function CartPage() {
                     {placeError && (
                         <p className="text-xs text-red-500 mb-2 text-center font-bold bg-red-50 p-2 rounded-lg">{placeError}</p>
                     )}
+                    {/* Checkout Notice & Legal Consent */}
+                    <div className="mb-3 p-2.5 rounded-xl bg-amber-50 border border-amber-200/80 text-[11px] text-amber-900 leading-snug">
+                        <p className="font-semibold flex items-center gap-1 mb-1">
+                            <span className="material-symbols-outlined text-sm text-amber-700">info</span>
+                            No refunds or exchanges for change of mind. Delivery in Meerut within 1 hour (target).
+                        </p>
+                        <label className="flex items-center gap-2 mt-1.5 cursor-pointer text-slate-700 select-none">
+                            <input
+                                type="checkbox"
+                                checked={agreedToTerms}
+                                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                className="rounded border-slate-300 text-primary focus:ring-primary h-3.5 w-3.5"
+                            />
+                            <span>
+                                I agree to the{" "}
+                                <a href="/terms" target="_blank" className="font-bold underline hover:text-primary">Terms &amp; Conditions</a>
+                                {" "}and{" "}
+                                <a href="/privacy" target="_blank" className="font-bold underline hover:text-primary">Privacy Policy</a>
+                            </span>
+                        </label>
+                    </div>
+
                     <div className="flex justify-center mb-3 text-[10px] font-bold text-slate-400 tracking-wider uppercase gap-3">
                         <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">lock</span> Secure Checkout</span>
                         <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">payments</span> COD Available</span>
@@ -718,7 +749,7 @@ export default function CartPage() {
                         </div>
                         <button
                             onClick={handlePlaceOrder}
-                            disabled={placing}
+                            disabled={placing || !agreedToTerms}
                             className={`flex-1 md:flex-none md:w-56 flex justify-center items-center gap-2 px-6 py-4 text-white rounded-xl font-black text-sm shadow-xl transition-all disabled:opacity-60 premium-active ${
                                 paymentMethod === "razorpay"
                                     ? "bg-blue-600 shadow-blue-600/30 hover:bg-blue-700"

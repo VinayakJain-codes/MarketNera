@@ -14,6 +14,7 @@ export const navItems: NavItem[] = [
     { label: "Features", href: ROUTES.FEATURES },
     { label: "Pricing", href: ROUTES.PRICING },
     { label: "About", href: ROUTES.ABOUT },
+    { label: "Terms", href: ROUTES.TERMS },
 ];
 
 export const heroContent: HeroContent = {
@@ -198,9 +199,19 @@ export const footerColumns: FooterColumn[] = [
     {
         heading: "Support",
         links: [
-            { label: "Help Center",    href: "#" },
-            { label: "Privacy Policy", href: "#" },
-            { label: "Contact Us",     href: "#" },
+            { label: "Help Center",    href: ROUTES.HELP_CENTER },
+            { label: "Contact Us",     href: ROUTES.CONTACT },
+            { label: "Delivery Info",  href: ROUTES.SHIPPING_POLICY },
+        ],
+    },
+    {
+        heading: "Legal",
+        links: [
+            { label: "Terms & Conditions", href: ROUTES.TERMS },
+            { label: "Privacy Policy",     href: ROUTES.PRIVACY },
+            { label: "Refund Policy",      href: ROUTES.REFUND_POLICY },
+            { label: "Shipping Policy",    href: ROUTES.SHIPPING_POLICY },
+            { label: "Seller Terms",       href: ROUTES.SELLER_TERMS },
         ],
     },
 ];

@@ -59,12 +59,12 @@ export default function ComingSoonPage() {
 
           <p className="text-white/60 text-lg max-w-xl mx-auto mb-4 leading-relaxed">
             MarketNera is India&apos;s next-generation local marketplace — connecting customers with
-            local shops, delivery partners, and career opportunities in one seamless platform.
+            local shops and fast doorstep delivery in one seamless platform.
           </p>
 
           {/* Feature pills */}
           <div className="flex flex-wrap justify-center gap-2 mb-6">
-            {["🛒 Local Shopping", "🛵 Fast Delivery", "🏪 Shop Owners", "💼 Career Services"].map((feat) => (
+            {["🛒 Local Shopping", "🛵 Fast Delivery", "🏪 Shop Owners", "⚡ Hyperlocal Network"].map((feat) => (
               <span
                 key={feat}
                 className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70"
@@ -90,9 +90,18 @@ export default function ComingSoonPage() {
         {/* Footer */}
         <div className="text-center pb-10 text-white/30 text-xs">
           <p>© 2026 MarketNera. All rights reserved.</p>
-          <div className="flex justify-center gap-4 mt-2">
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
             <Link href="/" className="hover:text-white/60 transition-colors">Home</Link>
-            <Link href="/privacy" className="hover:text-white/60 transition-colors">Privacy Policy</Link>
+            <span className="text-white/20">·</span>
+            <Link href="/terms" className="hover:text-white/60 transition-colors">Terms</Link>
+            <span className="text-white/20">·</span>
+            <Link href="/privacy" className="hover:text-white/60 transition-colors">Privacy</Link>
+            <span className="text-white/20">·</span>
+            <Link href="/refund-policy" className="hover:text-white/60 transition-colors">Refund</Link>
+            <span className="text-white/20">·</span>
+            <Link href="/shipping-policy" className="hover:text-white/60 transition-colors">Shipping</Link>
+            <span className="text-white/20">·</span>
+            <Link href="/contact" className="hover:text-white/60 transition-colors">Contact</Link>
           </div>
         </div>
       </div>
