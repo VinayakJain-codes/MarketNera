@@ -1,8 +1,8 @@
 "use client";
 
 import { getLeafletIcon } from "@/lib/leaflet-icon-fix";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import { useState, useEffect, useCallback } from "react";
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
+import { useState, useEffect, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
 
 interface LocationDetails {
@@ -21,219 +21,347 @@ interface LeafletMapInnerProps {
     onLocationSelected: (locationDetails: LocationDetails) => void;
 }
 
-// Draggable marker that follows map center
-function LocationMarker({ onMove }: { onMove: (lat: number, lng: number) => void }) {
-    const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
+// Controller component to manage map lifecycle, invalidate size in modals, and center view
+function MapLifecycleController({
+    center,
+    onMove,
+}: {
+    center: [number, number];
+    onMove: (lat: number, lng: number) => void;
+}) {
+    const map = useMap();
+    const [markerPos, setMarkerPos] = useState<{ lat: number; lng: number }>({
+        lat: center[0],
+        lng: center[1],
+    });
 
-    const map = useMapEvents({
+    // Invalidate size once modal finishes opening to eliminate grey tiles
+    useEffect(() => {
+        const timer1 = setTimeout(() => {
+            map.invalidateSize();
+        }, 150);
+        const timer2 = setTimeout(() => {
+            map.invalidateSize();
+        }, 500);
+
+        return () => {
+            clearTimeout(timer1);
+            clearTimeout(timer2);
+        };
+    }, [map]);
+
+    // Pan to center if coordinates change externally (e.g. from search or geolocation)
+    useEffect(() => {
+        map.setView(center, map.getZoom(), { animate: true });
+        setMarkerPos({ lat: center[0], lng: center[1] });
+    }, [center, map]);
+
+    useMapEvents({
         click(e) {
-            setPosition(e.latlng);
+            setMarkerPos(e.latlng);
             onMove(e.latlng.lat, e.latlng.lng);
         },
         dragend() {
-            const center = map.getCenter();
-            setPosition(center);
-            onMove(center.lat, center.lng);
+            const currentCenter = map.getCenter();
+            setMarkerPos(currentCenter);
+            onMove(currentCenter.lat, currentCenter.lng);
         },
     });
 
-    useEffect(() => {
-        // Initialize position on mount
-        const center = map.getCenter();
-        setPosition(center);
-    }, [map]);
-
-    return position ? <Marker position={position} draggable icon={getLeafletIcon()} /> : null;
+    return (
+        <Marker
+            position={markerPos}
+            draggable
+            icon={getLeafletIcon()}
+            eventHandlers={{
+                dragend: (e) => {
+                    const target = e.target;
+                    const latlng = target.getLatLng();
+                    setMarkerPos(latlng);
+                    onMove(latlng.lat, latlng.lng);
+                },
+            }}
+        />
+    );
 }
 
 export default function LeafletMapInner({ onLocationSelected }: LeafletMapInnerProps) {
     const [step, setStep] = useState<"map" | "details">("map");
 
-    const [lat, setLat] = useState<number>(28.6139); // Default: New Delhi
-    const [lng, setLng] = useState<number>(77.2090);
+    // Coordinates (default Meerut: 28.9845, 77.7064)
+    const [lat, setLat] = useState<number>(28.9845);
+    const [lng, setLng] = useState<number>(77.7064);
+    const [mapCenter, setMapCenter] = useState<[number, number]>([28.9845, 77.7064]);
+    const [locationAcquired, setLocationAcquired] = useState(false);
+
+    // Detected location state
     const [detectedArea, setDetectedArea] = useState<string>("Locating...");
-    const [city, setCity] = useState<string>("");
-    const [pincode, setPincode] = useState<string>("");
-    
+    const [city, setCity] = useState<string>("Meerut");
+    const [pincode, setPincode] = useState<string>("250001");
+    const [isFetching, setIsFetching] = useState<boolean>(true);
+
+    // Search state
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showResultsDropdown, setShowResultsDropdown] = useState(false);
+    const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
+
     // Address detail fields
     const [houseNo, setHouseNo] = useState("");
     const [building, setBuilding] = useState("");
     const [landmark, setLandmark] = useState("");
-    const [label, setLabel] = useState<"Home" | "Work" | "Other" | undefined>(undefined);
-    
-    const [isFetching, setIsFetching] = useState<boolean>(true);
-    const [mapCenter, setMapCenter] = useState<[number, number]>([28.6139, 77.2090]);
-    const [locationAcquired, setLocationAcquired] = useState(false);
+    const [label, setLabel] = useState<"Home" | "Work" | "Other">("Home");
 
-    const parseAddressData = (addr: Record<string, string>, displayName: string) => {
-        // Build detected area starting from road level, skipping amenities
-        const parts = [addr.road, addr.neighbourhood, addr.suburb, addr.city_district].filter(Boolean);
-        let area = parts.join(", ");
-        
-        if (!area) {
-            // Fallback to display name if we don't have good structured parts
-            area = displayName.split(",").slice(0, 2).join(",") || "Unknown Area";
-        }
-        
-        setDetectedArea(area);
-        setCity(addr.city || addr.town || addr.village || addr.county || "");
-        setPincode(addr.postcode || "");
-    };
-
+    // Reverse geocode using server API route
     const reverseGeocode = useCallback(async (latToFetch: number, lngToFetch: number) => {
         setIsFetching(true);
         try {
-            const key = process.env.NEXT_PUBLIC_LOCATIONIQ_API_KEY;
-
-            // Try LocationIQ first if key exists
-            if (key && !key.includes("xxxxxxxxxx")) {
-                const res = await fetch(
-                    `https://us1.locationiq.com/v1/reverse?key=${key}&lat=${latToFetch}&lon=${lngToFetch}&format=json`
-                );
-                if (res.ok) {
-                    const data = await res.json();
-                    parseAddressData(data.address || {}, data.display_name);
-                    return;
-                }
-                console.warn("LocationIQ failed, falling back to Nominatim");
-            }
-
-            // Fallback: Nominatim (no API key needed, always works)
-            const res = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?lat=${latToFetch}&lon=${lngToFetch}&format=json`,
-                { headers: { "Accept-Language": "en", "User-Agent": "Marketnera/1.0" } }
-            );
-            if (!res.ok) throw new Error("Nominatim failed");
+            const res = await fetch(`/api/geocode/reverse?lat=${latToFetch}&lng=${lngToFetch}`);
             const data = await res.json();
-            parseAddressData(data.address || {}, data.display_name);
 
+            if (res.ok && data.success) {
+                setDetectedArea(data.area || data.displayName || "Selected Location");
+                setCity(data.city || "Meerut");
+                setPincode(data.pincode || "250001");
+            } else {
+                setDetectedArea("Selected Map Location");
+                setCity("Meerut");
+                setPincode("250001");
+            }
         } catch (error) {
-            console.error("Reverse geocode error:", error);
-            setDetectedArea("Could not determine area");
-            setCity("");
-            setPincode("");
+            console.error("Reverse geocoding error:", error);
+            setDetectedArea("Selected Map Location");
+            setCity("Meerut");
+            setPincode("250001");
         } finally {
             setIsFetching(false);
         }
     }, []);
 
-    // Get user location on mount
+    // Initial Geolocation acquisition
     useEffect(() => {
-        if (navigator.geolocation) {
+        let isMounted = true;
+
+        if (typeof navigator !== "undefined" && navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    setLat(pos.coords.latitude);
-                    setLng(pos.coords.longitude);
-                    setMapCenter([pos.coords.latitude, pos.coords.longitude]);
-                    reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+                    if (!isMounted) return;
+                    const uLat = pos.coords.latitude;
+                    const uLng = pos.coords.longitude;
+                    setLat(uLat);
+                    setLng(uLng);
+                    setMapCenter([uLat, uLng]);
+                    reverseGeocode(uLat, uLng);
                     setLocationAcquired(true);
                 },
                 (err) => {
-                    console.warn("Geolocation blocked or failed", err);
-                    reverseGeocode(lat, lng); // fallback to default
+                    console.warn("Geolocation permission skipped or blocked:", err?.message);
+                    if (!isMounted) return;
+                    // Fall back to default Meerut / NCR
+                    reverseGeocode(28.9845, 77.7064);
                     setLocationAcquired(true);
                 },
-                { timeout: 5000 }
+                { timeout: 6000 }
             );
         } else {
-            reverseGeocode(lat, lng);
+            reverseGeocode(28.9845, 77.7064);
             setLocationAcquired(true);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
-    const handleMove = useCallback((newLat: number, newLng: number) => {
-        setLat(newLat);
-        setLng(newLng);
-        reverseGeocode(newLat, newLng);
+        return () => {
+            isMounted = false;
+        };
     }, [reverseGeocode]);
+
+    const handleMove = useCallback(
+        (newLat: number, newLng: number) => {
+            setLat(newLat);
+            setLng(newLng);
+            reverseGeocode(newLat, newLng);
+        },
+        [reverseGeocode]
+    );
+
+    // Handle search query changes
+    const handleSearchChange = (query: string) => {
+        setSearchQuery(query);
+
+        if (searchDebounceRef.current) {
+            clearTimeout(searchDebounceRef.current);
+        }
+
+        if (query.trim().length < 2) {
+            setSearchResults([]);
+            setShowResultsDropdown(false);
+            return;
+        }
+
+        searchDebounceRef.current = setTimeout(async () => {
+            setIsSearching(true);
+            try {
+                const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                if (res.ok && data.results) {
+                    setSearchResults(data.results);
+                    setShowResultsDropdown(data.results.length > 0);
+                }
+            } catch (err) {
+                console.error("Location search failed:", err);
+            } finally {
+                setIsSearching(false);
+            }
+        }, 300);
+    };
+
+    // Selecting a search result
+    const handleSelectSearchResult = (result: any) => {
+        setLat(result.lat);
+        setLng(result.lng);
+        setMapCenter([result.lat, result.lng]);
+        setSearchQuery("");
+        setShowResultsDropdown(false);
+        reverseGeocode(result.lat, result.lng);
+    };
 
     if (!locationAcquired) {
         return (
-            <div className="w-full h-[400px] bg-slate-100 flex flex-col items-center justify-center">
-                <span className="material-symbols-outlined text-4xl text-emerald-500 animate-spin mb-2">sync</span>
-                <p className="text-sm font-semibold text-slate-600">Acquiring Location...</p>
+            <div className="w-full h-[420px] bg-slate-50 flex flex-col items-center justify-center p-6 text-center space-y-3">
+                <span className="material-symbols-outlined text-4xl text-emerald-600 animate-spin">
+                    progress_activity
+                </span>
+                <div>
+                    <p className="text-sm font-bold text-slate-800">Initializing Map...</p>
+                    <p className="text-xs text-slate-400 mt-0.5">Fetching your neighborhood location</p>
+                </div>
             </div>
         );
     }
 
     if (step === "details") {
         return (
-            <div className="p-6 bg-white flex flex-col gap-5 overflow-y-auto max-h-[70vh]">
-                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-                    <button 
+            <div className="p-6 bg-white flex flex-col gap-4 overflow-y-auto max-h-[75vh]">
+                <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                    <button
                         onClick={() => setStep("map")}
                         className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors"
+                        aria-label="Back to map"
                     >
                         <span className="material-symbols-outlined text-xl">arrow_back</span>
                     </button>
-                    <h4 className="text-lg font-bold text-slate-800">Complete your address</h4>
+                    <div>
+                        <h4 className="text-base font-bold text-slate-900">Complete Address Details</h4>
+                        <p className="text-xs text-slate-500">Provide flat / house number for accurate doorstep delivery</p>
+                    </div>
                 </div>
 
-                <div className="flex gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <span className="material-symbols-outlined text-indigo-500 shrink-0">location_on</span>
-                    <p className="text-sm text-slate-600 leading-relaxed line-clamp-2">
-                        {detectedArea}
-                    </p>
+                {/* Selected Location Pill */}
+                <div className="flex items-start gap-3 bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-100">
+                    <span className="material-symbols-outlined text-emerald-600 text-lg mt-0.5 shrink-0">
+                        location_on
+                    </span>
+                    <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-bold text-emerald-950 uppercase tracking-wide">Selected Location</p>
+                        <p className="text-xs text-emerald-800 leading-relaxed font-medium mt-0.5">{detectedArea}</p>
+                    </div>
+                    <button
+                        onClick={() => setStep("map")}
+                        className="text-xs font-bold text-emerald-700 hover:underline shrink-0"
+                    >
+                        Change
+                    </button>
                 </div>
 
-                <div className="flex flex-col gap-4 mt-2">
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-bold text-slate-700">
-                            House / Flat No. <span className="text-red-500">*</span>
+                <div className="space-y-3 mt-1">
+                    <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                            House / Flat / Block No. <span className="text-red-500">*</span>
                         </label>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             value={houseNo}
                             onChange={(e) => setHouseNo(e.target.value)}
-                            placeholder="e.g. B-204"
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
+                            placeholder="e.g. Flat 302, House No. 14-B"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
                         />
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-bold text-slate-700">Building / Society</label>
-                        <input 
-                            type="text" 
+                    <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Building / Apartment / Society Name <span className="text-slate-400 font-normal">(Optional)</span>
+                        </label>
+                        <input
+                            type="text"
                             value={building}
                             onChange={(e) => setBuilding(e.target.value)}
-                            placeholder="e.g. Sunrise Apartments"
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
+                            placeholder="e.g. Surya Enclave, Galaxy Heights"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
                         />
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-bold text-slate-700">Nearby Landmark (optional)</label>
-                        <input 
-                            type="text" 
+                    <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Nearby Landmark <span className="text-slate-400 font-normal">(Optional)</span>
+                        </label>
+                        <input
+                            type="text"
                             value={landmark}
                             onChange={(e) => setLandmark(e.target.value)}
-                            placeholder="e.g. Near City Mall"
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
+                            placeholder="e.g. Behind Metro Hospital, Near Shiv Mandir"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
                         />
                     </div>
 
-                    <div className="flex flex-col gap-2 mt-2">
-                        <label className="text-sm font-bold text-slate-700">Save as</label>
-                        <div className="flex gap-3">
-                            <button 
-                                onClick={() => setLabel("Home")}
-                                className={`flex-1 py-2 rounded-lg border flex items-center justify-center gap-2 text-sm font-semibold transition-all ${label === "Home" ? "border-indigo-500 bg-indigo-50 text-indigo-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                            >
-                                <span className="material-symbols-outlined text-lg">home</span> Home
-                            </button>
-                            <button 
-                                onClick={() => setLabel("Work")}
-                                className={`flex-1 py-2 rounded-lg border flex items-center justify-center gap-2 text-sm font-semibold transition-all ${label === "Work" ? "border-indigo-500 bg-indigo-50 text-indigo-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                            >
-                                <span className="material-symbols-outlined text-lg">work</span> Work
-                            </button>
-                            <button 
-                                onClick={() => setLabel("Other")}
-                                className={`flex-1 py-2 rounded-lg border flex items-center justify-center gap-2 text-sm font-semibold transition-all ${label === "Other" ? "border-indigo-500 bg-indigo-50 text-indigo-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                            >
-                                <span className="material-symbols-outlined text-lg">location_on</span> Other
-                            </button>
+                    {/* City & Pincode (Editable & Resilient) */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                                City <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                                placeholder="City"
+                                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                                Pincode <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                maxLength={6}
+                                value={pincode}
+                                onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                                placeholder="6-digit pincode"
+                                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Save as Label */}
+                    <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Save As</label>
+                        <div className="flex gap-2">
+                            {(["Home", "Work", "Other"] as const).map((l) => (
+                                <button
+                                    key={l}
+                                    type="button"
+                                    onClick={() => setLabel(l)}
+                                    className={`flex-1 py-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                        label === l
+                                            ? "border-emerald-600 bg-emerald-50 text-emerald-800"
+                                            : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                                    }`}
+                                >
+                                    <span className="material-symbols-outlined text-base">
+                                        {l === "Home" ? "home" : l === "Work" ? "work" : "location_on"}
+                                    </span>
+                                    {l}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -241,39 +369,95 @@ export default function LeafletMapInner({ onLocationSelected }: LeafletMapInnerP
                 <button
                     onClick={() => {
                         if (!houseNo.trim()) {
-                            toast.error("Please enter your house/flat number for accurate delivery");
+                            toast.error("Please enter house/flat number for accurate delivery");
                             return;
                         }
                         if (!city.trim()) {
-                            toast.error("City could not be determined. Please adjust the pin on the map.");
+                            toast.error("Please enter a city name");
                             return;
                         }
-                        
-                        const composedAddress = `${houseNo}${building ? ", " + building : ""}, ${detectedArea}`;
-                        
-                        onLocationSelected({ 
-                            addressLine: composedAddress, 
-                            houseNo,
-                            building,
-                            landmark,
+
+                        const composedAddress = `${houseNo.trim()}${building.trim() ? `, ${building.trim()}` : ""}, ${detectedArea}, ${city.trim()} - ${pincode.trim()}`;
+
+                        onLocationSelected({
+                            addressLine: composedAddress,
+                            houseNo: houseNo.trim(),
+                            building: building.trim(),
+                            landmark: landmark.trim(),
                             label,
-                            city, 
-                            pincode, 
-                            lat, 
-                            lng 
+                            city: city.trim(),
+                            pincode: pincode.trim(),
+                            lat,
+                            lng,
                         });
                     }}
-                    className="w-full py-4 mt-4 rounded-xl bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700 text-white text-sm font-bold transition-all shadow-md flex items-center justify-center"
+                    className="w-full py-3.5 mt-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2"
                 >
-                    Save & Proceed
+                    <span>Save &amp; Confirm Location</span>
+                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
                 </button>
             </div>
         );
     }
 
     return (
-        <>
-            <div className="relative bg-slate-100" style={{ height: "400px" }}>
+        <div className="flex flex-col">
+            {/* Top Search & Filter Bar */}
+            <div className="p-3 bg-white border-b border-slate-100 relative z-20">
+                <div className="relative">
+                    <div className="flex items-center px-3 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700">
+                        <span className="material-symbols-outlined text-slate-400 text-lg mr-2">search</span>
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => handleSearchChange(e.target.value)}
+                            placeholder="Search area, landmark, or street (e.g. Civil Lines, Meerut)..."
+                            className="bg-transparent border-none outline-none text-xs w-full font-medium placeholder:text-slate-400"
+                        />
+                        {isSearching && (
+                            <span className="material-symbols-outlined text-sm text-slate-400 animate-spin">
+                                progress_activity
+                            </span>
+                        )}
+                        {searchQuery && !isSearching && (
+                            <button
+                                onClick={() => {
+                                    setSearchQuery("");
+                                    setSearchResults([]);
+                                    setShowResultsDropdown(false);
+                                }}
+                                className="text-slate-400 hover:text-slate-600"
+                            >
+                                <span className="material-symbols-outlined text-sm">close</span>
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Search Suggestions Dropdown */}
+                    {showResultsDropdown && searchResults.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-slate-200 z-50 max-h-52 overflow-y-auto divide-y divide-slate-100">
+                            {searchResults.map((res, i) => (
+                                <button
+                                    key={i}
+                                    type="button"
+                                    onClick={() => handleSelectSearchResult(res)}
+                                    className="w-full text-left p-3 hover:bg-slate-50 transition-colors flex items-start gap-2.5"
+                                >
+                                    <span className="material-symbols-outlined text-emerald-600 text-base mt-0.5 shrink-0">
+                                        location_on
+                                    </span>
+                                    <span className="text-xs font-semibold text-slate-800 line-clamp-2">
+                                        {res.displayName}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Map Canvas */}
+            <div className="relative bg-slate-100" style={{ height: "380px" }}>
                 <MapContainer
                     center={mapCenter}
                     zoom={15}
@@ -284,40 +468,65 @@ export default function LeafletMapInner({ onLocationSelected }: LeafletMapInnerP
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     />
-                    <LocationMarker onMove={handleMove} />
+                    <MapLifecycleController center={mapCenter} onMove={handleMove} />
                 </MapContainer>
+
+                {/* Floating Map Hint */}
+                <div className="absolute top-3 right-3 z-10 bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-1.5 pointer-events-none">
+                    <span className="material-symbols-outlined text-slate-500 text-sm">touch_app</span>
+                    <span className="text-[10px] font-bold text-slate-600">Click or drag pin</span>
+                </div>
             </div>
 
-            {/* Bottom Details Section */}
-            <div className="p-6 bg-white flex flex-col gap-4">
+            {/* Bottom Details Confirmation Strip */}
+            <div className="p-4 bg-white border-t border-slate-100 flex flex-col gap-3">
                 <div className="flex items-start justify-between gap-4">
-                    <div className="flex-grow">
-                        {isFetching ? (
-                            <div className="h-5 bg-slate-200 rounded animate-pulse w-3/4 mb-1"></div>
-                        ) : (
-                            <p className="text-sm font-medium text-slate-700 leading-relaxed">
-                                {detectedArea}
-                            </p>
-                        )}
+                    <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                        <span className="material-symbols-outlined text-emerald-600 text-xl mt-0.5 shrink-0">
+                            location_on
+                        </span>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Pin Location</p>
+                            {isFetching ? (
+                                <div className="h-4 bg-slate-200 rounded animate-pulse w-3/4 mt-1" />
+                            ) : (
+                                <p className="text-xs font-bold text-slate-800 leading-snug line-clamp-2 mt-0.5">
+                                    {detectedArea}
+                                </p>
+                            )}
+                        </div>
                     </div>
-                    <button 
+
+                    <button
+                        type="button"
                         onClick={() => {
-                            toast("Drag the map to change location", { icon: '👆' });
+                            if (navigator.geolocation) {
+                                navigator.geolocation.getCurrentPosition((pos) => {
+                                    const uLat = pos.coords.latitude;
+                                    const uLng = pos.coords.longitude;
+                                    setLat(uLat);
+                                    setLng(uLng);
+                                    setMapCenter([uLat, uLng]);
+                                    reverseGeocode(uLat, uLng);
+                                });
+                            }
                         }}
-                        className="px-4 py-2 text-sm font-bold text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 transition-colors shrink-0"
+                        className="px-3 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors shrink-0 flex items-center gap-1"
                     >
-                        Change
+                        <span className="material-symbols-outlined text-sm">my_location</span>
+                        <span>Recenter GPS</span>
                     </button>
                 </div>
 
                 <button
+                    type="button"
                     onClick={() => setStep("details")}
                     disabled={isFetching}
-                    className="w-full py-4 mt-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700 text-white text-sm font-bold transition-all shadow-md flex items-center justify-center disabled:bg-slate-300 disabled:cursor-not-allowed"
+                    className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
                 >
-                    Confirm this area →
+                    <span>Confirm this location →</span>
                 </button>
             </div>
-        </>
+        </div>
     );
 }
