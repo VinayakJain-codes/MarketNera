@@ -18,7 +18,7 @@ interface PlaceOrderRequestBody {
     customerName?: string;
     customerPhone?: string;
     notes?: string;
-    paymentMethod?: "cod" | "razorpay";
+    paymentMethod?: "razorpay" | "cod";
 }
 
 export async function POST(request: Request) {
@@ -32,8 +32,16 @@ export async function POST(request: Request) {
             customerName,
             customerPhone,
             notes,
-            paymentMethod = "cod",
+            paymentMethod = "razorpay",
         } = body;
+
+        // COD is disabled platform-wide
+        if (paymentMethod === "cod") {
+            return NextResponse.json(
+                { error: "Cash on Delivery (COD) is not supported. Please pay securely using UPI, Cards or NetBanking via Razorpay." },
+                { status: 400 }
+            );
+        }
 
         // 1. Validate items and shopkeeper
         if (!items || !Array.isArray(items) || items.length === 0) {

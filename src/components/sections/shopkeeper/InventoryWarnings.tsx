@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 interface WarningItem {
   id: string;
@@ -30,7 +30,7 @@ export default function InventoryWarnings({ warnings = [] }: { warnings?: Warnin
       
       {warnings.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-6 text-center text-slate-400">
-          <span className="material-symbols-outlined text-4xl mb-1.5 text-emerald-500">check_circle</span>
+          <CheckCircle2 className="w-10 h-10 mb-2 text-emerald-500" />
           <p className="text-sm font-black text-slate-800 uppercase tracking-wide">All Caught Up!</p>
           <p className="text-xs text-slate-400 mt-0.5">All products are fully stocked and available.</p>
         </div>

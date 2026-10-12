@@ -5,6 +5,23 @@ import { useEffect } from 'react';
 export default function PWARegister() {
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      // In development, unregister service workers and purge caches to avoid serving stale HTML
+      if (process.env.NODE_ENV !== 'production') {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            registration.unregister();
+          }
+        });
+        if ('caches' in window) {
+          caches.keys().then((names) => {
+            for (const name of names) {
+              caches.delete(name);
+            }
+          });
+        }
+        return;
+      }
+
       const registerSW = () => {
         navigator.serviceWorker
           .register('/sw.js')

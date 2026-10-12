@@ -13,6 +13,7 @@ import {
 } from "@/lib/services/orders";
 import ShopkeeperTopbar from "@/components/layout/ShopkeeperTopbar";
 import { User } from "@supabase/supabase-js";
+import { ChevronDown, ChevronUp, MapPin, RefreshCw, Inbox } from "lucide-react";
 
 const STATUS_TABS: { label: string; status: OrderStatus | "all" }[] = [
     { label: "All", status: "all" },
@@ -57,15 +58,15 @@ function OrderQueueCard({
 
     return (
         <div
-            className={`bg-white rounded-xl shadow-sm border overflow-hidden transition-shadow hover:shadow-md ${
-                order.status === "pending" ? "border-orange-200" : "border-slate-100"
+            className={`bg-white rounded-2xl shadow-xs border overflow-hidden transition-all hover:shadow-md ${
+                order.status === "pending" ? "border-emerald-300 ring-1 ring-emerald-500/20" : "border-slate-200/80"
             }`}
         >
             {/* New order highlight */}
             {order.status === "pending" && (
-                <div className="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-xs">new_releases</span>
-                    NEW ORDER
+                <div className="bg-emerald-600 text-white text-[10px] font-black tracking-wider px-3.5 py-1.5 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                    <span>NEW ORDER INCOMING</span>
                 </div>
             )}
 
@@ -91,8 +92,8 @@ function OrderQueueCard({
                         >
                             {ORDER_STATUS_LABELS[order.status]}
                         </span>
-                        <span className="material-symbols-outlined text-slate-300 text-lg">
-                            {expanded ? "expand_less" : "expand_more"}
+                        <span className="text-slate-400">
+                            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </span>
                     </div>
                 </div>
@@ -116,7 +117,7 @@ function OrderQueueCard({
                     </div>
                     {order.delivery_address && (
                         <div className="flex gap-2 mt-1 p-2 bg-slate-50 rounded-lg mb-3">
-                            <span className="material-symbols-outlined text-slate-400 text-sm mt-0.5">location_on</span>
+                            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
                             <p className="text-xs text-slate-500">{order.delivery_address}</p>
                         </div>
                     )}
@@ -286,7 +287,7 @@ export default function ShopkeeperOrdersPage() {
                         onClick={fetchOrders}
                         className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-600 text-xs font-medium hover:bg-slate-50 transition-colors"
                     >
-                        <span className="material-symbols-outlined text-sm">refresh</span>
+                        <RefreshCw className="w-3.5 h-3.5" />
                         Refresh
                     </button>
                 </div>
@@ -315,7 +316,7 @@ export default function ShopkeeperOrdersPage() {
                                             activeTab === status
                                                 ? "bg-white/30 text-white"
                                                 : status === "pending"
-                                                ? "bg-orange-100 text-orange-600"
+                                                ? "bg-emerald-100 text-emerald-800"
                                                 : "bg-slate-100 text-slate-500"
                                         }`}
                                     >
@@ -331,10 +332,10 @@ export default function ShopkeeperOrdersPage() {
                 {pendingCount > 0 && activeTab !== "pending" && (
                     <button
                         onClick={() => setActiveTab("pending")}
-                        className="w-full mb-4 py-2.5 rounded-xl bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold flex items-center justify-center gap-2 hover:bg-orange-100 transition-colors"
+                        className="w-full mb-4 py-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors cursor-pointer shadow-xs"
                     >
-                        <span className="material-symbols-outlined text-sm">notifications_active</span>
-                        {pendingCount} new order{pendingCount !== 1 ? "s" : ""} waiting — tap to view
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-ping" />
+                        {pendingCount} new incoming order{pendingCount !== 1 ? "s" : ""} waiting — tap to view &amp; prepare
                     </button>
                 )}
 
@@ -351,7 +352,7 @@ export default function ShopkeeperOrdersPage() {
                     </div>
                 ) : filteredOrders.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <span className="material-symbols-outlined text-5xl text-slate-200 mb-4">inbox</span>
+                        <Inbox className="w-12 h-12 text-slate-300 mb-4 stroke-[1.2]" />
                         <p className="text-base font-semibold text-slate-500">No orders here</p>
                         <p className="text-xs text-slate-400 mt-1">
                             {activeTab === "pending"

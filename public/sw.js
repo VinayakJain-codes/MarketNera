@@ -39,6 +39,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Always bypass caching completely on localhost / development
+  if (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1') {
+    return;
+  }
+
   // Only handle HTTP/HTTPS (ignore chrome-extension:// etc)
   if (!event.request.url.startsWith(self.location.origin)) {
     return;

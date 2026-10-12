@@ -20,10 +20,10 @@ if (typeof window !== 'undefined') {
       return {
         data: {
           user: {
-            id: devBypassRole === 'shopkeeper' ? 'mock-shopkeeper-uuid-12345' : 'mock-customer-uuid-67890',
+            id: devBypassRole === 'shopkeeper' ? 'bab3650d-6a35-4551-9065-f82f942197a7' : 'ca4eaa96-3318-472d-b606-c10ae40247a1',
             email: `${devBypassRole}@marketnera.dev`,
             user_metadata: {
-              full_name: devBypassRole === 'shopkeeper' ? 'Vinayak Jain (Shop Owner)' : 'Vinayak Jain (Customer)',
+              full_name: devBypassRole === 'shopkeeper' ? 'Saksham (Shop Owner)' : 'Vinayak Jain (Customer)',
             },
             role: devBypassRole,
           } as any
@@ -44,10 +44,10 @@ if (typeof window !== 'undefined') {
 
     if (devBypassRole) {
       const mockUser = {
-        id: devBypassRole === 'shopkeeper' ? 'mock-shopkeeper-uuid-12345' : 'mock-customer-uuid-67890',
+        id: devBypassRole === 'shopkeeper' ? 'bab3650d-6a35-4551-9065-f82f942197a7' : 'ca4eaa96-3318-472d-b606-c10ae40247a1',
         email: `${devBypassRole}@marketnera.dev`,
         user_metadata: {
-          full_name: devBypassRole === 'shopkeeper' ? 'Vinayak Jain (Shop Owner)' : 'Vinayak Jain (Customer)',
+          full_name: devBypassRole === 'shopkeeper' ? 'Saksham (Shop Owner)' : 'Vinayak Jain (Customer)',
         },
         role: devBypassRole,
       } as any;

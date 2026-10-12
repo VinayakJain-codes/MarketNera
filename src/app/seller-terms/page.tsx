@@ -93,7 +93,7 @@ export default function SellerTermsPage() {
                                     </p>
                                     <ul className="list-disc list-inside space-y-2 pl-2">
                                         <li><strong>Same-Day / T+1 Settlement:</strong> Verified order earnings are directly settled into your registered Indian bank account via Razorpay automated node settlements on a daily (T+1) basis.</li>
-                                        <li><strong>COD Collections:</strong> For Cash on Delivery orders, delivery riders collect cash at doorstep and settle collections against your digital balance dashboard.</li>
+                                        <li><strong>100% Digital Prepaid Orders:</strong> All orders on Marketnera are securely paid online (UPI, Cards, NetBanking), eliminating cash handling risks, payment discrepancies, and unpaid returns for merchants.</li>
                                         <li><strong>Bank Verification:</strong> Merchants must provide a valid GSTIN (or Trade License), PAN card, and verified cancelled cheque/bank account details before receiving settlements.</li>
                                     </ul>
                                 </div>

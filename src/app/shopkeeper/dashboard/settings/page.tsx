@@ -4,11 +4,24 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
 import LeafletLocationPicker from '@/components/ui/LeafletLocationPicker';
+import {
+  User,
+  Store,
+  Bell,
+  Shield,
+  MapPin,
+  Save,
+  KeyRound,
+  AlertTriangle,
+  Trash2,
+  CheckCircle2,
+} from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'shop' | 'notifications' | 'security'>('profile');
   const [showMapplsPicker, setShowMapplsPicker] = useState(false);
 
   // Profile State
@@ -22,7 +35,7 @@ export default function SettingsPage() {
   const [category, setCategory] = useState('');
   const [address, setAddress] = useState('');
   const [shopPhoto, setShopPhoto] = useState('');
-  
+
   // Notification State
   const [notifSound, setNotifSound] = useState(true);
   const [notifEmail, setNotifEmail] = useState(true);
@@ -40,13 +53,13 @@ export default function SettingsPage() {
       if (!session) return;
       setEmail(session.user.email || '');
       setFullName(session.user.user_metadata?.full_name || '');
-      
-      const { data, error } = await supabase
+
+      const { data } = await supabase
         .from('shopkeeper')
         .select('*')
         .eq('user_id', session.user.id)
         .single();
-        
+
       if (data) {
         setPhone(data.phone || '');
         setShopName(data.shop_name || '');
@@ -70,16 +83,14 @@ export default function SettingsPage() {
     setSaving(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-      // Update name in Auth metadata
       await supabase.auth.updateUser({
-        data: { full_name: fullName }
+        data: { full_name: fullName },
       });
 
-      // Update phone in shopkeeper profile
       await supabase.from('shopkeeper').update({
         phone: phone,
       }).eq('user_id', session.user.id);
-      alert('Profile updated!');
+      toast.success('Profile updated successfully!');
     }
     setSaving(false);
   };
@@ -96,7 +107,7 @@ export default function SettingsPage() {
         category: category,
         address: serializedAddress,
       }).eq('user_id', session.user.id);
-      alert('Shop details updated!');
+      toast.success('Store details saved!');
     }
     setSaving(false);
   };
@@ -105,28 +116,29 @@ export default function SettingsPage() {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       await supabase.from('shopkeeper').update({
-        [field]: value
+        [field]: value,
       }).eq('user_id', session.user.id);
+      toast.success('Preferences updated!');
     }
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      alert("Passwords don't match");
+      toast.error("Passwords don't match");
       return;
     }
     if (newPassword.length < 6) {
-      alert("Password must be at least 6 characters");
+      toast.error('Password must be at least 6 characters');
       return;
     }
     setSaving(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setSaving(false);
     if (error) {
-      alert(error.message);
+      toast.error(error.message);
     } else {
-      alert('Password updated successfully!');
+      toast.success('Password updated successfully!');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -134,84 +146,102 @@ export default function SettingsPage() {
   };
 
   if (loading) {
-    return <div className="p-8 text-[var(--dash-text)]">Loading settings...</div>;
+    return (
+      <div className="p-8 text-center text-slate-500 font-medium">
+        Loading settings...
+      </div>
+    );
   }
 
+  const tabs = [
+    { id: 'profile' as const, label: 'Profile', icon: User },
+    { id: 'shop' as const, label: 'Store Details', icon: Store },
+    { id: 'notifications' as const, label: 'Notifications', icon: Bell },
+    { id: 'security' as const, label: 'Security & Access', icon: Shield },
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 bg-[#f8f9ff] min-h-screen text-[#0b1c30]">
-      <h2 className="text-3xl font-semibold mb-6 text-[#0b1c30]">Merchant Settings</h2>
-      
+    <div className="max-w-5xl mx-auto px-4 md:px-8 py-8 space-y-8">
+      <div>
+        <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Merchant Settings</h1>
+        <p className="text-sm text-slate-500 mt-1">Configure your merchant profile, storefront details, and account preferences.</p>
+      </div>
+
       {/* Tabs Navigation */}
-      <nav className="flex border-b border-[#e0c0b1] mb-6 overflow-x-auto no-scrollbar">
-        <button 
-          className={`px-6 py-4 text-sm whitespace-nowrap transition-all border-b-2 ${activeTab === 'profile' ? 'border-[#F97316] text-[#9d4300] font-medium' : 'border-transparent text-[#584237] hover:text-[#9d4300]'}`}
-          onClick={() => setActiveTab('profile')}
-        >
-          Profile
-        </button>
-        <button 
-          className={`px-6 py-4 text-sm whitespace-nowrap transition-all border-b-2 ${activeTab === 'shop' ? 'border-[#F97316] text-[#9d4300] font-medium' : 'border-transparent text-[#584237] hover:text-[#9d4300]'}`}
-          onClick={() => setActiveTab('shop')}
-        >
-          Shop
-        </button>
-        <button 
-          className={`px-6 py-4 text-sm whitespace-nowrap transition-all border-b-2 ${activeTab === 'notifications' ? 'border-[#F97316] text-[#9d4300] font-medium' : 'border-transparent text-[#584237] hover:text-[#9d4300]'}`}
-          onClick={() => setActiveTab('notifications')}
-        >
-          Notifications
-        </button>
-        <button 
-          className={`px-6 py-4 text-sm whitespace-nowrap transition-all border-b-2 ${activeTab === 'security' ? 'border-[#F97316] text-[#9d4300] font-medium' : 'border-transparent text-[#584237] hover:text-[#9d4300]'}`}
-          onClick={() => setActiveTab('security')}
-        >
-          Security
-        </button>
+      <nav className="flex gap-2 border-b border-slate-200/80 pb-px overflow-x-auto no-scrollbar">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold whitespace-nowrap transition-all border-b-2 ${
+                isActive
+                  ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50 rounded-t-xl'
+                  : 'border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-t-xl'
+              }`}
+            >
+              <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
+              {tab.label}
+            </button>
+          );
+        })}
       </nav>
 
-      <div className="mt-4">
+      <div className="mt-6">
         {/* Profile Tab */}
         {activeTab === 'profile' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(15,23,42,0.1)] p-6 md:p-8">
-            <div className="flex flex-col items-center md:items-start mb-8">
-              <div className="relative group cursor-pointer">
-                <div className="w-32 h-32 rounded-full bg-[#e5eeff] border-4 border-white shadow-md overflow-hidden flex items-center justify-center text-4xl text-[#9d4300] font-bold">
-                  {fullName ? fullName.charAt(0).toUpperCase() : 'M'}
-                </div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 md:p-8 space-y-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 pb-6 border-b border-slate-100">
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-3xl font-black shadow-md shadow-emerald-600/20">
+                {fullName ? fullName.charAt(0).toUpperCase() : 'M'}
               </div>
-              <p className="mt-4 text-xs text-[#584237]">Recommended: Square image, max 2MB</p>
+              <div className="text-center sm:text-left space-y-1">
+                <h3 className="text-lg font-bold text-slate-900">{fullName || 'Merchant Account'}</h3>
+                <p className="text-xs text-slate-500">{email}</p>
+                <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 mt-2">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Verified Merchant
+                </span>
+              </div>
             </div>
-            <form onSubmit={handleSaveProfile} className="space-y-6 max-w-xl">
+
+            <form onSubmit={handleSaveProfile} className="space-y-5 max-w-xl">
               <div>
-                <label className="block text-sm font-medium text-[#584237] mb-2">Full Name</label>
-                <input 
-                  type="text" 
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Full Name</label>
+                <input
+                  type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-[#e0c0b1] focus:border-[#f97316] focus:ring-1 focus:ring-[#f97316] outline-none transition-all" 
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-sm font-medium"
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-[#584237] mb-2">Email Address</label>
-                <div className="flex items-center justify-between px-4 py-3 bg-[#eff4ff] rounded-lg border border-[#e0c0b1]">
-                  <span className="text-[#0b1c30]">{email}</span>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Email Address</label>
+                <div className="px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-500 text-sm font-medium">
+                  {email}
                 </div>
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-[#584237] mb-2">Phone Number</label>
-                <input 
-                  type="tel" 
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Phone Number</label>
+                <input
+                  type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-[#e0c0b1] focus:border-[#f97316] focus:ring-1 focus:ring-[#f97316] outline-none transition-all" 
+                  placeholder="+91 98765 43210"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-sm font-medium"
                 />
               </div>
-              <div className="pt-4">
-                <button 
-                  type="submit" 
+
+              <div className="pt-2">
+                <button
+                  type="submit"
                   disabled={saving}
-                  className="bg-[#f97316] text-white text-sm font-medium px-8 py-3 rounded-full hover:shadow-lg active:scale-95 transition-all w-full md:w-auto disabled:opacity-50"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-8 py-3 rounded-xl shadow-md shadow-emerald-600/20 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
                 >
+                  <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Profile'}
                 </button>
               </div>
@@ -221,48 +251,79 @@ export default function SettingsPage() {
 
         {/* Shop Tab */}
         {activeTab === 'shop' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(15,23,42,0.1)] p-6 md:p-8">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 md:p-8">
             <form onSubmit={handleSaveShop} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-6">
+                <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-[#584237] mb-2">Shop Name</label>
-                    <input type="text" value={shopName} onChange={(e) => setShopName(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-[#e0c0b1] outline-none focus:border-[#f97316]" />
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Store Name</label>
+                    <input
+                      type="text"
+                      value={shopName}
+                      onChange={(e) => setShopName(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-sm font-medium"
+                    />
                   </div>
+
                   <div>
-                    <label className="block text-sm font-medium text-[#584237] mb-2">Tagline</label>
-                    <input type="text" value={tagline} onChange={(e) => setTagline(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-[#e0c0b1] outline-none focus:border-[#f97316]" />
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Tagline / Slogan</label>
+                    <input
+                      type="text"
+                      value={tagline}
+                      onChange={(e) => setTagline(e.target.value)}
+                      placeholder="e.g. Fresh Groceries & Dairy Daily"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-sm font-medium"
+                    />
                   </div>
+
                   <div>
-                    <label className="block text-sm font-medium text-[#584237] mb-2">Category</label>
-                    <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-[#e0c0b1] outline-none focus:border-[#f97316] bg-white">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Primary Category</label>
+                    <select
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-sm font-medium bg-white"
+                    >
                       <option>Grocery</option>
                       <option>Fashion</option>
                       <option>Electronics</option>
                       <option>Home</option>
+                      <option>Stationery</option>
+                      <option>Medicine</option>
                     </select>
                   </div>
                 </div>
-                <div className="space-y-6">
+
+                <div className="space-y-5">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                        <label className="block text-sm font-medium text-[#584237]">Full Address</label>
-                        <button
-                            type="button"
-                            onClick={() => setShowMapplsPicker(true)}
-                            className="text-xs font-bold text-[#f97316] hover:text-[#9d4300] transition-colors flex items-center gap-1 bg-[#fff5eb] px-2 py-1 rounded-md"
-                        >
-                            <span className="material-symbols-outlined text-[14px]">location_on</span>
-                            Locate on Map
-                        </button>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">Full Store Address</label>
+                      <button
+                        type="button"
+                        onClick={() => setShowMapplsPicker(true)}
+                        className="text-xs font-bold text-emerald-700 hover:text-emerald-800 transition-colors flex items-center gap-1 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg"
+                      >
+                        <MapPin className="w-3.5 h-3.5 text-emerald-600" /> Locate on GPS Map
+                      </button>
                     </div>
-                    <textarea value={address} onChange={(e) => setAddress(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-[#e0c0b1] outline-none focus:border-[#f97316]" rows={6}></textarea>
+                    <textarea
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Street address, landmark, pin code..."
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-sm font-medium"
+                      rows={5}
+                    />
                   </div>
                 </div>
               </div>
+
               <div className="pt-4 flex justify-end">
-                <button type="submit" disabled={saving} className="bg-[#13EC5B] text-white font-medium px-8 py-3 rounded-full hover:shadow-lg active:scale-95 transition-all disabled:opacity-50">
-                  {saving ? 'Saving...' : 'Save Shop Details'}
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3 rounded-xl shadow-md shadow-emerald-600/20 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {saving ? 'Saving...' : 'Save Store Details'}
                 </button>
               </div>
             </form>
@@ -271,32 +332,32 @@ export default function SettingsPage() {
 
         {/* Notifications Tab */}
         {activeTab === 'notifications' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(15,23,42,0.1)] p-6 md:p-8">
-            <h3 className="text-xl font-semibold mb-6">Alert Preferences</h3>
-            <div className="space-y-2">
-              <NotificationToggle 
-                title="New Order Sound" 
-                desc="Play a chime when a customer places an order" 
-                checked={notifSound} 
-                onChange={(v) => { setNotifSound(v); handleToggleNotification('notif_new_order_sound', v); }} 
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 md:p-8 space-y-4">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">Alert & Sound Preferences</h3>
+            <div className="divide-y divide-slate-100">
+              <NotificationToggle
+                title="New Order Sound"
+                desc="Play a notification chime when an incoming order arrives"
+                checked={notifSound}
+                onChange={(v) => { setNotifSound(v); handleToggleNotification('notif_new_order_sound', v); }}
               />
-              <NotificationToggle 
-                title="New Order Email" 
-                desc="Receive a detailed confirmation for every order" 
-                checked={notifEmail} 
-                onChange={(v) => { setNotifEmail(v); handleToggleNotification('notif_new_order_email', v); }} 
+              <NotificationToggle
+                title="New Order Email Alerts"
+                desc="Receive immediate order summary emails for every purchase"
+                checked={notifEmail}
+                onChange={(v) => { setNotifEmail(v); handleToggleNotification('notif_new_order_email', v); }}
               />
-              <NotificationToggle 
-                title="Low Stock Alert" 
-                desc="Notify when items fall below threshold" 
-                checked={notifLowStock} 
-                onChange={(v) => { setNotifLowStock(v); handleToggleNotification('notif_low_stock_email', v); }} 
+              <NotificationToggle
+                title="Low Stock Alert"
+                desc="Notify whenever inventory counts fall below safe levels"
+                checked={notifLowStock}
+                onChange={(v) => { setNotifLowStock(v); handleToggleNotification('notif_low_stock_email', v); }}
               />
-              <NotificationToggle 
-                title="Daily Summary Email" 
-                desc="Daily digest of sales and store traffic" 
-                checked={notifDaily} 
-                onChange={(v) => { setNotifDaily(v); handleToggleNotification('notif_daily_summary', v); }} 
+              <NotificationToggle
+                title="Daily Business Digest"
+                desc="Receive a daily summary of revenue, customer traffic, and top sales"
+                checked={notifDaily}
+                onChange={(v) => { setNotifDaily(v); handleToggleNotification('notif_daily_summary', v); }}
               />
             </div>
           </motion.div>
@@ -305,37 +366,71 @@ export default function SettingsPage() {
         {/* Security Tab */}
         {activeTab === 'security' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(15,23,42,0.1)] p-6 md:p-8">
-              <h3 className="text-xl font-semibold mb-6">Change Password</h3>
-              <form onSubmit={handleChangePassword} className="space-y-6 max-w-xl">
+            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 md:p-8 space-y-6">
+              <div className="flex items-center gap-2 text-slate-900">
+                <KeyRound className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-lg font-bold">Change Password</h3>
+              </div>
+              <form onSubmit={handleChangePassword} className="space-y-5 max-w-xl">
                 <div>
-                  <label className="block text-sm font-medium text-[#584237] mb-2">Current Password</label>
-                  <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-[#e0c0b1] outline-none focus:border-[#f97316]" required />
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Current Password</label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-sm font-medium"
+                    required
+                  />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#584237] mb-2">New Password</label>
-                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-[#e0c0b1] outline-none focus:border-[#f97316]" required minLength={6} />
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">New Password</label>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-sm font-medium"
+                      required
+                      minLength={6}
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#584237] mb-2">Confirm Password</label>
-                    <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-[#e0c0b1] outline-none focus:border-[#f97316]" required minLength={6} />
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Confirm New Password</label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-sm font-medium"
+                      required
+                      minLength={6}
+                    />
                   </div>
                 </div>
-                <button type="submit" disabled={saving} className="bg-[#f97316] text-white font-medium px-8 py-3 rounded-full hover:shadow-lg active:scale-95 transition-all disabled:opacity-50">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3 rounded-xl shadow-md shadow-emerald-600/20 active:scale-95 transition-all disabled:opacity-50"
+                >
                   {saving ? 'Updating...' : 'Update Password'}
                 </button>
               </form>
             </div>
-            
-            <div className="bg-[#ba1a1a]/5 border border-[#ba1a1a]/20 rounded-2xl p-6 md:p-8">
+
+            <div className="bg-rose-50 border border-rose-200 rounded-3xl p-6 md:p-8">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-xl font-semibold text-[#ba1a1a] mb-1">Danger Zone</h3>
-                  <p className="text-[#584237] text-sm">Deleting your account is permanent and cannot be undone. All your shop data and order history will be wiped.</p>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-rose-900 flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-rose-600" /> Danger Zone
+                  </h3>
+                  <p className="text-rose-700 text-xs">
+                    Deleting your merchant account will permanently erase your storefront, listed catalog, and order history.
+                  </p>
                 </div>
-                <button className="bg-[#ba1a1a] text-white font-medium px-6 py-3 rounded-full hover:shadow-lg active:scale-95 transition-all whitespace-nowrap">
-                  Delete Account
+                <button
+                  onClick={() => alert('Please contact support to delete your merchant account.')}
+                  className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-sm text-sm active:scale-95 transition-all whitespace-nowrap flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" /> Delete Account
                 </button>
               </div>
             </div>
@@ -344,27 +439,42 @@ export default function SettingsPage() {
       </div>
 
       <LeafletLocationPicker
-          isOpen={showMapplsPicker}
-          onClose={() => setShowMapplsPicker(false)}
-          onLocationSelected={(loc) => {
-              setShowMapplsPicker(false);
-              setAddress(loc.addressLine);
-          }}
+        isOpen={showMapplsPicker}
+        onClose={() => setShowMapplsPicker(false)}
+        onLocationSelected={(loc) => {
+          setShowMapplsPicker(false);
+          setAddress(loc.addressLine);
+        }}
       />
     </div>
   );
 }
 
-function NotificationToggle({ title, desc, checked, onChange }: { title: string, desc: string, checked: boolean, onChange: (v: boolean) => void }) {
+function NotificationToggle({
+  title,
+  desc,
+  checked,
+  onChange,
+}: {
+  title: string;
+  desc: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
   return (
-    <div className="flex items-center justify-between p-4 hover:bg-[#eff4ff] rounded-xl transition-colors">
-      <div>
-        <p className="font-bold text-[#0b1c30]">{title}</p>
-        <p className="text-sm text-[#584237]">{desc}</p>
+    <div className="flex items-center justify-between py-4 transition-colors">
+      <div className="pr-4">
+        <p className="font-bold text-slate-900 text-sm">{title}</p>
+        <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
       </div>
-      <label className="relative inline-flex items-center cursor-pointer">
-        <input type="checkbox" className="sr-only peer" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-        <div className="w-11 h-6 bg-[#d3e4fe] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#f97316]"></div>
+      <label className="relative inline-flex items-center cursor-pointer shrink-0">
+        <input
+          type="checkbox"
+          className="sr-only peer"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+        />
+        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
       </label>
     </div>
   );

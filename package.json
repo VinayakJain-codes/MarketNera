@@ -1,9 +1,9 @@
 {
   "name": "marketnera-app",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "node server.js",
     "lint": "eslint"

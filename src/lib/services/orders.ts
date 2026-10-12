@@ -94,7 +94,7 @@ export async function placeOrder(
         p_total_amount: payload.totalAmount,
         p_delivery_address: payload.deliveryAddress ?? null,
         p_notes: payload.notes ?? null,
-        p_payment_method: payload.paymentMethod ?? "cod",
+        p_payment_method: payload.paymentMethod ?? "razorpay",
         p_payment_status: payload.paymentStatus ?? "pending",
         p_razorpay_order_id: payload.razorpayOrderId ?? null,
         p_items: payload.items

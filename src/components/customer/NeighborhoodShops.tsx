@@ -32,7 +32,7 @@ export default function NeighborhoodShops({ shops, loading = false }: Neighborho
     }
 
     return (
-        <section className="space-y-3">
+        <section id="neighborhood-shops" className="space-y-3">
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">

@@ -29,8 +29,8 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       {
-        source: "/shops/marketnera.com",
-        destination: "/shops",
+        source: "/shops",
+        destination: "/customer/shops",
         permanent: false,
       },
     ];

@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import Logo from "@/components/layout/Logo";
 import toast from "react-hot-toast";
 import LeafletLocationPicker from "@/components/ui/LeafletLocationPicker";
+import { MapPin, Navigation, Image as ImageIcon, Camera, X, ChevronDown } from "lucide-react";
 
 export default function ShopkeeperSetupPage() {
     const router = useRouter();
@@ -182,9 +183,7 @@ export default function ShopkeeperSetupPage() {
                                     <option value="Hardware">Hardware</option>
                                     <option value="Other">Other</option>
                                 </select>
-                                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                    expand_more
-                                </span>
+                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 w-4 h-4" />
                             </div>
                         </div>
 
@@ -192,15 +191,15 @@ export default function ShopkeeperSetupPage() {
                         <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
                             <div className="flex items-center justify-between mb-3">
                                 <span className="text-xs font-bold text-slate-950 uppercase tracking-wider flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined text-primary text-base">location_on</span>
+                                    <MapPin className="text-emerald-600 w-4 h-4" />
                                     Business Geolocation
                                 </span>
                                 <button
                                     type="button"
                                     onClick={handleDetectLocation}
-                                    className="text-xs font-bold text-primary hover:opacity-80 transition-opacity flex items-center gap-1"
+                                    className="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1"
                                 >
-                                    <span className="material-symbols-outlined text-[15px]">my_location</span>
+                                    <Navigation className="w-3.5 h-3.5" />
                                     Locate on Map
                                 </button>
                             </div>
@@ -228,7 +227,7 @@ export default function ShopkeeperSetupPage() {
                                 value={formData.address}
                                 onChange={handleChange}
                                 placeholder="123 Market Street, City"
-                                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 focus:border-[#FF9933] focus:ring-2 focus:ring-[#FF9933]/20 outline-none transition-all placeholder-slate-400"
+                                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder-slate-400"
                             />
                         </div>
 
@@ -244,14 +243,14 @@ export default function ShopkeeperSetupPage() {
                                 value={formData.phone}
                                 onChange={handleChange}
                                 placeholder="+1 (555) 000-0000"
-                                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 focus:border-[#FF9933] focus:ring-2 focus:ring-[#FF9933]/20 outline-none transition-all placeholder-slate-400"
+                                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder-slate-400"
                             />
                         </div>
 
                         {/* Photo upload */}
                         <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3">
                             <span className="text-xs font-bold text-slate-950 uppercase tracking-wider flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-primary text-base">image</span>
+                                <ImageIcon className="text-emerald-600 w-4 h-4" />
                                 Shop Profile Photo
                             </span>
                             <div className="flex items-center gap-4">
@@ -263,12 +262,12 @@ export default function ShopkeeperSetupPage() {
                                             onClick={() => setPhotoUrl("")}
                                             className="absolute top-1 right-1 w-5 h-5 bg-black/70 hover:bg-black text-white rounded-full flex items-center justify-center"
                                         >
-                                            <span className="material-symbols-outlined text-[12px]">close</span>
+                                            <X className="w-3 h-3" />
                                         </button>
                                     </div>
                                 ) : (
                                     <div className="w-20 h-20 bg-slate-200 border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center text-slate-400 shrink-0">
-                                        <span className="material-symbols-outlined text-2xl">add_a_photo</span>
+                                        <Camera className="w-6 h-6" />
                                     </div>
                                 )}
                                 <div className="flex-1">

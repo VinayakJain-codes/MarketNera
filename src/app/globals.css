@@ -7,17 +7,17 @@
   --bg-page: #fafafa;
   --bg-surface: #ffffff;
   --border-subtle: #f1f5f9;
-  --brand-primary: #f97316;
-  --brand-green: #22c55e;
+  --brand-primary: #059669;
+  --brand-green: #059669;
   --text-primary: #0f172a;
   --text-secondary: #64748b;
   --text-muted: #94a3b8;
 }
 
 @theme inline {
-  --color-primary: #f97316;
-  --color-background-light: #fdfaf6;
-  --color-background-dark: #221510;
+  --color-primary: #059669;
+  --color-background-light: #f8fafc;
+  --color-background-dark: #0f172a;
   --font-display: var(--font-work-sans), sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -128,15 +128,15 @@ body {
 
 /* ─── Dashboard Light Theme tokens ─── */
 :root {
-  --brand-green: #22c55e;
-  --brand-green-light: #4ade80;
-  --brand-orange: #f97316;
-  --brand-orange-light: #fb923c;
+  --brand-green: #059669;
+  --brand-green-light: #10b981;
+  --brand-orange: #047857;
+  --brand-orange-light: #34d399;
   --brand-white: #ffffff;
-  --dash-bg: #ffffff;
+  --dash-bg: #f8fafc;
   --dash-card: #ffffff;
   --dash-card-border: #e2e8f0;
-  --dash-text: #0f1117;
+  --dash-text: #0f172a;
   --dash-text-muted: #64748b;
 }
 

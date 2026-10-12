@@ -304,7 +304,7 @@ export default function CustomerNavbar({
                         <div className="flex items-center gap-2">
                             <span className="text-[11px] text-slate-400 font-medium">Are you a shop owner?</span>
                             <Link
-                                href={ROUTES.SHOPS_HOME}
+                                href={ROUTES.SIGNUP_SHOPKEEPER}
                                 className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-emerald-700 hover:text-emerald-800 text-xs font-bold transition-colors"
                                 title="Merchant onboarding"
                             >
@@ -345,7 +345,7 @@ export default function CustomerNavbar({
 
                     <div className="pt-2 border-t border-slate-100">
                         <Link
-                            href={ROUTES.SHOPS_HOME}
+                            href={ROUTES.SIGNUP_SHOPKEEPER}
                             onClick={() => setMobileMenuOpen(false)}
                             className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs"
                         >

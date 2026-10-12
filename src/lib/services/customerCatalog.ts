@@ -86,11 +86,16 @@ export async function getLiveCatalogProducts(options?: {
 
         if (!products || products.length === 0) {
             // Also check if any products exist regardless of is_published for dev convenience
-            const { data: allProds } = await supabase
+            let fallbackQuery = supabase
                 .from("shopkeeper_products")
                 .select("*, product_media (id, media_url, is_primary, sort_order)")
                 .limit(options?.limit || 50);
 
+            if (options?.shopId) {
+                fallbackQuery = fallbackQuery.eq("shop_id", options.shopId);
+            }
+
+            const { data: allProds } = await fallbackQuery;
             if (!allProds || allProds.length === 0) return [];
 
             return await attachShopInfoToProducts(allProds);

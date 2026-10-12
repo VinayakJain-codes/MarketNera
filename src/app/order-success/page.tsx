@@ -133,7 +133,7 @@ function OrderSuccessContent() {
                             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                                 <span className="text-slate-400 font-semibold">Payment</span>
                                 <span className="font-bold text-slate-800 uppercase">
-                                    {order.payment_method === "cod" ? "Cash on Delivery" : "Paid Online (Razorpay)"}
+                                    Paid Online (Razorpay)
                                 </span>
                             </div>
 
@@ -155,7 +155,7 @@ function OrderSuccessContent() {
                             </div>
 
                             <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-sm font-black text-slate-950">
-                                <span>Total Paid / Payable</span>
+                                <span>Total Paid</span>
                                 <span className="text-base text-emerald-800">₹{order.total_amount}</span>
                             </div>
                         </div>

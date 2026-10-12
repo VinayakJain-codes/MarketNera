@@ -1,265 +1,360 @@
 "use client";
 
-import { useState, useEffect, useCallback, use } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import { getShopkeeperProfile, ShopkeeperProfile } from "@/lib/services/shopkeeper";
-import { getProducts, Product } from "@/lib/api/products";
-import { addToCart, addGuestCartItem, getGuestCart } from "@/lib/services/cart";
-import { User } from "@supabase/supabase-js";
-import toast from "react-hot-toast";
+import { useState, useEffect, use } from "react";
+import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import CustomerNavbar from "@/components/layout/CustomerNavbar";
+import CustomerBottomNav from "@/components/layout/CustomerBottomNav";
+import Footer from "@/components/layout/Footer";
+import ProductCard from "@/components/customer/ProductCard";
+import { getShopkeeperProfile, ShopkeeperProfile } from "@/lib/services/shopkeeper";
+import {
+    getLiveCatalogProducts,
+    LiveCatalogProduct,
+} from "@/lib/services/customerCatalog";
+import { ROUTES } from "@/constants/routes";
+import {
+    Store,
+    MapPin,
+    Clock,
+    Phone,
+    ShieldCheck,
+    Search,
+    ArrowLeft,
+    X,
+    Package,
+    Sparkles,
+} from "lucide-react";
 
-const CATEGORY_CONFIG: Record<string, { icon: string; bg: string; border: string; text: string }> = {
-    Grocery:     { icon: "grocery",      bg: "bg-orange-50",  border: "border-orange-100",  text: "text-orange-500" },
-    Electronics: { icon: "devices",      bg: "bg-blue-50",    border: "border-blue-100",    text: "text-blue-500" },
-    Medicine:    { icon: "medication",   bg: "bg-red-50",     border: "border-red-100",     text: "text-red-500" },
-    Stationery:  { icon: "edit_note",    bg: "bg-purple-50",  border: "border-purple-100",  text: "text-purple-500" },
-    Snacks:      { icon: "bakery_dining",bg: "bg-yellow-50",  border: "border-yellow-100",  text: "text-yellow-600" },
-    Fashion:     { icon: "checkroom",    bg: "bg-pink-50",    border: "border-pink-100",    text: "text-pink-500" },
-    Home:        { icon: "chair",        bg: "bg-teal-50",    border: "border-teal-100",    text: "text-teal-500" },
-    Other:       { icon: "category",     bg: "bg-slate-50",   border: "border-slate-100",   text: "text-slate-500" },
-};
-
-export default function ShopDetailPage({ params }: { params: Promise<{ shopId: string }> }) {
+export default function ShopDetailPage({
+    params,
+}: {
+    params: Promise<{ shopId: string }>;
+}) {
     const { shopId } = use(params);
     const router = useRouter();
-    const [user, setUser] = useState<User | null>(null);
+
     const [shop, setShop] = useState<ShopkeeperProfile | null>(null);
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<LiveCatalogProduct[]>([]);
     const [loading, setLoading] = useState(true);
-    const [addedProductIds, setAddedProductIds] = useState<Set<string>>(new Set());
+
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
-            if (!session?.user) {
-                const guestItems = getGuestCart();
-                setAddedProductIds(new Set(guestItems.map((i) => i.id)));
-            }
-        });
-    }, []);
+        let isMounted = true;
 
-    useEffect(() => {
-        const fetchShopAndProducts = async () => {
+        async function fetchShopData() {
+            setLoading(true);
             try {
-                const shopData = await getShopkeeperProfile(shopId);
-                setShop(shopData);
-                if (shopData) {
-                    const productsData = await getProducts(shopId, { status: "published" });
-                    setProducts(productsData);
+                const [shopData, prodsData] = await Promise.all([
+                    getShopkeeperProfile(shopId),
+                    getLiveCatalogProducts({ shopId }),
+                ]);
 
-                    // Quietly increment views for all loaded products
-                    productsData.forEach(async (p) => {
-                        try {
-                            await supabase.rpc("increment_product_view", { p_product_id: p.id });
-                        } catch (e) {}
-                    });
+                if (isMounted) {
+                    setShop(shopData);
+                    setProducts(prodsData);
                 }
-            } catch (error) {
-                console.error("Error fetching shop data:", error);
+            } catch (err) {
+                console.error("Error loading shop detail:", err);
             } finally {
-                setLoading(false);
-            }
-        };
-        fetchShopAndProducts();
-    }, [shopId]);
-
-    const handleAdd = async (product: Product) => {
-        const alreadyAdded = addedProductIds.has(product.id);
-        setAddedProductIds((prev) => {
-            const next = new Set(prev);
-            if (next.has(product.id)) next.delete(product.id);
-            else next.add(product.id);
-            return next;
-        });
-
-        if (!alreadyAdded) {
-            if (user) {
-                const result = await addToCart(user.id, product.id, product.shop_id);
-                if (result.success) {
-                    toast.success("Added to cart");
-                } else {
-                    setAddedProductIds((prev) => { const next = new Set(prev); next.delete(product.id); return next; });
-                    toast.error("Could not add to cart");
+                if (isMounted) {
+                    setLoading(false);
                 }
-            } else {
-                addGuestCartItem({
-                    id: product.id,
-                    name: product.name,
-                    price: product.sale_price ?? product.price,
-                    shopId: product.shop_id,
-                    quantity: 1,
-                    unit: product.unit_type,
-                    image: getProductImage(product as any),
-                });
-                toast.success("Added to cart");
             }
         }
-    };
 
-    const getProductImage = (product: Product & { product_media?: { media_url: string; is_primary: boolean; sort_order: number }[] }): string => {
-        const media = product.product_media;
-        if (!media || media.length === 0) return "";
-        const primary = media.find(m => m.is_primary) || media.sort((a, b) => a.sort_order - b.sort_order)[0];
-        return primary?.media_url ?? "";
-    };
+        fetchShopData();
+        return () => {
+            isMounted = false;
+        };
+    }, [shopId]);
+
+    // Categories in this specific shop
+    const shopCategories = Array.from(
+        new Set(products.map((p) => p.category).filter(Boolean))
+    );
+
+    const filteredProducts = products.filter((p) => {
+        const matchesCategory = !selectedCategory || p.category === selectedCategory;
+        const q = searchQuery.toLowerCase().trim();
+        const matchesQuery =
+            !q ||
+            p.name.toLowerCase().includes(q) ||
+            (p.description && p.description.toLowerCase().includes(q)) ||
+            p.category.toLowerCase().includes(q);
+        return matchesCategory && matchesQuery;
+    });
 
     if (loading) {
         return (
-            <div className="w-full max-w-[480px] md:max-w-5xl lg:max-w-7xl mx-auto min-h-screen bg-white">
-                <div className="h-48 bg-slate-200 animate-pulse" />
-                <div className="p-4 space-y-4">
-                    <div className="h-8 bg-slate-200 animate-pulse w-1/3 rounded" />
-                    <div className="h-4 bg-slate-200 animate-pulse w-1/4 rounded" />
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-                        {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="h-48 bg-slate-200 animate-pulse rounded-2xl" />
+            <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between">
+                <CustomerNavbar />
+                <main className="container mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 max-w-7xl space-y-6">
+                    <div className="h-60 rounded-3xl bg-slate-200 animate-pulse" />
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {[1, 2, 3, 4, 5, 6].map((i) => (
+                            <div key={i} className="h-64 rounded-2xl bg-white border border-slate-200 p-4 animate-pulse" />
                         ))}
                     </div>
-                </div>
+                </main>
+                <Footer />
+                <CustomerBottomNav />
             </div>
         );
     }
 
     if (!shop) {
         return (
-            <div className="w-full max-w-[480px] md:max-w-5xl lg:max-w-7xl mx-auto min-h-screen bg-white flex flex-col items-center justify-center p-4">
-                <span className="material-symbols-outlined text-6xl text-slate-300 mb-4">store_off</span>
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">Shop not found</h1>
-                <p className="text-slate-500 mb-6 text-center">The shop you're looking for doesn't exist or is currently unavailable.</p>
-                <button onClick={() => router.back()} className="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/30 premium-hover">
-                    Go Back
-                </button>
+            <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between">
+                <CustomerNavbar />
+                <main className="container mx-auto px-4 py-16 text-center max-w-lg space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                        <Store className="w-8 h-8" />
+                    </div>
+                    <h1 className="text-2xl font-black text-slate-900">Store Not Found</h1>
+                    <p className="text-xs sm:text-sm text-slate-500">
+                        This store might be temporarily offline or does not exist.
+                    </p>
+                    <Link
+                        href={ROUTES.CUSTOMER_SHOPS}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-700 text-white font-bold text-xs hover:bg-emerald-800 transition-colors"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>Back to All Stores</span>
+                    </Link>
+                </main>
+                <Footer />
+                <CustomerBottomNav />
             </div>
         );
     }
 
-    const cfg = CATEGORY_CONFIG[shop.category] ?? CATEGORY_CONFIG.Other;
+    const [cleanAddress, photoUrl] = (shop.address || "").split(" ||| ");
+    const bannerImage = shop.banner_url || photoUrl;
 
     return (
-        <div className="w-full max-w-[480px] md:max-w-5xl lg:max-w-7xl mx-auto min-h-screen bg-slate-50 relative pb-12">
-            {/* Header / Banner */}
-            <header className="relative w-full h-56 md:h-64 bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden rounded-b-3xl shadow-md">
-                <div className="absolute inset-0 bg-black/20" />
-                <div className="absolute top-4 left-4 z-10">
-                    <button onClick={() => router.back()} className="w-10 h-10 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
-                        <span className="material-symbols-outlined">arrow_back</span>
-                    </button>
+        <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900 pb-16 lg:pb-0">
+            {/* Top Customer Navigation Bar */}
+            <CustomerNavbar />
+
+            <main className="container mx-auto px-4 sm:px-6 lg:px-10 py-4 sm:py-6 space-y-6 sm:space-y-8 max-w-7xl">
+                {/* Breadcrumb Navigation */}
+                <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                    <Link href={ROUTES.HOME} className="hover:text-slate-900 transition-colors">
+                        Home
+                    </Link>
+                    <span>/</span>
+                    <Link href={ROUTES.CUSTOMER_SHOPS} className="hover:text-slate-900 transition-colors">
+                        Stores
+                    </Link>
+                    <span>/</span>
+                    <span className="text-slate-900 font-bold truncate max-w-[200px]">
+                        {shop.shop_name}
+                    </span>
                 </div>
-                <div className="absolute bottom-6 left-6 z-10 text-white">
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 backdrop-blur-sm`}>
-                            {shop.category}
-                        </span>
-                        <span className="flex items-center gap-1 text-xs font-semibold bg-green-500/80 backdrop-blur-sm px-2.5 py-1 rounded-full">
-                            <span className="material-symbols-outlined text-[14px]">check_circle</span> Open
-                        </span>
-                    </div>
-                    <h1 className="text-3xl md:text-4xl font-black drop-shadow-md tracking-tight mb-1">{shop.shop_name}</h1>
-                    {shop.tagline && (
-                        <p className="text-sm md:text-lg font-medium text-white/90 italic mb-2 drop-shadow-sm">{shop.tagline}</p>
+
+                {/* 1. Storefront Hero Banner */}
+                <div className="relative overflow-hidden rounded-3xl bg-slate-900 text-white shadow-md border border-slate-800">
+                    {/* Banner Photo Backdrop */}
+                    {bannerImage ? (
+                        <div className="absolute inset-0 z-0">
+                            <Image
+                                src={bannerImage}
+                                alt={shop.shop_name}
+                                fill
+                                unoptimized
+                                priority
+                                className="object-cover opacity-35"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-900/60" />
+                        </div>
+                    ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-900" />
                     )}
-                    <p className="text-sm md:text-base font-medium text-white/80 flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-[16px]">location_on</span>
-                        {(shop.address || "").split(" ||| ")[0]}
-                    </p>
-                </div>
-                {/* Custom Shop Photo Banner Backdrop */}
-                {(shop.address || "").split(" ||| ")[1] && (
-                    <div className="absolute inset-0 z-0">
-                        <img src={(shop.address || "").split(" ||| ")[1]} className="w-full h-full object-cover opacity-40 blur-[1px]" alt="" />
+
+                    <div className="relative z-10 p-6 sm:p-8 md:p-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                        <div className="space-y-3 max-w-2xl">
+                            {/* Badges strip */}
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                    <ShieldCheck className="w-3 h-3" />
+                                    <span>Verified Merchant</span>
+                                </span>
+
+                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/10 text-white backdrop-blur-xs border border-white/20">
+                                    {shop.category || "General Store"}
+                                </span>
+
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white">
+                                    <Clock className="w-3 h-3" />
+                                    <span>15–30m Doorstep</span>
+                                </span>
+                            </div>
+
+                            {/* Shop Name & Tagline */}
+                            <div>
+                                <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                                    {shop.shop_name}
+                                </h1>
+                                {shop.tagline && (
+                                    <p className="text-sm sm:text-base text-slate-300 font-medium italic mt-1">
+                                        "{shop.tagline}"
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Address & Phone */}
+                            <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs text-slate-300 font-medium pt-1">
+                                <span className="flex items-center gap-1.5">
+                                    <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                    <span>{cleanAddress || "Meerut, Uttar Pradesh"}</span>
+                                </span>
+
+                                {shop.phone && (
+                                    <a
+                                        href={`tel:+91${shop.phone}`}
+                                        className="flex items-center gap-1.5 text-emerald-300 hover:text-emerald-200 transition-colors"
+                                    >
+                                        <Phone className="w-3.5 h-3.5 shrink-0" />
+                                        <span>+91 {shop.phone}</span>
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Right stats badge */}
+                        <div className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 min-w-[160px] space-y-1 shrink-0">
+                            <span className="text-xs text-slate-400 font-semibold block">Store Inventory</span>
+                            <p className="text-2xl font-black text-white">
+                                {products.length} {products.length === 1 ? "Item" : "Items"}
+                            </p>
+                            <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+                                <Sparkles className="w-3 h-3" />
+                                <span>Direct shelf prices</span>
+                            </span>
+                        </div>
                     </div>
-                )}
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-20 hidden md:block">
-                    <span className="material-symbols-outlined text-[160px] text-white">{cfg.icon}</span>
-                </div>
-            </header>
-
-            {/* Products Grid */}
-            <main className="px-4 mt-8 md:px-8">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-slate-900">All Products</h2>
-                    <span className="text-slate-500 text-sm font-medium">{products.length} items</span>
                 </div>
 
-                {products.length === 0 ? (
-                    <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-slate-100">
-                        <span className="material-symbols-outlined text-5xl block mb-3 text-slate-300">inventory_2</span>
-                        <p className="text-base font-semibold text-slate-900">No products available</p>
-                        <p className="text-sm mt-1 text-slate-500">This shop hasn't published any products yet.</p>
+                {/* 2. Store Catalog Header & Filters */}
+                <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                        {/* Search in this Store */}
+                        <div className="relative flex-1 max-w-md">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder={`Search items in ${shop.shop_name}...`}
+                                className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-600 transition-all shadow-2xs"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery("")}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                    aria-label="Clear search"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Item counts & Reset */}
+                        <div className="flex items-center justify-between sm:justify-end gap-3 text-xs">
+                            <span className="text-slate-500 font-medium">
+                                Showing <strong>{filteredProducts.length}</strong> items
+                            </span>
+
+                            {(searchQuery || selectedCategory) && (
+                                <button
+                                    onClick={() => {
+                                        setSearchQuery("");
+                                        setSelectedCategory(null);
+                                    }}
+                                    className="text-xs font-bold text-emerald-700 hover:text-emerald-800 cursor-pointer underline underline-offset-2"
+                                >
+                                    Reset
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Category tabs if store has multiple categories */}
+                    {shopCategories.length > 1 && (
+                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                            <button
+                                onClick={() => setSelectedCategory(null)}
+                                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                                    selectedCategory === null
+                                        ? "bg-emerald-700 text-white shadow-xs"
+                                        : "bg-white text-slate-700 border border-slate-200 hover:border-slate-300"
+                                }`}
+                            >
+                                All Products
+                            </button>
+
+                            {shopCategories.map((cat) => {
+                                const isSelected = selectedCategory === cat;
+                                return (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setSelectedCategory(cat)}
+                                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                                            isSelected
+                                                ? "bg-emerald-700 text-white shadow-xs"
+                                                : "bg-white text-slate-700 border border-slate-200 hover:border-slate-300"
+                                        }`}
+                                    >
+                                        {cat}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+                {/* 3. Products Grid */}
+                {filteredProducts.length === 0 ? (
+                    <div className="p-12 text-center rounded-3xl bg-white border border-slate-200/80 shadow-2xs space-y-3">
+                        <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                            <Package className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-base font-bold text-slate-900">No products available</h3>
+                        <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                            {products.length === 0
+                                ? "This store hasn't published any products yet. Please check back later!"
+                                : "No products matched your search or category filter in this shop."}
+                        </p>
+                        {(searchQuery || selectedCategory) && (
+                            <button
+                                onClick={() => {
+                                    setSearchQuery("");
+                                    setSelectedCategory(null);
+                                }}
+                                className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors cursor-pointer"
+                            >
+                                Show All Shop Products
+                            </button>
+                        )}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {products.map((product, i) => {
-                            const imgUrl = getProductImage(product as any);
-                            const pCfg = CATEGORY_CONFIG[product.category] ?? CATEGORY_CONFIG.Other;
-                            const isAdded = addedProductIds.has(product.id);
-                            const discountPct = product.sale_price && product.sale_price < product.price
-                                ? Math.round((1 - product.sale_price / product.price) * 100)
-                                : null;
-
-                            return (
-                                <div
-                                    key={product.id}
-                                    className="group bg-white rounded-2xl p-3 shadow-sm border border-slate-100/80 flex flex-col animate-fade-in-up premium-hover"
-                                    style={{ animationDelay: `${i * 0.05}s` }}
-                                >
-                                    <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden mb-3 relative">
-                                        {imgUrl ? (
-                                            <Image
-                                                alt={product.name}
-                                                className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
-                                                src={imgUrl}
-                                                width={200}
-                                                height={200}
-                                                unoptimized
-                                            />
-                                        ) : (
-                                            <div className={`w-full h-full ${pCfg.bg} flex items-center justify-center`}>
-                                                <span className={`material-symbols-outlined text-[48px] ${pCfg.text} opacity-40`}>{pCfg.icon}</span>
-                                            </div>
-                                        )}
-                                        {discountPct && (
-                                            <div className="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm">
-                                                -{discountPct}%
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex-grow flex flex-col justify-start">
-                                        <h5 className="text-sm font-semibold text-slate-900 line-clamp-2 leading-tight">{product.name}</h5>
-                                        {product.unit_type && (
-                                            <p className="text-[11px] text-slate-500 font-medium mt-1">{product.unit_type}</p>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-50">
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-base font-black text-slate-900 tracking-tight">
-                                                ₹{product.sale_price ?? product.price}
-                                            </span>
-                                            {product.sale_price && product.sale_price < product.price && (
-                                                <span className="text-xs text-slate-400 line-through font-medium">₹{product.price}</span>
-                                            )}
-                                        </div>
-                                        <button
-                                            onClick={() => handleAdd(product as any)}
-                                            className={`flex items-center justify-center w-8 h-8 rounded-full transition-all premium-active ${
-                                                isAdded
-                                                    ? "bg-primary text-white shadow-md shadow-primary/30"
-                                                    : "bg-primary/10 text-primary hover:bg-primary hover:text-white"
-                                            }`}
-                                        >
-                                            <span className="material-symbols-outlined text-[18px] font-bold">
-                                                {isAdded ? "check" : "add"}
-                                            </span>
-                                        </button>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                        {filteredProducts.map((product) => (
+                            <ProductCard key={product.id} product={product} />
+                        ))}
                     </div>
                 )}
             </main>
+
+            {/* Footer */}
+            <Footer />
+
+            {/* Mobile Bottom Navigation */}
+            <CustomerBottomNav />
         </div>
     );
 }

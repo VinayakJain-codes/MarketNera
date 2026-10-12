@@ -2,6 +2,7 @@
 
 import { ROUTES } from "@/constants/routes";
 import Logo from "@/components/layout/Logo";
+import { User, Store, ArrowRight } from "lucide-react";
 
 export default function RegisterSelectionPage() {
     return (
@@ -35,18 +36,16 @@ export default function RegisterSelectionPage() {
                         {/* Customer */}
                         <a
                             href={ROUTES.SIGNUP_CUSTOMER}
-                            className="group relative flex items-center gap-4 rounded-2xl border-2 border-slate-200 bg-white p-5 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 animate-fade-in-up delay-200"
+                            className="group relative flex items-center gap-4 rounded-2xl border-2 border-slate-200 bg-white p-5 transition-all duration-300 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-0.5 animate-fade-in-up delay-200"
                         >
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-                                <span className="material-symbols-outlined text-2xl">person</span>
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-emerald-600 group-hover:text-white">
+                                <User className="w-6 h-6" />
                             </div>
                             <div>
                                 <p className="font-bold text-slate-900">I am a Customer</p>
                                 <p className="text-xs text-slate-500">Shop from verified local stores</p>
                             </div>
-                            <span className="material-symbols-outlined ml-auto text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-primary">
-                                arrow_forward
-                            </span>
+                            <ArrowRight className="w-5 h-5 ml-auto text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-emerald-600" />
                         </a>
 
                         {/* Shopkeeper */}
@@ -54,16 +53,14 @@ export default function RegisterSelectionPage() {
                             href={ROUTES.SIGNUP_SHOPKEEPER}
                             className="group relative flex items-center gap-4 rounded-2xl border-2 border-slate-200 bg-white p-5 transition-all duration-300 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-0.5 animate-fade-in-up delay-300"
                         >
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 transition-colors group-hover:bg-emerald-600 group-hover:text-white">
-                                <span className="material-symbols-outlined text-2xl">storefront</span>
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-emerald-600 group-hover:text-white">
+                                <Store className="w-6 h-6" />
                             </div>
                             <div>
                                 <p className="font-bold text-slate-900">I am a Shopkeeper</p>
                                 <p className="text-xs text-slate-500">List your store and accept local orders</p>
                             </div>
-                            <span className="material-symbols-outlined ml-auto text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-emerald-600">
-                                arrow_forward
-                            </span>
+                            <ArrowRight className="w-5 h-5 ml-auto text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-emerald-600" />
                         </a>
                     </div>
 

@@ -1,13 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { Loader2, X } from "lucide-react";
 
 // CRITICAL: must be dynamic with ssr: false
 const LeafletMap = dynamic(() => import("./LeafletMapInner"), {
     ssr: false,
     loading: () => (
         <div className="w-full h-[400px] bg-slate-100 animate-pulse flex flex-col items-center justify-center">
-            <span className="material-symbols-outlined text-4xl text-emerald-500 animate-spin mb-2">sync</span>
+            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-2" />
             <p className="text-sm font-semibold text-slate-600">Loading Map...</p>
         </div>
     ),
@@ -48,7 +49,7 @@ export default function LeafletLocationPicker({
                         onClick={onClose}
                         className="w-8 h-8 rounded-full hover:bg-slate-100 transition-colors flex items-center justify-center text-slate-500"
                     >
-                        <span className="material-symbols-outlined">close</span>
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 

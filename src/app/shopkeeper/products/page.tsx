@@ -10,6 +10,7 @@ import BulkActionBar from '@/components/sections/shopkeeper/products/BulkActionB
 import ProductAnalyticsDrawer from '@/components/sections/shopkeeper/products/ProductAnalyticsDrawer';
 import { getProducts, createProduct, updateProduct, bulkDeleteProducts, bulkUpdateVisibility, ProductFilters as FilterType, Product, ProductCreatePayload } from '@/lib/api/products';
 import Button from '@/components/ui/Button';
+import { Plus } from 'lucide-react';
 
 import { supabase } from '@/lib/supabase';
 
@@ -184,7 +185,7 @@ export default function ShopkeeperProductsPage() {
             className="flex items-center gap-2"
             onClick={handleAdd}
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
+            <Plus className="w-4 h-4" />
             Add Product
           </Button>
         </div>

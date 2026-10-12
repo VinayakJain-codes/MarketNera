@@ -65,7 +65,7 @@ export default function ShopkeeperTopbar({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="hidden sm:flex items-center gap-2 rounded-xl bg-[var(--brand-green)] px-4 py-2 text-sm font-medium text-white"
+          className="hidden sm:flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-xs transition-colors"
         >
           <Download className="h-4 w-4" />
           Export
@@ -73,24 +73,24 @@ export default function ShopkeeperTopbar({
 
         {/* Notification */}
         <motion.button
-          whileHover={{ scale: 1.1 }}
-          className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--dash-card-border)] bg-[var(--dash-card)] text-[var(--dash-text-muted)] hover:text-[var(--brand-orange)] transition-colors"
+          whileHover={{ scale: 1.05 }}
+          className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:text-emerald-700 transition-colors shadow-xs"
         >
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[var(--brand-orange)]" />
+          <Bell className="h-4 w-4" />
+          <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-emerald-600 ring-2 ring-white" />
         </motion.button>
 
         {/* Avatar */}
-        <div className="flex items-center gap-3 ml-2 pl-4 border-l border-[var(--dash-card-border)]">
+        <div className="flex items-center gap-3 ml-2 pl-4 border-l border-slate-200">
           <div className="hidden md:flex flex-col items-end">
-            <span className="text-sm font-bold text-[var(--dash-text)]">{shop?.shop_name || "Shopkeeper"}</span>
-            <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--brand-green)]">{shop?.category || "Loading..."}</span>
+            <span className="text-sm font-bold text-slate-900">{shop?.shop_name || "Shopkeeper"}</span>
+            <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60 mt-0.5">{shop?.category || "Verified Merchant"}</span>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--brand-green)] to-[var(--brand-orange)] text-white font-bold text-sm shadow-sm"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-bold text-sm shadow-xs"
           >
-            {shop?.shop_name ? shop.shop_name.charAt(0).toUpperCase() : <User className="h-5 w-5" />}
+            {shop?.shop_name ? shop.shop_name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
           </motion.button>
         </div>
       </div>

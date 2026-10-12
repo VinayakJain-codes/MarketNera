@@ -7,6 +7,7 @@ import { getURL } from "@/lib/utils";
 
 import Button from "@/components/ui/Button";
 import Logo from "@/components/layout/Logo";
+import { Wrench, LogIn } from "lucide-react";
 
 export default function CustomerLoginPage() {
     const [email, setEmail] = useState("");
@@ -340,7 +341,7 @@ export default function CustomerLoginPage() {
                         <div className="mt-6 border-t border-slate-100 pt-6 animate-fade-in delay-700">
                             <div className="rounded-2xl bg-amber-50/60 border border-amber-200/80 p-4">
                                 <h4 className="text-xs font-black text-amber-800 uppercase tracking-widest flex items-center gap-1.5 mb-2">
-                                    <span className="material-symbols-outlined text-sm font-bold">construction</span>
+                                    <Wrench className="w-3.5 h-3.5" />
                                     Developer Sandbox
                                 </h4>
                                 <p className="text-[11px] text-amber-700/90 mb-3 leading-relaxed">
@@ -353,8 +354,8 @@ export default function CustomerLoginPage() {
                                         window.location.href = ROUTES.CUSTOMER_DASHBOARD;
                                     }}
                                     className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black tracking-wider uppercase shadow-md shadow-orange-500/10 hover:shadow-lg transition-all flex items-center justify-center gap-1.5"
-                                >
-                                    <span className="material-symbols-outlined text-sm font-bold">login</span>
+                                 >
+                                    <LogIn className="w-3.5 h-3.5" />
                                     Customer Sandbox Login
                                 </button>
                             </div>

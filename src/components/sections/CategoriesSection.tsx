@@ -4,6 +4,7 @@ import {
     categoriesSectionSubtext,
 } from "@/content/home";
 import Image from "next/image";
+import { ChevronRight, ArrowRight } from "lucide-react";
 
 export default function CategoriesSection() {
     return (
@@ -24,12 +25,7 @@ export default function CategoriesSection() {
                         href="/marketplace"
                     >
                         View All Categories
-                        <span
-                            className="material-symbols-outlined transition-transform group-hover:translate-x-1"
-                            aria-hidden="true"
-                        >
-                            chevron_right
-                        </span>
+                        <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </a>
                 </div>
 
@@ -71,9 +67,7 @@ export default function CategoriesSection() {
                                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2D9E4B]/10 py-3 text-sm font-bold text-[#2D9E4B] transition-all hover:bg-[#2D9E4B] hover:text-slate-950"
                                 >
                                     Browse Items
-                                    <span className="material-symbols-outlined text-sm" aria-hidden="true">
-                                        arrow_forward
-                                    </span>
+                                    <ArrowRight className="w-4 h-4" />
                                 </a>
                             </div>
                         </div>

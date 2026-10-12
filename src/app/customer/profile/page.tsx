@@ -6,8 +6,26 @@ import { User } from "@supabase/supabase-js";
 import { ROUTES } from "@/constants/routes";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import Link from "next/link";
 import { getWishlistCount } from "@/lib/services/wishlist";
 import { getAddressCount } from "@/lib/services/addresses";
+import CustomerNavbar from "@/components/layout/CustomerNavbar";
+import CustomerBottomNav from "@/components/layout/CustomerBottomNav";
+import Footer from "@/components/layout/Footer";
+import {
+    User as UserIcon,
+    ShoppingBag,
+    MapPin,
+    CreditCard,
+    Bell,
+    Heart,
+    HelpCircle,
+    LogOut,
+    ShieldCheck,
+    ChevronRight,
+    ArrowLeft,
+    Clock,
+} from "lucide-react";
 
 export default function CustomerProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -23,7 +41,8 @@ export default function CustomerProfilePage() {
             if (!session?.user) {
                 window.location.href = ROUTES.LOGIN_CUSTOMER;
             } else {
-                supabase.from("orders")
+                supabase
+                    .from("orders")
                     .select("id", { count: "exact", head: true })
                     .eq("customer_id", session.user.id)
                     .then(({ count }) => setOrderCount(count || 0));
@@ -32,7 +51,10 @@ export default function CustomerProfilePage() {
                 getAddressCount(session.user.id).then(setAddressCount);
             }
         });
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
         });
 
@@ -47,9 +69,9 @@ export default function CustomerProfilePage() {
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4 animate-fade-in">
-                    <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-                    <p className="text-sm text-slate-500 font-medium">Loading your profile...</p>
+                <div className="flex flex-col items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border-4 border-emerald-600 border-t-transparent animate-spin" />
+                    <p className="text-xs text-slate-500 font-bold">Loading your profile...</p>
                 </div>
             </div>
         );
@@ -64,145 +86,155 @@ export default function CustomerProfilePage() {
     const email = user.email || "No email";
     const createdAt = new Date(user.created_at).toLocaleDateString("en-IN", {
         year: "numeric",
-        month: "long",
+        month: "short",
         day: "numeric",
     });
 
     const menuItems = [
-        { icon: "shopping_bag",    title: "My Orders",         subtitle: "View your order history",        color: "bg-blue-50 text-blue-500",   borderColor: "hover:border-blue-300", href: ROUTES.CUSTOMER_ORDERS },
-        { icon: "location_on",     title: "Saved Addresses",   subtitle: "Manage delivery locations",      color: "bg-emerald-50 text-emerald-500", borderColor: "hover:border-emerald-300", href: ROUTES.CUSTOMER_ADDRESSES },
-        { icon: "credit_card",     title: "Payment Methods",   subtitle: "Manage cards & UPI",             color: "bg-purple-50 text-purple-500", borderColor: "hover:border-purple-300", href: "#" },
-        { icon: "notifications",   title: "Notifications",     subtitle: "Manage your preferences",        color: "bg-amber-50 text-amber-500", borderColor: "hover:border-amber-300", href: "#" },
-        { icon: "favorite",        title: "Wishlist",          subtitle: "Items you've saved for later",   color: "bg-rose-50 text-rose-500",   borderColor: "hover:border-rose-300", href: ROUTES.CUSTOMER_WISHLIST },
-        { icon: "help",            title: "Help & Support",    subtitle: "FAQs, contact us, report issue", color: "bg-sky-50 text-sky-500",     borderColor: "hover:border-sky-300", href: "#" },
+        {
+            icon: ShoppingBag,
+            title: "My Orders",
+            subtitle: `${orderCount} order${orderCount !== 1 ? "s" : ""} placed`,
+            color: "text-blue-600 bg-blue-50",
+            href: ROUTES.CUSTOMER_ORDERS,
+        },
+        {
+            icon: MapPin,
+            title: "Saved Addresses",
+            subtitle: `${addressCount} delivery address${addressCount !== 1 ? "es" : ""}`,
+            color: "text-emerald-700 bg-emerald-50",
+            href: ROUTES.CUSTOMER_ADDRESSES,
+        },
+        {
+            icon: Heart,
+            title: "Wishlist",
+            subtitle: `${wishlistCount} saved item${wishlistCount !== 1 ? "s" : ""}`,
+            color: "text-rose-600 bg-rose-50",
+            href: ROUTES.CUSTOMER_WISHLIST,
+        },
+        {
+            icon: CreditCard,
+            title: "Payment Security",
+            subtitle: "Instant UPI & digital payment options",
+            color: "text-indigo-600 bg-indigo-50",
+            href: ROUTES.CUSTOMER_CART,
+        },
+        {
+            icon: HelpCircle,
+            title: "Customer Support",
+            subtitle: "Help center, order complaints & FAQ",
+            color: "text-teal-600 bg-teal-50",
+            href: ROUTES.HELP_CENTER,
+        },
     ];
 
     return (
-        <div className="w-full max-w-[480px] md:max-w-3xl mx-auto bg-slate-50 min-h-screen shadow-xl relative">
-            {/* ─── Header with gradient ─── */}
-            <div className="relative overflow-hidden animate-slide-down rounded-b-[40px] shadow-sm">
-                <div className="bg-gradient-to-br from-primary via-[#F97316] to-[#FBBF24] px-6 pt-12 pb-28">
-                    {/* Back button */}
-                    <a
+        <div className="min-h-screen bg-slate-50/70 flex flex-col justify-between font-sans text-slate-900">
+            {/* Top Navigation */}
+            <CustomerNavbar />
+
+            <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 w-full space-y-6 flex-1">
+                {/* Back Link */}
+                <div className="flex items-center gap-3 pb-2">
+                    <Link
                         href={ROUTES.CUSTOMER_DASHBOARD}
-                        className="inline-flex items-center gap-2 text-white/90 hover:text-white text-sm font-bold transition-colors mb-6 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm"
+                        className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-slate-900 transition-colors shadow-xs"
                     >
-                        <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                        Back to Dashboard
-                    </a>
-                    <h1 className="text-white text-3xl font-black tracking-tight drop-shadow-sm">My Profile</h1>
-                    <p className="text-white/90 text-sm font-medium mt-1">Manage your account information</p>
+                        <ArrowLeft className="w-4 h-4" />
+                    </Link>
+                    <div>
+                        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Account Profile</h1>
+                        <p className="text-xs text-slate-500 font-medium">Manage your personal details and quick shortcuts</p>
+                    </div>
                 </div>
 
-                {/* Decorative shapes */}
-                <div className="absolute top-8 right-0 w-48 h-48 rounded-full bg-white/10 blur-3xl" />
-                <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-white/10 blur-2xl animate-float" />
-            </div>
+                {/* Profile Card */}
+                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-black text-3xl flex items-center justify-center shadow-md shadow-emerald-700/20 shrink-0">
+                        {avatarUrl ? (
+                            <Image
+                                src={avatarUrl}
+                                alt={fullName}
+                                width={96}
+                                height={96}
+                                className="w-full h-full object-cover rounded-3xl"
+                                referrerPolicy="no-referrer"
+                            />
+                        ) : (
+                            initial
+                        )}
+                    </div>
 
-            {/* ─── Avatar Card (overlapping the header) ─── */}
-            <div className="px-6 -mt-16 relative z-10 animate-scale-in">
-                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.08)] ring-1 ring-slate-100">
-                    <div className="flex flex-col items-center gap-4 text-center">
-                        {/* Avatar with pulse ring */}
-                        <div className="relative shrink-0 -mt-12">
-                            {avatarUrl ? (
-                                <Image
-                                    src={avatarUrl}
-                                    alt={fullName}
-                                    width={96}
-                                    height={96}
-                                    className="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-xl animate-pulse-ring"
-                                    referrerPolicy="no-referrer"
-                                />
-                            ) : (
-                                <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center text-3xl font-black text-white ring-4 ring-white shadow-xl animate-pulse-ring">
-                                    {initial}
-                                </div>
-                            )}
-                            <div className="absolute bottom-0 right-0 w-7 h-7 bg-[#22c55e] rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                <span className="material-symbols-outlined text-[14px] text-white font-bold">check</span>
-                            </div>
+                    <div className="flex-1 text-center sm:text-left space-y-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                            <h2 className="text-2xl font-black text-slate-900 tracking-tight">{fullName}</h2>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold w-fit mx-auto sm:mx-0">
+                                <ShieldCheck className="w-3.5 h-3.5" />
+                                <span>Verified Customer</span>
+                            </span>
                         </div>
 
-                        <div className="min-w-0 w-full">
-                            <h2 className="text-2xl font-black text-slate-900 truncate tracking-tight">{fullName}</h2>
-                            <p className="text-sm font-medium text-slate-500 truncate mt-0.5">{email}</p>
-                            <div className="mt-3 flex items-center justify-center gap-3">
-                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-50 text-green-600 text-[11px] font-bold uppercase tracking-wider">
-                                    <span className="material-symbols-outlined text-[14px] fill-1">verified</span>
-                                    Customer
-                                </span>
-                                <span className="text-[11px] font-medium text-slate-400">
-                                    Since {createdAt}
-                                </span>
-                            </div>
+                        <p className="text-xs sm:text-sm text-slate-500 font-medium">{email}</p>
+
+                        <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs font-bold text-slate-600">
+                            <span className="flex items-center gap-1.5 text-slate-500">
+                                <Clock className="w-4 h-4 text-emerald-600" />
+                                <span>Member since {createdAt}</span>
+                            </span>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* ─── Quick Stats ─── */}
-            <div className="px-6 mt-6">
-                <div className="grid grid-cols-3 gap-3 animate-fade-in-up delay-200">
-                    {[
-                        { label: "Orders", value: orderCount.toString(), icon: "receipt_long", color: "text-blue-500" },
-                        { label: "Wishlist", value: wishlistCount.toString(), icon: "favorite", color: "text-rose-500" },
-                        { label: "Addresses", value: addressCount.toString(), icon: "location_on", color: "text-emerald-500" },
-                    ].map((stat, i) => (
-                        <div
-                            key={stat.label}
-                            className="bg-white rounded-3xl p-4 text-center shadow-sm border border-slate-100/80 premium-hover"
-                            style={{ animationDelay: `${0.2 + i * 0.08}s` }}
-                        >
-                            <span className={`material-symbols-outlined ${stat.color} text-[28px] drop-shadow-sm`}>{stat.icon}</span>
-                            <p className="text-2xl font-black text-slate-900 mt-1">{stat.value}</p>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{stat.label}</p>
-                        </div>
-                    ))}
+                {/* Navigation Menu Grid */}
+                <div className="space-y-3">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 px-1">
+                        Account Shortcuts
+                    </h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {menuItems.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                                <Link
+                                    key={item.title}
+                                    href={item.href}
+                                    className="group p-4 bg-white rounded-2xl border border-slate-200/80 hover:border-emerald-500 hover:shadow-md hover:shadow-emerald-500/5 transition-all flex items-center justify-between"
+                                >
+                                    <div className="flex items-center gap-3.5">
+                                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
+                                            <Icon className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                                                {item.title}
+                                            </h4>
+                                            <p className="text-xs text-slate-400 font-medium mt-0.5">
+                                                {item.subtitle}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-700 transition-colors" />
+                                </Link>
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
 
-            {/* ─── Menu Cards ─── */}
-            <div className="px-6 mt-6 space-y-3">
-                {menuItems.map((item, i) => (
-                    <a
-                        key={item.title}
-                        href={item.href}
-                        onClick={(e) => {
-                            if (item.href === "#") {
-                                e.preventDefault();
-                                toast("Feature coming soon!", { icon: "🚧" });
-                            }
-                        }}
-                        className={`group flex items-center gap-4 bg-white rounded-3xl p-4 shadow-sm border border-slate-100/80 premium-hover animate-fade-in-up`}
-                        style={{ animationDelay: `${0.3 + i * 0.07}s` }}
+                {/* Sign Out Card */}
+                <div className="pt-4">
+                    <button
+                        onClick={handleSignOut}
+                        className="w-full sm:w-auto px-6 py-3 rounded-2xl border border-rose-200 bg-white hover:bg-rose-50 text-rose-600 font-bold text-xs uppercase tracking-wider transition-colors inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                     >
-                        <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
-                            <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-slate-900">{item.title}</p>
-                            <p className="text-xs font-medium text-slate-400 mt-0.5">{item.subtitle}</p>
-                        </div>
-                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-primary group-hover:text-white text-slate-400 transition-colors">
-                            <span className="material-symbols-outlined text-[18px]">
-                                chevron_right
-                            </span>
-                        </div>
-                    </a>
-                ))}
-            </div>
+                        <LogOut className="w-4 h-4" />
+                        <span>Sign Out of Marketnera</span>
+                    </button>
+                </div>
+            </main>
 
-            {/* ─── Sign Out Button ─── */}
-            <div className="px-6 mt-8 pb-12 animate-fade-in delay-500">
-                <button
-                    onClick={handleSignOut}
-                    className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-red-100 bg-white text-red-500 font-black text-sm shadow-sm hover:bg-red-50 hover:border-red-200 transition-all duration-300 premium-active"
-                >
-                    <span className="material-symbols-outlined text-[20px]">logout</span>
-                    Sign Out
-                </button>
-            </div>
+            {/* Bottom Nav & Modern Footer */}
+            <Footer />
+            <CustomerBottomNav />
         </div>
     );
 }

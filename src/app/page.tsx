@@ -17,7 +17,6 @@ import {
     LiveCategorySummary,
     LiveShopSummary,
 } from "@/lib/services/customerCatalog";
-import { Clock, Store, ShieldCheck, Zap } from "lucide-react";
 
 function CustomerHomePageContent() {
     const searchParams = useSearchParams();
@@ -146,50 +145,7 @@ function CustomerHomePageContent() {
                 {/* 3. Neighborhood Verified Stores (from database) */}
                 <NeighborhoodShops shops={shops} loading={loadingData} />
 
-                {/* 4. Value / Trust Bar */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs text-xs font-semibold text-slate-700">
-                    <div className="flex items-center gap-2.5 p-2">
-                        <div className="p-2 rounded-xl bg-slate-100 text-slate-700 shrink-0">
-                            <Clock className="w-4 h-4 text-emerald-700" />
-                        </div>
-                        <div>
-                            <p className="font-bold text-slate-900">15–30m Doorstep</p>
-                            <p className="text-[11px] text-slate-400 font-normal">Hyperlocal delivery</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 p-2">
-                        <div className="p-2 rounded-xl bg-slate-100 text-slate-700 shrink-0">
-                            <Store className="w-4 h-4 text-emerald-700" />
-                        </div>
-                        <div>
-                            <p className="font-bold text-slate-900">Verified Stores</p>
-                            <p className="text-[11px] text-slate-400 font-normal">Direct from your street</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 p-2">
-                        <div className="p-2 rounded-xl bg-slate-100 text-slate-700 shrink-0">
-                            <ShieldCheck className="w-4 h-4 text-emerald-700" />
-                        </div>
-                        <div>
-                            <p className="font-bold text-slate-900">MRP Guarantee</p>
-                            <p className="text-[11px] text-slate-400 font-normal">Zero packaging surge</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 p-2">
-                        <div className="p-2 rounded-xl bg-slate-100 text-slate-700 shrink-0">
-                            <Zap className="w-4 h-4 text-emerald-700" />
-                        </div>
-                        <div>
-                            <p className="font-bold text-slate-900">Instant UPI &amp; COD</p>
-                            <p className="text-[11px] text-slate-400 font-normal">Pay safely at delivery</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 5. Live Product Catalogue Grid */}
+                {/* 4. Live Product Catalogue Grid */}
                 <div ref={catalogRef} className="pt-2">
                     <CustomerProductGrid
                         products={products}

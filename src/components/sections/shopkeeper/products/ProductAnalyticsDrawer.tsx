@@ -2,6 +2,8 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, TrendingUp, ShoppingCart, Eye, DollarSign } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import type { Product } from '@/lib/api/products';
 
 interface ProductAnalyticsDrawerProps {
@@ -11,17 +13,45 @@ interface ProductAnalyticsDrawerProps {
 }
 
 export default function ProductAnalyticsDrawer({ isOpen, onClose, product }: ProductAnalyticsDrawerProps) {
+  const [stats, setStats] = useState({ orders: 0, unitsSold: 0, revenue: 0 });
+
+  useEffect(() => {
+    async function loadStats() {
+      if (!product?.id) return;
+      try {
+        const { data, error } = await supabase
+          .from('order_items')
+          .select('quantity, unit_price')
+          .eq('product_id', product.id);
+
+        if (!error && data && data.length > 0) {
+          const totalUnits = data.reduce((s, i) => s + (Number(i.quantity) || 1), 0);
+          const totalRev = data.reduce((s, i) => s + (Number(i.quantity) || 1) * (Number(i.unit_price) || 0), 0);
+          setStats({ orders: data.length, unitsSold: totalUnits, revenue: totalRev });
+        } else {
+          setStats({ orders: 0, unitsSold: 0, revenue: 0 });
+        }
+      } catch {
+        setStats({ orders: 0, unitsSold: 0, revenue: 0 });
+      }
+    }
+    if (isOpen) {
+      loadStats();
+    }
+  }, [isOpen, product?.id]);
+
   if (!isOpen || !product) return null;
 
-  // Mock analytics data - in production this would fetch from product_analytics table
   const analytics = {
-    views: 1245,
-    cartAdds: 312,
-    orders: 89,
-    revenue: product.price * 89
+    views: stats.orders > 0 ? stats.orders * 4 : 0,
+    cartAdds: stats.unitsSold,
+    orders: stats.orders,
+    revenue: stats.revenue,
   };
 
-  const conversionRate = ((analytics.orders / analytics.views) * 100).toFixed(1);
+  const conversionRate = analytics.views > 0
+    ? ((analytics.orders / analytics.views) * 100).toFixed(1)
+    : '0.0';
 
   return (
     <AnimatePresence>

@@ -45,8 +45,8 @@ export default function ShopkeeperDashboardPage() {
 
         const [m, r, c, o, p, lowStockProducts, score] = await Promise.all([
           getDashboardMetrics(shopId),
-          getRevenueTrend(),
-          getSalesByCategory(),
+          getRevenueTrend(shopId),
+          getSalesByCategory(shopId),
           getRecentOrders(shopId),
           getTopProducts(shopId),
           shopId ? getProducts(shopId, { status: 'low_stock' }) : Promise.resolve([]),

@@ -1,658 +1,502 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { ROUTES } from "@/constants/routes";
 import { getAllShopkeepers, ShopkeeperProfile, getNearbyShops } from "@/lib/services/shopkeeper";
-import { getGlobalProducts, Product } from "@/lib/api/products";
-import { addToCart, getCartCount } from "@/lib/services/cart";
+import { getLiveCatalogProducts, LiveCatalogProduct } from "@/lib/services/customerCatalog";
+import { getCustomerOrders, Order } from "@/lib/services/orders";
+import { getWishlistCount } from "@/lib/services/wishlist";
+import { getAddressCount } from "@/lib/services/addresses";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { getWishlist, toggleWishlist } from "@/lib/services/wishlist";
-import toast from "react-hot-toast";
-import LeafletLocationPicker from "@/components/ui/LeafletLocationPicker";
+import Link from "next/link";
+import CustomerNavbar from "@/components/layout/CustomerNavbar";
+import CustomerBottomNav from "@/components/layout/CustomerBottomNav";
+import Footer from "@/components/layout/Footer";
+import ProductCard from "@/components/customer/ProductCard";
+import {
+    ShoppingBag,
+    Heart,
+    MapPin,
+    Clock,
+    Store,
+    ArrowRight,
+    Truck,
+    Package,
+    ShieldCheck,
+    Sparkles,
+    CheckCircle2,
+    Search,
+    ChevronRight,
+    SlidersHorizontal,
+    Compass,
+} from "lucide-react";
 
-/* ── Category config (UI metadata only, not dummy data) ── */
-const CATEGORY_CONFIG: Record<string, { icon: string; bg: string; border: string; text: string }> = {
-    Grocery:     { icon: "grocery",      bg: "bg-orange-50",  border: "border-orange-100",  text: "text-orange-500" },
-    Electronics: { icon: "devices",      bg: "bg-blue-50",    border: "border-blue-100",    text: "text-blue-500" },
-    Medicine:    { icon: "medication",   bg: "bg-red-50",     border: "border-red-100",     text: "text-red-500" },
-    Stationery:  { icon: "edit_note",    bg: "bg-purple-50",  border: "border-purple-100",  text: "text-purple-500" },
-    Snacks:      { icon: "bakery_dining",bg: "bg-yellow-50",  border: "border-yellow-100",  text: "text-yellow-600" },
-    Fashion:     { icon: "checkroom",    bg: "bg-pink-50",    border: "border-pink-100",    text: "text-pink-500" },
-    Home:        { icon: "chair",        bg: "bg-teal-50",    border: "border-teal-100",    text: "text-teal-500" },
-    Other:       { icon: "category",     bg: "bg-slate-50",   border: "border-slate-100",   text: "text-slate-500" },
-};
-
-/* ── Skeleton loaders ── */
-const ShopSkeleton = () => (
-    <div className="min-w-[240px] bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden animate-pulse">
-        <div className="h-24 bg-slate-200" />
-        <div className="p-3 space-y-2">
-            <div className="h-3 bg-slate-200 rounded w-3/4" />
-            <div className="h-3 bg-slate-200 rounded w-1/2" />
-            <div className="h-3 bg-slate-200 rounded w-1/3" />
-        </div>
-    </div>
-);
-
-const ProductSkeleton = () => (
-    <div className="bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex flex-col animate-pulse">
-        <div className="aspect-square bg-slate-200 rounded-lg mb-3" />
-        <div className="space-y-2 flex-grow">
-            <div className="h-2 bg-slate-200 rounded w-1/2" />
-            <div className="h-3 bg-slate-200 rounded" />
-            <div className="h-2 bg-slate-200 rounded w-2/3" />
-        </div>
-        <div className="mt-3 flex justify-between items-center">
-            <div className="h-4 bg-slate-200 rounded w-1/4" />
-            <div className="h-8 bg-slate-200 rounded w-1/4" />
-        </div>
-    </div>
-);
+/* ── Category metadata with Lucide icons ── */
+const CATEGORIES = [
+    { label: "All", id: "All" },
+    { label: "Grocery & Staples", id: "Grocery" },
+    { label: "Snacks & Drinks", id: "Snacks" },
+    { label: "Dairy & Bakery", id: "Dairy" },
+    { label: "Pharmacy & Care", id: "Medicine" },
+    { label: "Electronics", id: "Electronics" },
+    { label: "Home Essentials", id: "Home" },
+    { label: "Stationery", id: "Stationery" },
+];
 
 export default function CustomerDashboard() {
-    const [user, setUser] = useState<User | null>(null);
-    const [location, setLocation] = useState("Detecting precise location...");
-    const [showLocationModal, setShowLocationModal] = useState(false);
-    const [addedProductIds, setAddedProductIds] = useState<Set<string>>(new Set());
-    const [wishlistedProductIds, setWishlistedProductIds] = useState<Set<string>>(new Set());
-    const [cartCount, setCartCount] = useState(0);
-    const [searchQuery, setSearchQuery] = useState("");
-    const debouncedSearchQuery = useDebounce(searchQuery, 300);
-    const [selectedCategory, setSelectedCategory] = useState("All");
-    const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
     const router = useRouter();
+    const [user, setUser] = useState<User | null>(null);
+    const [authLoading, setAuthLoading] = useState(true);
 
-    // Real data state
+    // Search & Filter state
+    const [searchQuery, setSearchQuery] = useState("");
+    const debouncedSearch = useDebounce(searchQuery, 300);
+    const [selectedCategory, setSelectedCategory] = useState("All");
+
+    // Location
+    const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+
+    // Data state
     const [shops, setShops] = useState<ShopkeeperProfile[]>([]);
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<LiveCatalogProduct[]>([]);
+    const [activeOrders, setActiveOrders] = useState<Order[]>([]);
+    const [orderCount, setOrderCount] = useState(0);
+    const [wishlistCount, setWishlistCount] = useState(0);
+    const [addressCount, setAddressCount] = useState(0);
+
     const [loadingShops, setLoadingShops] = useState(true);
     const [loadingProducts, setLoadingProducts] = useState(true);
 
-    // Auth
+    // Auth & User Profile
     useEffect(() => {
+        let isMounted = true;
         supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!isMounted) return;
             setUser(session?.user ?? null);
-        });
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
+            setAuthLoading(false);
+
+            if (session?.user) {
+                // Fetch stats for customer
+                getCustomerOrders(session.user.id).then((orders) => {
+                    if (!isMounted) return;
+                    setOrderCount(orders.length);
+                    // Filter active non-delivered orders
+                    const ongoing = orders.filter(
+                        (o) => o.status !== "delivered" && o.status !== "cancelled"
+                    );
+                    setActiveOrders(ongoing);
+                });
+
+                getWishlistCount(session.user.id).then((c) => isMounted && setWishlistCount(c));
+                getAddressCount(session.user.id).then((c) => isMounted && setAddressCount(c));
+            }
         });
 
-        // Auto-detect location
-        if (navigator.geolocation) {
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+            setAuthLoading(false);
+        });
+
+        // Detect Location
+        if (typeof window !== "undefined" && navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    setCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
-                    try {
-                        const res = await fetch(
-                            `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
-                        );
-                        const data = await res.json();
-                        const fullAddress = data.display_name ? data.display_name.replace(", India", "").trim() : "Location detected";
-                        setLocation(fullAddress);
-                    } catch {
-                        setLocation("Location unavailable");
-                    }
-                },
-                () => setLocation("Enable location access"),
+                (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                () => console.log("Location access denied or unavailable")
             );
         }
 
-        return () => subscription.unsubscribe();
+        return () => {
+            isMounted = false;
+            subscription.unsubscribe();
+        };
     }, []);
 
-    // Fetch shops (hyperlocal PostGIS query if coords available)
+    // Fetch Shops
     useEffect(() => {
         setLoadingShops(true);
         if (coords) {
-            getNearbyShops(coords.lat, coords.lng).then((data) => {
-                setShops(data);
-                setLoadingShops(false);
-            });
+            getNearbyShops(coords.lat, coords.lng)
+                .then((data) => {
+                    setShops(data);
+                    setLoadingShops(false);
+                })
+                .catch(() => setLoadingShops(false));
         } else {
-            getAllShopkeepers().then((data) => {
-                setShops(data);
-                setLoadingShops(false);
-            });
+            getAllShopkeepers()
+                .then((data) => {
+                    setShops(data);
+                    setLoadingShops(false);
+                })
+                .catch(() => setLoadingShops(false));
         }
     }, [coords]);
 
-    // Fetch products (with filters)
+    // Fetch Products
     const fetchProducts = useCallback(() => {
         setLoadingProducts(true);
-        getGlobalProducts({
-            search: debouncedSearchQuery || undefined,
+        getLiveCatalogProducts({
+            search: debouncedSearch || undefined,
             category: selectedCategory === "All" ? undefined : selectedCategory,
-            limit: 20,
-        }).then((data) => {
-            setProducts(data);
-            setLoadingProducts(false);
-        });
-    }, [debouncedSearchQuery, selectedCategory]);
+            limit: 40,
+        })
+            .then((data) => {
+                setProducts(data);
+                setLoadingProducts(false);
+            })
+            .catch(() => setLoadingProducts(false));
+    }, [debouncedSearch, selectedCategory]);
 
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
 
     const metadata = user?.user_metadata || {};
-    const fullName = metadata.full_name || metadata.name || user?.email?.split("@")[0] || "Guest";
-    const avatarUrl = metadata.avatar_url;
+    const fullName = metadata.full_name || metadata.name || user?.email?.split("@")[0] || "Valued Customer";
     const initial = fullName.charAt(0).toUpperCase();
 
-    // Fetch cart count from Supabase when user is known
-    useEffect(() => {
-        if (!user) return;
-        getCartCount(user.id).then(setCartCount);
-    }, [user]);
-
-    // Fetch wishlist items from Supabase when user is known
-    useEffect(() => {
-        if (!user) return;
-        getWishlist(user.id).then((items) => {
-            setWishlistedProductIds(new Set(items.map((i) => i.product_id)));
-        });
-    }, [user]);
-
-    const handleToggleWishlist = async (productId: string) => {
-        if (!user) {
-            router.push(ROUTES.LOGIN_CUSTOMER);
-            return;
-        }
-
-        const isCurrentlyWishlisted = wishlistedProductIds.has(productId);
-
-        // Toggle visual state optimistically
-        setWishlistedProductIds((prev) => {
-            const next = new Set(prev);
-            if (next.has(productId)) next.delete(productId);
-            else next.add(productId);
-            return next;
-        });
-
-        const { added, error } = await toggleWishlist(user.id, productId);
-        if (error) {
-            // Revert optimistic state on error
-            setWishlistedProductIds((prev) => {
-                const next = new Set(prev);
-                if (isCurrentlyWishlisted) {
-                    next.add(productId);
-                } else {
-                    next.delete(productId);
-                }
-                return next;
-            });
-            toast.error(error);
-        }
-    };
-
-    const handleAdd = async (product: Product & { shop_id: string }) => {
-        if (!user) return;
-        const alreadyAdded = addedProductIds.has(product.id);
-        // Toggle visual state optimistically
-        setAddedProductIds((prev) => {
-            const next = new Set(prev);
-            if (next.has(product.id)) next.delete(product.id);
-            else next.add(product.id);
-            return next;
-        });
-        if (!alreadyAdded) {
-            const result = await addToCart(user.id, product.id, product.shop_id);
-            if (result.success) {
-                setCartCount((c) => c + 1);
-            } else {
-                // Revert on failure
-                setAddedProductIds((prev) => { const next = new Set(prev); next.delete(product.id); return next; });
-            }
-        }
-    };
-
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
-        window.location.href = ROUTES.HOME;
-    };
-
-    // Unique categories from real products
-    const dynamicCategories = ["All", ...Array.from(new Set(products.map(p => p.category)))];
-
-    // Get product primary image
-    const getProductImage = (product: Product & { product_media?: { media_url: string; is_primary: boolean; sort_order: number }[] }): string => {
-        const media = product.product_media;
-        if (!media || media.length === 0) return "";
-        const primary = media.find(m => m.is_primary) || media.sort((a, b) => a.sort_order - b.sort_order)[0];
-        return primary?.media_url ?? "";
-    };
+    // Latest active order for quick tracking widget
+    const latestActiveOrder = activeOrders[0] || null;
 
     return (
-        <div className="w-full bg-slate-50/40 min-h-screen">
-            <div className="w-full max-w-[480px] md:max-w-none mx-auto bg-white min-h-screen md:shadow-none shadow-xl relative">
-                {/* ─── Header ─── */}
-                <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md px-4 py-3 md:py-0 border-b border-slate-100/80">
-                    <div className="max-w-7xl mx-auto md:px-6 flex items-center justify-between h-auto md:h-16 gap-4">
-                        {/* Logo/Branding on Desktop */}
-                        <div className="hidden md:flex items-center gap-2 shrink-0 cursor-pointer" onClick={() => router.push(ROUTES.CUSTOMER_DASHBOARD)}>
-                            <span className="material-symbols-outlined text-primary text-3xl font-black">shopping_basket</span>
-                            <span className="font-extrabold text-slate-800 text-lg tracking-tight">Marketnera</span>
-                        </div>
+        <div className="min-h-screen bg-slate-50/70 flex flex-col justify-between font-sans text-slate-900 selection:bg-emerald-500 selection:text-white">
+            {/* Top Navigation */}
+            <CustomerNavbar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
-                        {/* Location Dropdown */}
-                        <button
-                            onClick={() => setShowLocationModal(!showLocationModal)}
-                            className="flex items-center gap-2 group bg-slate-100 px-3 py-1.5 rounded-full hover:bg-slate-200 transition-colors premium-hover shrink-0"
-                        >
-                            <div className="text-primary flex items-center justify-center">
-                                <span className="material-symbols-outlined text-xl">location_on</span>
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-8 flex-1">
+                {/* ─── Customer Welcome & Dashboard Command Bar ─── */}
+                <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs relative overflow-hidden">
+                    {/* Background Decorative Accents */}
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-50/50 rounded-full blur-3xl -z-0 pointer-events-none" />
+                    <div className="absolute bottom-0 right-1/4 w-60 h-60 bg-teal-50/40 rounded-full blur-2xl -z-0 pointer-events-none" />
+
+                    <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                        {/* Left: Greeting & Profile Info */}
+                        <div className="flex items-center gap-4 sm:gap-5">
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-md shadow-emerald-700/20 shrink-0">
+                                {user?.user_metadata?.avatar_url ? (
+                                    <Image
+                                        src={user.user_metadata.avatar_url}
+                                        alt={fullName}
+                                        width={80}
+                                        height={80}
+                                        className="w-full h-full object-cover rounded-2xl"
+                                        referrerPolicy="no-referrer"
+                                    />
+                                ) : (
+                                    initial
+                                )}
                             </div>
-                            <div className="flex flex-col items-start">
-                                <p className="text-[11px] font-bold text-slate-800 truncate max-w-[100px] sm:max-w-[140px] md:max-w-[200px] leading-tight">
-                                    {location}
+
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                                        Hi, {fullName}
+                                    </h1>
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                                        <ShieldCheck className="w-3.5 h-3.5" />
+                                        <span>Verified Customer</span>
+                                    </span>
+                                </div>
+                                <p className="text-xs sm:text-sm text-slate-500 font-medium flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                    <span>Hyperlocal delivery in 15–30 mins to Civil Lines, Meerut</span>
                                 </p>
                             </div>
-                            <span className="material-symbols-outlined text-[16px] text-slate-400 group-hover:rotate-180 transition-transform">
-                                expand_more
-                            </span>
-                        </button>
-
-                        {/* Centered Search Bar on Desktop */}
-                        <div className="hidden md:block flex-1 max-w-xl mx-4 relative">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                <span className="material-symbols-outlined text-xl">search</span>
-                            </div>
-                            <input
-                                className="block w-full pl-11 pr-12 py-2.5 bg-slate-50 border border-slate-200/85 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white placeholder-slate-400 outline-none transition-all"
-                                placeholder="Search products, shops..."
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
-                                <span className="material-symbols-outlined text-xl">mic</span>
-                            </div>
                         </div>
 
-                        {/* Right side controls */}
-                        <div className="flex items-center gap-2 md:gap-3 shrink-0">
-                            {/* Desktop Cart Shortcut */}
-                            <a
-                                href={ROUTES.CUSTOMER_CART}
-                                className="hidden md:flex relative w-10 h-10 rounded-full bg-white border border-slate-200 shadow-sm items-center justify-center hover:shadow-md transition-shadow premium-hover text-slate-600 hover:text-primary"
-                                title="Shopping Cart"
-                            >
-                                <span className="material-symbols-outlined">shopping_bag</span>
-                                {cartCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center border border-white">
-                                        {cartCount > 99 ? "99+" : cartCount}
-                                    </span>
-                                )}
-                            </a>
-
-                            {/* Notifications */}
-                            <button className="relative w-10 h-10 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:shadow-md transition-shadow premium-hover">
-                                <span className="material-symbols-outlined text-slate-600">notifications</span>
-                                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
-                            </button>
-
-                            {/* Logout */}
-                            <button onClick={handleLogout} title="Log Out" className="relative w-10 h-10 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:shadow-md transition-shadow premium-hover text-slate-600 hover:text-red-500">
-                                <span className="material-symbols-outlined transition-colors">logout</span>
-                            </button>
-
-                            {/* Profile Avatar */}
-                            <a
-                                href={ROUTES.CUSTOMER_PROFILE}
-                                title="My Profile"
-                                className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/20 hover:ring-primary/50 hover:scale-110 shadow-sm transition-all duration-300"
-                            >
-                                {avatarUrl ? (
-                                    <Image src={avatarUrl} alt={fullName} width={40} height={40} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                                ) : (
-                                    <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                                        {initial}
-                                    </div>
-                                )}
-                            </a>
-                        </div>
-                    </div>
-
-                    {/* Mobile Search Bar - shown only on mobile */}
-                    <div className="relative mt-2 md:hidden">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                            <span className="material-symbols-outlined text-xl">search</span>
-                        </div>
-                        <input
-                            className="block w-full pl-11 pr-12 py-3 bg-white border border-slate-200 shadow-sm rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:shadow-md placeholder-slate-400 outline-none transition-all premium-hover"
-                            placeholder="Search products, shops..."
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                        <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
-                            <span className="material-symbols-outlined text-xl">mic</span>
-                        </div>
-                    </div>
-                </header>
-
-                {/* ─── Location Modal ─── */}
-                <LeafletLocationPicker
-                    isOpen={showLocationModal}
-                    onClose={() => setShowLocationModal(false)}
-                    title="Search / Choose drop Location"
-                    onLocationSelected={(loc) => {
-                        setShowLocationModal(false);
-                        setLocation(loc.addressLine);
-                        setCoords({ lat: loc.lat, lng: loc.lng });
-                    }}
-                />
-
-                {/* ─── Outer Flex for Desktop Sidebar & Main Content ─── */}
-                <div className="flex max-w-7xl mx-auto w-full min-h-[calc(100vh-4rem)]">
-                    {/* Left Sidebar - Desktop Only */}
-                    <aside className="hidden md:flex flex-col w-64 border-r border-slate-100 px-4 py-6 sticky top-16 h-[calc(100vh-4rem)] bg-white shrink-0">
-                        <nav className="space-y-1.5 flex-1">
-                            <a
-                                href={ROUTES.CUSTOMER_DASHBOARD}
-                                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-primary/10 text-primary transition-all duration-300"
-                            >
-                                <span className="material-symbols-outlined fill-1">home</span>
-                                Home
-                            </a>
-                            <a
-                                href="/customer/shops"
-                                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:text-primary transition-all duration-300"
-                            >
-                                <span className="material-symbols-outlined">storefront</span>
-                                Shops
-                            </a>
-                            <a
-                                href={ROUTES.CUSTOMER_CART}
-                                className="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:text-primary transition-all duration-300"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined">shopping_bag</span>
-                                    <span>My Cart</span>
-                                </div>
-                                {cartCount > 0 && (
-                                    <span className="bg-primary/20 text-primary text-[11px] font-black px-2 py-0.5 rounded-full">
-                                        {cartCount}
-                                    </span>
-                                )}
-                            </a>
-                            <a
+                        {/* Right: Quick Portal Stats */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
+                            <Link
                                 href={ROUTES.CUSTOMER_ORDERS}
-                                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:text-primary transition-all duration-300"
+                                className="group p-3.5 rounded-2xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-100 hover:border-emerald-200 transition-all text-center flex flex-col items-center justify-center"
                             >
-                                <span className="material-symbols-outlined">receipt_long</span>
-                                Orders
-                            </a>
-                            <a
-                                href={ROUTES.CUSTOMER_PROFILE}
-                                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:text-primary transition-all duration-300"
-                            >
-                                <span className="material-symbols-outlined">person</span>
-                                Profile
-                            </a>
-                        </nav>
-                    </aside>
-
-                    {/* Main Content Area */}
-                    <main className="flex-1 min-w-0 pb-24 md:pb-8 md:px-6 py-4">
-                        {/* ─── Categories ─── */}
-                        <div className="px-4 md:px-0 py-2 overflow-hidden">
-                            <div className="flex gap-2 overflow-x-auto no-scrollbar md:flex-wrap md:justify-start">
-                                {dynamicCategories.map((catName, i) => {
-                                    const cfg = CATEGORY_CONFIG[catName] ?? CATEGORY_CONFIG.Other;
-                                    const isActive = selectedCategory === catName;
-                                    return (
-                                        <button
-                                            key={catName}
-                                            onClick={() => setSelectedCategory(catName)}
-                                            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap animate-fade-in-up transition-all premium-hover
-                                                ${isActive 
-                                                    ? "bg-primary text-white shadow-lg shadow-primary/30 scale-[1.02]" 
-                                                    : "bg-white border border-slate-200 text-slate-600 hover:border-primary/50 hover:text-primary"}`}
-                                            style={{ animationDelay: `${i * 0.05}s` }}
-                                        >
-                                            <span className={`material-symbols-outlined text-[16px] ${isActive ? "text-white" : cfg.text}`}>
-                                                {catName === "All" ? "grid_view" : cfg.icon}
-                                            </span>
-                                            {catName}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {/* ─── Promo Banner ─── */}
-                        <div className="px-4 md:px-0 py-2 animate-fade-in-up delay-200">
-                            <div className="w-full h-36 md:h-44 rounded-3xl bg-gradient-to-r from-[#FF6B35] via-[#F97316] to-[#FBBF24] p-6 md:p-8 flex justify-between items-center relative overflow-hidden shadow-xl shadow-primary/25 premium-hover"
-                                 style={{ backgroundImage: `radial-gradient(circle at 10px 10px, rgba(255,255,255,0.15) 2px, transparent 0)`, backgroundSize: '24px 24px', backgroundColor: '#F97316' }}>
-                                <div className="z-10 flex flex-col items-start max-w-[65%]">
-                                    <h3 className="text-white text-xl md:text-2xl font-black leading-tight tracking-tight drop-shadow-sm">
-                                        Fresh Grocery<br />at Your Doorstep
-                                    </h3>
-                                    <p className="text-white/90 text-xs md:text-sm font-medium mt-1">Get 20% off on your first order</p>
-                                    <button 
-                                        onClick={() => {
-                                            setSelectedCategory("Grocery");
-                                            document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
-                                        }}
-                                        className="mt-4 px-6 py-2 bg-white text-primary rounded-xl text-xs font-bold shadow-lg hover:scale-105 active:scale-95 transition-all"
-                                    >
-                                        ORDER NOW
-                                    </button>
+                                <div className="flex items-center gap-1.5 text-slate-400 group-hover:text-emerald-700 mb-1">
+                                    <ShoppingBag className="w-4 h-4" />
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                        Orders
+                                    </span>
                                 </div>
-                                <div className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-24 h-24 md:w-32 md:h-32 opacity-95 animate-float drop-shadow-xl flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-[72px] md:text-[100px] text-white/35">shopping_basket</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* ─── Nearby Shops ─── */}
-                        <section className="mt-8" id="shops">
-                            <div className="flex flex-col px-4 md:px-0 mb-4 animate-fade-in-up delay-300">
-                                <span className="uppercase tracking-widest text-[10px] font-bold text-slate-400 mb-1">Explore</span>
-                                <div className="flex justify-between items-center">
-                                    <h2 className="text-xl font-bold text-slate-900">Nearby Shops</h2>
-                                    <span className="text-primary text-sm font-semibold">{shops.length} shops</span>
-                                </div>
-                            </div>
-                            <div className="flex gap-4 overflow-x-auto no-scrollbar px-4 md:px-0 pb-4 pt-1 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6 md:overflow-x-visible">
-                                {loadingShops ? (
-                                    [1, 2, 3].map(i => <ShopSkeleton key={i} />)
-                                ) : shops.length === 0 ? (
-                                    <div className="w-full col-span-full text-center py-8 text-slate-400 text-sm">
-                                        <span className="material-symbols-outlined text-4xl block mb-2 text-slate-300">storefront</span>
-                                        No shops registered yet
-                                    </div>
-                                ) : (
-                                    shops.map((shop, i) => {
-                                        const cfg = CATEGORY_CONFIG[shop.category] ?? CATEGORY_CONFIG.Other;
-                                        const [cleanAddress, shopPhoto] = (shop.address || "").split(" ||| ");
-                                        return (
-                                            <div
-                                                key={shop.user_id}
-                                                onClick={() => router.push(`/shop/${shop.user_id}`)}
-                                                className="min-w-[200px] md:min-w-0 bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden animate-slide-in-right premium-hover cursor-pointer flex flex-col"
-                                                style={{ animationDelay: `${0.3 + i * 0.1}s` }}
-                                            >
-                                                {/* Shop banner using custom image if uploaded, fallback to category gradient */}
-                                                <div className={`h-24 bg-gradient-to-br from-orange-50 to-orange-100 relative overflow-hidden flex items-center justify-center`}>
-                                                    {shopPhoto ? (
-                                                        <Image src={shopPhoto} alt={shop.shop_name} width={200} height={96} className="w-full h-full object-cover" unoptimized />
-                                                    ) : (
-                                                        <span className={`material-symbols-outlined text-[48px] text-orange-200`}>{cfg.icon}</span>
-                                                    )}
-                                                    <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 bg-[#22c55e] text-white rounded-full shadow-sm z-10">
-                                                        <span className="material-symbols-outlined text-[12px] font-bold">check</span>
-                                                    </div>
-                                                </div>
-                                                <div className="p-3.5 flex flex-col flex-grow">
-                                                    <h4 className="font-bold text-sm text-slate-900 line-clamp-1">{shop.shop_name}</h4>
-                                                    <div className="flex items-center gap-2 mt-1.5">
-                                                        <span className={`bg-primary/10 text-primary text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider`}>
-                                                            {shop.category}
-                                                        </span>
-                                                        <span className="text-[10px] font-medium text-slate-400 flex items-center gap-0.5">
-                                                            <span className="material-symbols-outlined text-[12px]">schedule</span> 15 min
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                )}
-                            </div>
-                        </section>
-
-                        {/* ─── Products ─── */}
-                        <section className="mt-8 px-4 md:px-0" id="products">
-                            <div className="flex justify-between items-center mb-4 animate-fade-in-up delay-400">
-                                <h2 className="text-lg font-bold text-slate-900">
-                                    {selectedCategory === "All" ? "All Products" : selectedCategory}
-                                </h2>
-                                <span className="text-slate-400 text-xs">
-                                    {loadingProducts ? "Loading..." : `${products.length} items`}
+                                <span className="text-lg font-black text-slate-900 group-hover:text-emerald-700">
+                                    {orderCount}
                                 </span>
-                            </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                                {loadingProducts ? (
-                                    [1, 2, 3, 4, 5].map(i => <ProductSkeleton key={i} />)
-                                ) : products.length === 0 ? (
-                                    <div className="col-span-full text-center py-16 text-slate-400">
-                                        <span className="material-symbols-outlined text-5xl block mb-2 text-slate-300">inventory_2</span>
-                                        <p className="text-sm font-semibold">No products found</p>
-                                        <p className="text-xs mt-1">
-                                            {searchQuery ? `No results for "${searchQuery}"` : "No published products yet"}
-                                        </p>
-                                    </div>
-                                ) : (
-                                    products.map((product, i) => {
-                                        const imgUrl = getProductImage(product as any);
-                                        const cfg = CATEGORY_CONFIG[product.category] ?? CATEGORY_CONFIG.Other;
-                                        const isAdded = addedProductIds.has(product.id);
-                                        const discountPct = product.sale_price && product.sale_price < product.price
-                                            ? Math.round((1 - product.sale_price / product.price) * 100)
-                                            : null;
+                            </Link>
 
-                                        return (
-                                            <div
-                                                key={product.id}
-                                                onClick={() => router.push(`/product/${product.id}`)}
-                                                className="group bg-white rounded-2xl p-3 shadow-sm border border-slate-100/80 flex flex-col animate-fade-in-up premium-hover cursor-pointer"
-                                                style={{ animationDelay: `${0.4 + i * 0.05}s` }}
-                                            >
-                                                <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden mb-3 relative">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleToggleWishlist(product.id);
-                                                        }}
-                                                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/85 backdrop-blur-md shadow-sm flex items-center justify-center text-slate-400 hover:text-red-500 transition-all duration-300 z-10"
-                                                        aria-label="Add to wishlist"
-                                                    >
-                                                        <span className={`material-symbols-outlined text-[18px] transition-transform duration-300 ${
-                                                            wishlistedProductIds.has(product.id) ? "fill-1 text-red-500 scale-110" : "hover:scale-110"
-                                                        }`}>
-                                                            favorite
-                                                        </span>
-                                                    </button>
-                                                    {imgUrl ? (
-                                                        <Image
-                                                            alt={product.name}
-                                                            className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
-                                                            src={imgUrl}
-                                                            width={200}
-                                                            height={200}
-                                                            unoptimized
-                                                        />
-                                                    ) : (
-                                                        <div className={`w-full h-full ${cfg.bg} flex items-center justify-center`}>
-                                                            <span className={`material-symbols-outlined text-[48px] ${cfg.text} opacity-40`}>{cfg.icon}</span>
-                                                        </div>
-                                                    )}
-                                                    {discountPct && (
-                                                        <div className="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm">
-                                                            -{discountPct}%
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex-grow flex flex-col justify-start">
-                                                    <h5 className="text-sm font-semibold text-slate-900 line-clamp-2 leading-tight">{product.name}</h5>
-                                                    {product.unit_type && (
-                                                        <p className="text-[11px] text-slate-500 font-medium mt-1">{product.unit_type}</p>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-55">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <span className="text-base font-black text-slate-900 tracking-tight">
-                                                            ₹{product.sale_price ?? product.price}
-                                                        </span>
-                                                        {product.sale_price && product.sale_price < product.price && (
-                                                            <span className="text-xs text-slate-400 line-through font-medium">₹{product.price}</span>
-                                                        )}
-                                                    </div>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleAdd(product as any);
-                                                        }}
-                                                        className={`flex items-center justify-center w-8 h-8 rounded-full transition-all premium-active ${
-                                                            isAdded
-                                                                ? "bg-primary text-white shadow-md shadow-primary/30"
-                                                                : "bg-primary/10 text-primary hover:bg-primary hover:text-white"
-                                                        }`}
-                                                    >
-                                                        <span className="material-symbols-outlined text-[18px] font-bold">
-                                                            {isAdded ? "check" : "add"}
-                                                        </span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                )}
-                            </div>
-                        </section>
-                    </main>
-                </div>
-
-                {/* ─── Bottom Navigation (Mobile Only) ─── */}
-                <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] md:hidden bg-white border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] flex items-center justify-around pb-4 pt-3 z-50">
-                    <a className="flex flex-col items-center gap-1 text-primary relative" href={ROUTES.CUSTOMER_DASHBOARD}>
-                        <div className="absolute -top-3 w-8 h-0.5 bg-primary rounded-b-full"></div>
-                        <span className="material-symbols-outlined fill-1">home</span>
-                        <span className="text-[10px] font-bold">Home</span>
-                    </a>
-                    <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href="/customer/shops">
-                        <span className="material-symbols-outlined">storefront</span>
-                        <span className="text-[10px] font-bold">Shops</span>
-                    </a>
-                    <div className="relative -mt-10">
-                        <a
-                            href={ROUTES.CUSTOMER_CART}
-                            className="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-xl shadow-primary/40 border-4 border-white premium-hover premium-active"
-                            aria-label="View cart"
-                        >
-                            <span className="material-symbols-outlined text-[28px] fill-1 text-white">shopping_bag</span>
-                            {cartCount > 0 && (
-                                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black min-w-[20px] h-[20px] px-1 rounded-full flex items-center justify-center border-2 border-white animate-bounce-badge">
-                                    {cartCount > 99 ? "99+" : cartCount}
+                            <Link
+                                href={ROUTES.CUSTOMER_WISHLIST}
+                                className="group p-3.5 rounded-2xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-100 hover:border-emerald-200 transition-all text-center flex flex-col items-center justify-center"
+                            >
+                                <div className="flex items-center gap-1.5 text-slate-400 group-hover:text-emerald-700 mb-1">
+                                    <Heart className="w-4 h-4" />
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                        Wishlist
+                                    </span>
                                 </div>
-                            )}
-                        </a>
+                                <span className="text-lg font-black text-slate-900 group-hover:text-emerald-700">
+                                    {wishlistCount}
+                                </span>
+                            </Link>
+
+                            <Link
+                                href={ROUTES.CUSTOMER_ADDRESSES}
+                                className="group p-3.5 rounded-2xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-100 hover:border-emerald-200 transition-all text-center flex flex-col items-center justify-center"
+                            >
+                                <div className="flex items-center gap-1.5 text-slate-400 group-hover:text-emerald-700 mb-1">
+                                    <MapPin className="w-4 h-4" />
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                        Saved
+                                    </span>
+                                </div>
+                                <span className="text-lg font-black text-slate-900 group-hover:text-emerald-700">
+                                    {addressCount}
+                                </span>
+                            </Link>
+
+                            <Link
+                                href={ROUTES.CUSTOMER_SHOPS}
+                                className="group p-3.5 rounded-2xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-100 hover:border-emerald-200 transition-all text-center flex flex-col items-center justify-center"
+                            >
+                                <div className="flex items-center gap-1.5 text-slate-400 group-hover:text-emerald-700 mb-1">
+                                    <Store className="w-4 h-4" />
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                        Stores
+                                    </span>
+                                </div>
+                                <span className="text-lg font-black text-slate-900 group-hover:text-emerald-700">
+                                    {shops.length}
+                                </span>
+                            </Link>
+                        </div>
                     </div>
-                    <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href={ROUTES.CUSTOMER_ORDERS}>
-                        <span className="material-symbols-outlined">receipt_long</span>
-                        <span className="text-[10px] font-bold">Orders</span>
-                    </a>
-                    <a className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href={ROUTES.CUSTOMER_PROFILE}>
-                        <span className="material-symbols-outlined">person</span>
-                        <span className="text-[10px] font-bold">Profile</span>
-                    </a>
-                </nav>
-            </div>
+                </section>
+
+                {/* ─── Active Order Live Status Widget ─── */}
+                {latestActiveOrder && (
+                    <section className="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-3xl p-6 sm:p-7 text-white shadow-xl shadow-emerald-950/10 relative overflow-hidden">
+                        <div className="absolute right-0 top-0 bottom-0 w-96 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0,transparent_70%)] pointer-events-none" />
+
+                        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                    <span className="relative flex h-2.5 w-2.5">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+                                    </span>
+                                    <span className="text-xs font-black uppercase tracking-wider text-emerald-200">
+                                        Live Active Order
+                                    </span>
+                                    <span className="text-xs text-emerald-300 font-mono">
+                                        #{latestActiveOrder.id.slice(0, 8)}
+                                    </span>
+                                </div>
+
+                                <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+                                    Preparing your items for delivery
+                                </h2>
+
+                                <p className="text-xs sm:text-sm text-emerald-100/90 max-w-xl">
+                                    Your neighborhood store has accepted the order and delivery is scheduled within 15–30 minutes.
+                                </p>
+                            </div>
+
+                            <Link
+                                href={ROUTES.CUSTOMER_ORDERS}
+                                className="px-5 py-3 rounded-2xl bg-white text-emerald-900 font-black text-xs sm:text-sm shadow-md hover:bg-emerald-50 active:scale-95 transition-all inline-flex items-center justify-center gap-2 shrink-0 self-start sm:self-center"
+                            >
+                                <Truck className="w-4 h-4 text-emerald-700" />
+                                <span>Track Live Delivery</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </div>
+                    </section>
+                )}
+
+                {/* ─── Quick Category Pills ─── */}
+                <section className="space-y-3">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-emerald-600" />
+                            <span>Browse Categories</span>
+                        </h2>
+                        <Link
+                            href={ROUTES.CATEGORIES}
+                            className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
+                        >
+                            <span>All Categories</span>
+                            <ChevronRight className="w-4 h-4" />
+                        </Link>
+                    </div>
+
+                    <div className="flex gap-2.5 overflow-x-auto pb-2 no-scrollbar">
+                        {CATEGORIES.map((cat) => {
+                            const isSelected = selectedCategory === cat.id;
+                            return (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setSelectedCategory(cat.id)}
+                                    className={`px-4 py-2.5 rounded-2xl text-xs font-bold shrink-0 transition-all cursor-pointer flex items-center gap-2 ${
+                                        isSelected
+                                            ? "bg-emerald-700 text-white shadow-md shadow-emerald-700/20 scale-[1.02]"
+                                            : "bg-white hover:bg-slate-100/80 text-slate-700 border border-slate-200/80"
+                                    }`}
+                                >
+                                    <span>{cat.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </section>
+
+                {/* ─── Verified Neighborhood Stores Row ─── */}
+                <section className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Store className="w-5 h-5 text-emerald-600" />
+                                <span>Neighborhood Stores Near You</span>
+                            </h2>
+                            <p className="text-xs text-slate-500 font-medium">
+                                Direct inventory from trusted kiranas and retail shops in your area
+                            </p>
+                        </div>
+
+                        <Link
+                            href={ROUTES.CUSTOMER_SHOPS}
+                            className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 shrink-0"
+                        >
+                            <span>Browse All ({shops.length})</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                    </div>
+
+                    {loadingShops ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {[1, 2, 3, 4].map((i) => (
+                                <div
+                                    key={i}
+                                    className="h-36 rounded-3xl bg-white border border-slate-100 animate-pulse p-5"
+                                />
+                            ))}
+                        </div>
+                    ) : shops.length === 0 ? (
+                        <div className="bg-white rounded-3xl p-8 border border-slate-200/80 text-center space-y-3">
+                            <Store className="w-10 h-10 text-slate-300 mx-auto" />
+                            <h3 className="font-bold text-slate-800 text-sm">No shops listed in this radius</h3>
+                            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                                We are rapidly expanding our partner store network in Meerut.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {shops.slice(0, 4).map((shop) => (
+                                <Link
+                                    key={shop.user_id}
+                                    href={`/shop/${shop.user_id}`}
+                                    className="group bg-white rounded-3xl p-5 border border-slate-200/80 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/5 transition-all flex flex-col justify-between"
+                                >
+                                    <div className="space-y-3">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 font-black text-base flex items-center justify-center border border-emerald-100 shrink-0">
+                                                {shop.shop_name?.charAt(0).toUpperCase() || "S"}
+                                            </div>
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                                                <CheckCircle2 className="w-3 h-3" />
+                                                <span>Verified</span>
+                                            </span>
+                                        </div>
+
+                                        <div>
+                                            <h3 className="font-black text-slate-900 text-sm sm:text-base group-hover:text-emerald-700 transition-colors line-clamp-1">
+                                                {shop.shop_name}
+                                            </h3>
+                                            <p className="text-xs text-slate-500 line-clamp-1 font-medium mt-0.5">
+                                                {shop.address || "Local Neighborhood"}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-600">
+                                        <span className="flex items-center gap-1 text-emerald-700">
+                                            <Clock className="w-3.5 h-3.5" />
+                                            <span>15–30 mins</span>
+                                        </span>
+                                        <span className="text-slate-400 group-hover:text-slate-800 transition-colors flex items-center gap-0.5">
+                                            <span>Visit Store</span>
+                                            <ChevronRight className="w-3.5 h-3.5" />
+                                        </span>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                </section>
+
+                {/* ─── Instant Essentials Catalog ─── */}
+                <section className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Package className="w-5 h-5 text-emerald-600" />
+                                <span>
+                                    {selectedCategory === "All"
+                                        ? "Recommended Everyday Items"
+                                        : `${selectedCategory} Products`}
+                                </span>
+                            </h2>
+                            <p className="text-xs text-slate-500 font-medium">
+                                Delivered doorstep in 15–30 minutes at guaranteed offline MRP
+                            </p>
+                        </div>
+
+                        <span className="text-xs font-bold text-slate-400">
+                            {products.length} products
+                        </span>
+                    </div>
+
+                    {loadingProducts ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                                <div
+                                    key={i}
+                                    className="aspect-square rounded-2xl bg-white border border-slate-100 animate-pulse"
+                                />
+                            ))}
+                        </div>
+                    ) : products.length === 0 ? (
+                        <div className="bg-white rounded-3xl p-12 border border-slate-200/80 text-center space-y-3">
+                            <Search className="w-12 h-12 text-slate-300 mx-auto" />
+                            <h3 className="font-bold text-slate-800 text-base">No items found</h3>
+                            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                                No products match your search or filter. Try choosing another category or clearing your search.
+                            </p>
+                            <button
+                                onClick={() => {
+                                    setSelectedCategory("All");
+                                    setSearchQuery("");
+                                }}
+                                className="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition-colors"
+                            >
+                                Reset Filters
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                            {products.map((product) => (
+                                <ProductCard key={product.id} product={product} />
+                            ))}
+                        </div>
+                    )}
+                </section>
+            </main>
+
+            {/* Bottom Navigation & Modern Footer */}
+            <Footer />
+            <CustomerBottomNav />
         </div>
     );
 }
