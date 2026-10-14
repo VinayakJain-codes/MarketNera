@@ -79,6 +79,7 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
 
     const [isMapReady, setIsMapReady] = useState<boolean>(false);
     const [loadError, setLoadError] = useState<string | null>(null);
+    const [authFailed, setAuthFailed] = useState<boolean>(false);
 
     // Detected location state
     const [detectedArea, setDetectedArea] = useState<string>("Locating...");
@@ -214,6 +215,15 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
     // Load Google Maps script and locate user
     useEffect(() => {
         let isMounted = true;
+
+        if (typeof window !== "undefined") {
+            window.gm_authFailure = () => {
+                if (isMounted) {
+                    console.error("Google Maps authentication failure detected.");
+                    setAuthFailed(true);
+                }
+            };
+        }
 
         if (!apiKey) {
             setLoadError("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not configured in .env.local");
@@ -605,8 +615,34 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
                     </div>
                 )}
 
+                {authFailed && (
+                    <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xs text-white flex flex-col items-center justify-center p-6 text-center z-30 space-y-3">
+                        <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                            <AlertCircle className="w-6 h-6" />
+                        </div>
+                        <div className="max-w-md space-y-1.5">
+                            <p className="text-sm font-bold text-white">Google Cloud Configuration Needed</p>
+                            <p className="text-xs text-slate-300 leading-relaxed">
+                                Google rejected the map request. In your Google Cloud Console:
+                            </p>
+                            <ul className="text-[11px] text-slate-300 text-left list-disc pl-5 space-y-1 bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                                <li>Enable <strong>Maps JavaScript API</strong></li>
+                                <li>In Key Restrictions, add <code className="text-emerald-400">http://localhost:*</code> to Website Restrictions (or set to None)</li>
+                                <li>Verify a <strong>Billing Account</strong> is linked to the project</li>
+                            </ul>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setStep("details")}
+                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md"
+                        >
+                            Confirm &amp; Complete Address Manually →
+                        </button>
+                    </div>
+                )}
+
                 {/* Floating Map Hint */}
-                {isMapReady && (
+                {isMapReady && !authFailed && (
                     <div className="absolute top-3 right-3 z-10 bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-1.5 pointer-events-none">
                         <MousePointer className="w-3.5 h-3.5 text-slate-500" />
                         <span className="text-[10px] font-bold text-slate-600">Drag pin or click map to reposition</span>
