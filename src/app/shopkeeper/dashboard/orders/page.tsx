@@ -255,26 +255,37 @@ export default function ShopkeeperOrdersPage() {
         });
     }, []);
 
-    const fetchOrders = useCallback(async () => {
+    const fetchOrders = useCallback(async (silent = false) => {
         if (!user) return;
-        setLoading(true);
+        if (!silent) setLoading(true);
         const data = await getShopkeeperOrders(user.id);
         setOrders(data);
-        setLoading(false);
+        if (!silent) setLoading(false);
     }, [user]);
 
-    // Supabase Realtime channel + Window custom event listener
+    // Supabase Realtime channel + Window custom event listener + 3.5s Auto-polling
     useEffect(() => {
         if (!user) return;
         fetchOrders();
 
-        // Listen for layout global alert events
-        const onNewOrder = () => fetchOrders();
-        const onStatusUpdate = () => fetchOrders();
+        // 1. Listen for layout global alert events
+        const onNewOrder = () => fetchOrders(true);
+        const onStatusUpdate = () => fetchOrders(true);
 
         window.addEventListener("new-order-received", onNewOrder);
         window.addEventListener("order-status-updated", onStatusUpdate);
 
+        // 2. Tab focus & visibility change auto-refresh
+        const onFocus = () => fetchOrders(true);
+        window.addEventListener("focus", onFocus);
+        document.addEventListener("visibilitychange", onFocus);
+
+        // 3. Continuous background auto-polling every 3.5 seconds
+        const pollInterval = setInterval(() => {
+            fetchOrders(true);
+        }, 3500);
+
+        // 4. Supabase Realtime channel
         const channel = supabase
             .channel(`shopkeeper-orders-page-${user.id}`)
             .on(
@@ -286,15 +297,17 @@ export default function ShopkeeperOrdersPage() {
                     filter: `shopkeeper_id=eq.${user.id}`,
                 },
                 async () => {
-                    const data = await getShopkeeperOrders(user.id);
-                    setOrders(data);
+                    fetchOrders(true);
                 }
             )
             .subscribe();
 
         return () => {
+            clearInterval(pollInterval);
             window.removeEventListener("new-order-received", onNewOrder);
             window.removeEventListener("order-status-updated", onStatusUpdate);
+            window.removeEventListener("focus", onFocus);
+            document.removeEventListener("visibilitychange", onFocus);
             supabase.removeChannel(channel);
         };
     }, [user, fetchOrders]);
@@ -354,7 +367,7 @@ export default function ShopkeeperOrdersPage() {
                         {/* Manual Refresh */}
                         <button
                             type="button"
-                            onClick={fetchOrders}
+                            onClick={() => fetchOrders()}
                             className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-bold transition-colors shadow-xs cursor-pointer"
                         >
                             <RefreshCw className="w-3.5 h-3.5" />

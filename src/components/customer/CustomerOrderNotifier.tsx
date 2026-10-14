@@ -229,9 +229,19 @@ export default function CustomerOrderNotifier() {
     }
   }, [isShopkeeperOrAdmin]);
 
-  // Listen for order placed event
+  // Listen for order placed event & 3.5s background auto-sync
   useEffect(() => {
     refreshActiveOrder();
+
+    // 1. Tab focus & visibility change sync
+    const onFocus = () => refreshActiveOrder();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+
+    // 2. Background polling every 3.5s
+    const pollInterval = setInterval(() => {
+      refreshActiveOrder();
+    }, 3500);
 
     const handleOrderPlaced = (e: any) => {
       const order = e.detail;
@@ -248,6 +258,9 @@ export default function CustomerOrderNotifier() {
 
     window.addEventListener("customer_order_placed", handleOrderPlaced);
     return () => {
+      clearInterval(pollInterval);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
       window.removeEventListener("customer_order_placed", handleOrderPlaced);
     };
   }, [refreshActiveOrder]);

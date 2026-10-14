@@ -349,18 +349,30 @@ export default function CustomerOrdersPage() {
         });
     }, [router]);
 
-    const fetchOrders = useCallback(async () => {
+    const fetchOrders = useCallback(async (silent = false) => {
         if (!user) return;
-        setLoading(true);
+        if (!silent) setLoading(true);
         const data = await getCustomerOrders(user.id);
         setOrders(data);
-        setLoading(false);
+        if (!silent) setLoading(false);
     }, [user]);
 
+    // Supabase Realtime channel + 3.5s Auto-polling + Window Focus sync
     useEffect(() => {
         if (!user) return;
         fetchOrders();
 
+        // 1. Tab focus & visibility change auto-refresh
+        const onFocus = () => fetchOrders(true);
+        window.addEventListener("focus", onFocus);
+        document.addEventListener("visibilitychange", onFocus);
+
+        // 2. Continuous background auto-polling every 3.5 seconds
+        const pollInterval = setInterval(() => {
+            fetchOrders(true);
+        }, 3500);
+
+        // 3. Supabase Realtime channel for instant push updates
         const channel = supabase
             .channel(`customer-orders-${user.id}`)
             .on(
@@ -372,13 +384,15 @@ export default function CustomerOrdersPage() {
                     filter: `customer_id=eq.${user.id}`,
                 },
                 async () => {
-                    const data = await getCustomerOrders(user.id);
-                    setOrders(data);
+                    fetchOrders(true);
                 }
             )
             .subscribe();
 
         return () => {
+            clearInterval(pollInterval);
+            window.removeEventListener("focus", onFocus);
+            document.removeEventListener("visibilitychange", onFocus);
             supabase.removeChannel(channel);
         };
     }, [user, fetchOrders]);
