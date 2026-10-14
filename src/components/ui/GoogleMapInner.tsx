@@ -21,6 +21,7 @@ export interface LocationDetails {
     addressLine: string;
     houseNo: string;
     building?: string;
+    street?: string;
     landmark?: string;
     label?: "Home" | "Work" | "Other";
     city: string;
@@ -36,6 +37,7 @@ export interface GoogleMapInnerProps {
 declare global {
     interface Window {
         google?: any;
+        gm_authFailure?: () => void;
     }
 }
 
@@ -61,7 +63,7 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
 
         const script = document.createElement("script");
         script.id = "google-maps-script";
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`;
         script.async = true;
         script.defer = true;
         script.onload = () => resolve();
@@ -97,6 +99,7 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
     // Address details form fields
     const [houseNo, setHouseNo] = useState("");
     const [building, setBuilding] = useState("");
+    const [street, setStreet] = useState("");
     const [landmark, setLandmark] = useState("");
     const [label, setLabel] = useState<"Home" | "Work" | "Other">("Home");
 
@@ -109,17 +112,72 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
 
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
-    // Reverse geocode via server route (rate-limited + cached)
+    // Reverse geocode: Client-Side Google Geocoder with fallback to Server Route
     const reverseGeocode = useCallback(async (latToFetch: number, lngToFetch: number) => {
         setIsFetching(true);
+
+        // 1. First attempt Client-Side Google Geocoder if Google Maps SDK is loaded in window
+        if (window.google?.maps?.Geocoder) {
+            try {
+                const geocoder = new window.google.maps.Geocoder();
+                const response = await geocoder.geocode({ location: { lat: latToFetch, lng: lngToFetch } });
+                const results = response.results;
+
+                if (results && results.length > 0) {
+                    const getComp = (type: string, short = false) => {
+                        for (const r of results) {
+                            const found = (r.address_components || []).find((c: any) => c.types.includes(type));
+                            if (found) return short ? found.short_name : found.long_name;
+                        }
+                        return "";
+                    };
+
+                    const streetNum = getComp("street_number");
+                    const subprem = getComp("subpremise");
+                    const prem = getComp("premise");
+                    const rt = getComp("route");
+                    const lmk = getComp("point_of_interest") || getComp("establishment") || getComp("landmark");
+                    const subloc3 = getComp("sublocality_level_3");
+                    const subloc2 = getComp("sublocality_level_2");
+                    const subloc1 = getComp("sublocality_level_1");
+                    const subloc = getComp("sublocality");
+                    const neigh = getComp("neighborhood");
+                    const ct = getComp("locality") || getComp("administrative_area_level_2") || "Meerut";
+                    const pin = getComp("postal_code") || "250001";
+
+                    const resolvedHouse = [subprem, streetNum].filter(Boolean).join(", ");
+                    if (resolvedHouse) setHouseNo(resolvedHouse);
+                    if (prem) setBuilding(prem);
+                    if (rt) setStreet(rt);
+                    if (lmk) setLandmark(lmk);
+                    if (ct) setCity(ct);
+                    if (pin) setPincode(pin);
+
+                    const areaParts = [rt, subloc3, subloc2 || subloc1 || subloc || neigh].filter(Boolean);
+                    const cleanArea = [...new Set(areaParts)].join(", ") || results[0].formatted_address.split(",").slice(0, 2).join(",");
+                    setDetectedArea(cleanArea || "Selected Location");
+                    setIsFetching(false);
+                    return;
+                }
+            } catch (clientErr) {
+                // Client-side geocoding failed or blocked; fall through to server route
+                console.warn("Client geocoder fallback to server:", clientErr);
+            }
+        }
+
+        // 2. Server-side route (Rate limited + Cache + OSM fallback)
         try {
             const res = await fetch(`/api/geocode/reverse?lat=${latToFetch}&lng=${lngToFetch}`);
             const data = await res.json();
 
             if (res.ok && data.success) {
+                if (data.houseNo) setHouseNo(data.houseNo);
+                if (data.building) setBuilding(data.building);
+                if (data.street) setStreet(data.street);
+                if (data.landmark) setLandmark(data.landmark);
+                if (data.city) setCity(data.city);
+                if (data.pincode) setPincode(data.pincode);
                 setDetectedArea(data.area || data.displayName || "Selected Location");
-                setCity(data.city || "Meerut");
-                setPincode(data.pincode || "250001");
             } else if (res.status === 429) {
                 toast.error("Rate limit reached. Please pause a moment before dragging again.");
             } else {
@@ -392,14 +450,15 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
 
                 <div className="space-y-3 mt-1">
                     <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                            House / Flat / Block No. <span className="text-red-500">*</span>
+                        <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                            <span>House / Flat / Block No. <span className="text-red-500">*</span></span>
+                            {houseNo && <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded">Pinpoint Matched</span>}
                         </label>
                         <input
                             type="text"
                             value={houseNo}
                             onChange={(e) => setHouseNo(e.target.value)}
-                            placeholder="e.g. Flat 302, House No. 14-B"
+                            placeholder="e.g. Flat 302, House No. 14-B, Plot 5"
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
                         />
                     </div>
@@ -413,6 +472,19 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
                             value={building}
                             onChange={(e) => setBuilding(e.target.value)}
                             placeholder="e.g. Surya Enclave, Galaxy Heights"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Street / Road / Lane <span className="text-slate-400 font-normal">(Optional)</span>
+                        </label>
+                        <input
+                            type="text"
+                            value={street}
+                            onChange={(e) => setStreet(e.target.value)}
+                            placeholder="e.g. Baghpat Road, Lane 4, Main Market Street"
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
                         />
                     </div>
@@ -495,12 +567,23 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
                             return;
                         }
 
-                        const composedAddress = `${houseNo.trim()}${building.trim() ? `, ${building.trim()}` : ""}, ${detectedArea}, ${city.trim()} - ${pincode.trim()}`;
+                        // Assemble precise pinpoint delivery address
+                        const addressParts = [
+                            houseNo.trim(),
+                            building.trim(),
+                            street.trim(),
+                            landmark.trim() ? `Near ${landmark.trim()}` : "",
+                            detectedArea.trim(),
+                            `${city.trim()} - ${pincode.trim()}`,
+                        ].filter(Boolean);
+
+                        const composedAddress = [...new Set(addressParts)].join(", ");
 
                         onLocationSelected({
                             addressLine: composedAddress,
                             houseNo: houseNo.trim(),
                             building: building.trim(),
+                            street: street.trim(),
                             landmark: landmark.trim(),
                             label,
                             city: city.trim(),
@@ -656,13 +739,25 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
                     <div className="flex items-start gap-2.5 flex-1 min-w-0">
                         <MapPin className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
                         <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Pin Location</p>
+                            <div className="flex items-center gap-1.5">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Pinpoint Location</p>
+                                {houseNo && (
+                                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded">
+                                        House/Street Detected
+                                    </span>
+                                )}
+                            </div>
                             {isFetching ? (
                                 <div className="h-4 bg-slate-200 rounded animate-pulse w-3/4 mt-1" />
                             ) : (
-                                <p className="text-xs font-bold text-slate-800 leading-snug line-clamp-2 mt-0.5">
-                                    {detectedArea}
-                                </p>
+                                <div>
+                                    <p className="text-xs font-black text-slate-900 leading-snug line-clamp-1 mt-0.5">
+                                        {[houseNo, building, street].filter(Boolean).join(", ") || detectedArea}
+                                    </p>
+                                    <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mt-0.5">
+                                        {[detectedArea !== street ? detectedArea : "", city, pincode].filter(Boolean).join(" · ")}
+                                    </p>
+                                </div>
                             )}
                         </div>
                     </div>

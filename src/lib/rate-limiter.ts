@@ -60,6 +60,10 @@ class MemoryCache<T> {
 
 // Global caches for Geocoding and Place searches
 export const reverseGeocodeCache = new MemoryCache<{
+    houseNo?: string;
+    building?: string;
+    street?: string;
+    landmark?: string;
     area: string;
     displayName: string;
     city: string;
@@ -67,6 +71,7 @@ export const reverseGeocodeCache = new MemoryCache<{
     state: string;
     lat: number;
     lng: number;
+    address?: any;
 }>(1000, 1000 * 60 * 60 * 24); // 24h cache
 
 export const searchGeocodeCache = new MemoryCache<any[]>(500, 1000 * 60 * 60 * 6); // 6h cache

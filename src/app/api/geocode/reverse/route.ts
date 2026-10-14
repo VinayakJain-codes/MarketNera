@@ -95,22 +95,43 @@ export async function GET(request: Request) {
                 const data = await res.json();
 
                 if (data.status === "OK" && data.results && data.results.length > 0) {
+                    // Check first few results for the most specific rooftop/premise details
                     const topResult = data.results[0];
                     const components = topResult.address_components || [];
 
                     const getComp = (type: string, useShort = false) => {
-                        const item = components.find((c: any) => c.types.includes(type));
-                        return item ? (useShort ? item.short_name : item.long_name) : "";
+                        // Search across all results for specific house/premise details if missing in top
+                        for (const resItem of data.results) {
+                            const found = (resItem.address_components || []).find((c: any) => c.types.includes(type));
+                            if (found) return useShort ? found.short_name : found.long_name;
+                        }
+                        return "";
                     };
 
+                    const streetNumber = getComp("street_number");
+                    const subpremise = getComp("subpremise");
+                    const premise = getComp("premise");
                     const route = getComp("route");
+                    const landmark = getComp("point_of_interest") || getComp("establishment") || getComp("landmark");
+                    const sublocality3 = getComp("sublocality_level_3");
                     const sublocality2 = getComp("sublocality_level_2");
                     const sublocality1 = getComp("sublocality_level_1");
                     const sublocality = getComp("sublocality");
                     const neighborhood = getComp("neighborhood");
 
-                    const areaParts = [route, sublocality2 || sublocality1 || sublocality || neighborhood].filter(Boolean);
-                    let area = areaParts.join(", ");
+                    // House / Flat / Block No
+                    const houseNo = [subpremise, streetNumber].filter(Boolean).join(", ");
+                    const building = premise;
+                    const street = route;
+
+                    // Micro-area / Colony / Mohalla
+                    const areaParts = [
+                        street,
+                        sublocality3,
+                        sublocality2 || sublocality1 || sublocality || neighborhood
+                    ].filter(Boolean);
+
+                    let area = [...new Set(areaParts)].join(", ");
                     if (!area) {
                         area = topResult.formatted_address.split(",").slice(0, 2).join(",") || "Selected Location";
                     }
@@ -126,6 +147,10 @@ export async function GET(request: Request) {
                     const displayName = topResult.formatted_address || area;
 
                     const payload = {
+                        houseNo: houseNo || "",
+                        building: building || "",
+                        street: street || "",
+                        landmark: landmark || "",
                         area,
                         displayName,
                         city,
@@ -135,6 +160,10 @@ export async function GET(request: Request) {
                         lng: lngNum,
                         address: {
                             addressLine: displayName || area,
+                            houseNo: houseNo || "",
+                            building: building || "",
+                            street: street || "",
+                            landmark: landmark || "",
                             city,
                             pincode,
                             state,
@@ -175,12 +204,16 @@ export async function GET(request: Request) {
                 const osmData = await osmRes.json();
                 const addr = osmData.address || {};
 
+                const houseNo = addr.house_number || addr.housenumber || "";
+                const building = addr.building || addr.residential || addr.apartment || "";
+                const street = addr.road || addr.street || addr.footway || "";
+                const landmark = addr.amenity || addr.shop || addr.leisure || "";
+
                 const parts = [
-                    addr.road,
+                    street,
                     addr.neighbourhood,
                     addr.suburb,
                     addr.city_district,
-                    addr.residential,
                 ].filter(Boolean);
 
                 let area = parts.join(", ");
@@ -200,6 +233,10 @@ export async function GET(request: Request) {
                 const state = addr.state || "Uttar Pradesh";
 
                 const payload = {
+                    houseNo: houseNo || "",
+                    building: building || "",
+                    street: street || "",
+                    landmark: landmark || "",
                     area,
                     displayName: osmData.display_name || area,
                     city,
@@ -209,6 +246,10 @@ export async function GET(request: Request) {
                     lng: lngNum,
                     address: {
                         addressLine: osmData.display_name || area,
+                        houseNo: houseNo || "",
+                        building: building || "",
+                        street: street || "",
+                        landmark: landmark || "",
                         city,
                         pincode,
                         state,
