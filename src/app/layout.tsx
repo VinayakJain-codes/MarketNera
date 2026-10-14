@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { Work_Sans } from "next/font/google";
 import PWARegister from "@/components/PWARegister";
 import CustomerOrderNotifier from "@/components/customer/CustomerOrderNotifier";
+import PWAInstallModal from "@/components/pwa/PWAInstallModal";
 
 const workSans = Work_Sans({
   subsets: ["latin"],
@@ -28,6 +29,7 @@ export default function RootLayout({
       </head>
       <body className={`antialiased font-display ${workSans.className}`}>
         <PWARegister />
+        <PWAInstallModal />
         <CustomerOrderNotifier />
         <Toaster position="top-center" />
         {children}
