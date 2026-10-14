@@ -372,7 +372,12 @@ export default function CustomerOrdersPage() {
             fetchOrders(true);
         }, 3500);
 
-        // 3. Supabase Realtime channel for instant push updates
+        // 3. Custom cross-component event sync
+        const onCustomEvent = () => fetchOrders(true);
+        window.addEventListener("customer_order_placed", onCustomEvent);
+        window.addEventListener("customer_order_delivered", onCustomEvent);
+
+        // 4. Supabase Realtime channel for instant push updates
         const channel = supabase
             .channel(`customer-orders-${user.id}`)
             .on(
@@ -393,6 +398,8 @@ export default function CustomerOrdersPage() {
             clearInterval(pollInterval);
             window.removeEventListener("focus", onFocus);
             document.removeEventListener("visibilitychange", onFocus);
+            window.removeEventListener("customer_order_placed", onCustomEvent);
+            window.removeEventListener("customer_order_delivered", onCustomEvent);
             supabase.removeChannel(channel);
         };
     }, [user, fetchOrders]);

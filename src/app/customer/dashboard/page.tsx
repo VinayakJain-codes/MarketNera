@@ -33,7 +33,32 @@ import {
     ChevronRight,
     SlidersHorizontal,
     Compass,
+    MessageCircle,
 } from "lucide-react";
+
+/* ── Active status display metadata ── */
+const ACTIVE_STATUS_INFO: Record<string, { title: string; desc: string; badge: string }> = {
+    pending: {
+        title: "Order Placed — Waiting for Store Acceptance",
+        desc: "Your order has been sent to the store. You'll receive live alerts as soon as it's accepted.",
+        badge: "Waiting Acceptance",
+    },
+    accepted: {
+        title: "Order Accepted by Store",
+        desc: "The store has accepted your order and will start packing shortly.",
+        badge: "Order Accepted",
+    },
+    preparing: {
+        title: "Store is Preparing Your Order",
+        desc: "Your items are being freshly packed and prepared for delivery.",
+        badge: "Preparing Items",
+    },
+    ready: {
+        title: "Ready / Out for Delivery",
+        desc: "Your order is packed and heading to your delivery address!",
+        badge: "Out for Delivery",
+    },
+};
 
 /* ── Category metadata with Lucide icons ── */
 const CATEGORIES = [
@@ -81,16 +106,6 @@ export default function CustomerDashboard() {
 
             if (session?.user) {
                 // Fetch stats for customer
-                getCustomerOrders(session.user.id).then((orders) => {
-                    if (!isMounted) return;
-                    setOrderCount(orders.length);
-                    // Filter active non-delivered orders
-                    const ongoing = orders.filter(
-                        (o) => o.status !== "delivered" && o.status !== "cancelled"
-                    );
-                    setActiveOrders(ongoing);
-                });
-
                 getWishlistCount(session.user.id).then((c) => isMounted && setWishlistCount(c));
                 getAddressCount(session.user.id).then((c) => isMounted && setAddressCount(c));
             }
@@ -116,6 +131,65 @@ export default function CustomerDashboard() {
             subscription.unsubscribe();
         };
     }, []);
+
+    // Fetch and sync active customer orders in real-time
+    const refreshCustomerOrders = useCallback(async () => {
+        if (!user) return;
+        try {
+            const orders = await getCustomerOrders(user.id);
+            setOrderCount(orders.length);
+            // Only keep truly active in-progress orders
+            const ongoing = orders.filter((o) =>
+                ["pending", "accepted", "preparing", "ready"].includes(o.status)
+            );
+            setActiveOrders(ongoing);
+        } catch (e) {
+            console.error("Error refreshing customer orders on dashboard:", e);
+        }
+    }, [user]);
+
+    // Live sync for customer active orders: 3.5s auto-polling, focus listener, custom events, Supabase realtime
+    useEffect(() => {
+        if (!user) return;
+        refreshCustomerOrders();
+
+        const onFocus = () => refreshCustomerOrders();
+        window.addEventListener("focus", onFocus);
+        document.addEventListener("visibilitychange", onFocus);
+
+        const pollInterval = setInterval(() => {
+            refreshCustomerOrders();
+        }, 3500);
+
+        const onOrderEvent = () => refreshCustomerOrders();
+        window.addEventListener("customer_order_placed", onOrderEvent);
+        window.addEventListener("customer_order_delivered", onOrderEvent);
+
+        const channel = supabase
+            .channel(`dashboard-orders-${user.id}`)
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "orders",
+                    filter: `customer_id=eq.${user.id}`,
+                },
+                () => {
+                    refreshCustomerOrders();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            clearInterval(pollInterval);
+            window.removeEventListener("focus", onFocus);
+            document.removeEventListener("visibilitychange", onFocus);
+            window.removeEventListener("customer_order_placed", onOrderEvent);
+            window.removeEventListener("customer_order_delivered", onOrderEvent);
+            supabase.removeChannel(channel);
+        };
+    }, [user, refreshCustomerOrders]);
 
     // Fetch Shops
     useEffect(() => {
@@ -276,7 +350,8 @@ export default function CustomerDashboard() {
                 </section>
 
                 {/* ─── Active Order Live Status Widget ─── */}
-                {latestActiveOrder && (
+                {latestActiveOrder &&
+                    ["pending", "accepted", "preparing", "ready"].includes(latestActiveOrder.status) && (
                     <section className="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-3xl p-6 sm:p-7 text-white shadow-xl shadow-emerald-950/10 relative overflow-hidden">
                         <div className="absolute right-0 top-0 bottom-0 w-96 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0,transparent_70%)] pointer-events-none" />
 
@@ -288,30 +363,43 @@ export default function CustomerDashboard() {
                                         <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
                                     </span>
                                     <span className="text-xs font-black uppercase tracking-wider text-emerald-200">
-                                        Live Active Order
+                                        {ACTIVE_STATUS_INFO[latestActiveOrder.status]?.badge || "Live Active Order"}
                                     </span>
                                     <span className="text-xs text-emerald-300 font-mono">
-                                        #{latestActiveOrder.id.slice(0, 8)}
+                                        #{latestActiveOrder.id.slice(0, 8).toUpperCase()}
                                     </span>
                                 </div>
 
                                 <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-                                    Preparing your items for delivery
+                                    {ACTIVE_STATUS_INFO[latestActiveOrder.status]?.title || "Store is Preparing Your Order"}
                                 </h2>
 
                                 <p className="text-xs sm:text-sm text-emerald-100/90 max-w-xl">
-                                    Your neighborhood store has accepted the order and delivery is scheduled within 15–30 minutes.
+                                    {ACTIVE_STATUS_INFO[latestActiveOrder.status]?.desc || "Your neighborhood store has accepted the order and delivery is scheduled within 15–30 minutes."}
                                 </p>
                             </div>
 
-                            <Link
-                                href={ROUTES.CUSTOMER_ORDERS}
-                                className="px-5 py-3 rounded-2xl bg-white text-emerald-900 font-black text-xs sm:text-sm shadow-md hover:bg-emerald-50 active:scale-95 transition-all inline-flex items-center justify-center gap-2 shrink-0 self-start sm:self-center"
-                            >
-                                <Truck className="w-4 h-4 text-emerald-700" />
-                                <span>Track Live Delivery</span>
-                                <ArrowRight className="w-4 h-4" />
-                            </Link>
+                            <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start sm:self-center">
+                                <Link
+                                    href={ROUTES.CUSTOMER_ORDERS}
+                                    className="px-5 py-3 rounded-2xl bg-white text-emerald-900 font-black text-xs sm:text-sm shadow-md hover:bg-emerald-50 active:scale-95 transition-all inline-flex items-center justify-center gap-2"
+                                >
+                                    <Truck className="w-4 h-4 text-emerald-700" />
+                                    <span>Track Live Delivery</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </Link>
+                                <a
+                                    href={`https://wa.me/918923678493?text=${encodeURIComponent(
+                                        `Hi MarketNera Support, I have a query regarding my order #${latestActiveOrder.id.slice(0, 8).toUpperCase()} (₹${Number(latestActiveOrder.total_amount).toFixed(2)}).`
+                                    )}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-4 py-3 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-black text-xs sm:text-sm shadow-md shadow-[#25D366]/20 active:scale-95 transition-all inline-flex items-center justify-center gap-1.5"
+                                >
+                                    <MessageCircle className="w-4 h-4 fill-slate-950 text-slate-950" />
+                                    <span>Order Query (WA)</span>
+                                </a>
+                            </div>
                         </div>
                     </section>
                 )}

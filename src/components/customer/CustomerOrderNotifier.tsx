@@ -90,6 +90,11 @@ export default function CustomerOrderNotifier() {
     pathname.startsWith("/shopkeeper") || pathname.startsWith("/admin");
 
   const [activeOrder, setActiveOrder] = useState<ActiveOrder | null>(null);
+  const activeOrderRef = useRef<ActiveOrder | null>(null);
+  useEffect(() => {
+    activeOrderRef.current = activeOrder;
+  }, [activeOrder]);
+
   const [inAppToast, setInAppToast] = useState<{
     title: string;
     body: string;
@@ -176,7 +181,6 @@ export default function CustomerOrderNotifier() {
   const refreshActiveOrder = useCallback(async () => {
     if (isShopkeeperOrAdmin) return;
 
-    // Check localStorage first
     let storedOrderId: string | null = null;
     try {
       storedOrderId = localStorage.getItem("marketnera_active_order_id");
@@ -184,25 +188,85 @@ export default function CustomerOrderNotifier() {
       // ignore
     }
 
-    // If user is authenticated, check their latest active order
     const {
       data: { session },
     } = await supabase.auth.getSession();
 
     if (session?.user) {
-      const { data } = await supabase
+      // Query customer's single latest order overall
+      const { data: latestOrder } = await supabase
         .from("orders")
         .select("id, status, total_amount, delivery_address, shopkeeper_id, created_at")
         .eq("customer_id", session.user.id)
-        .in("status", ["pending", "accepted", "preparing", "ready"])
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
 
-      if (data) {
-        setActiveOrder(data as ActiveOrder);
+      if (latestOrder) {
+        const isOngoing = ["pending", "accepted", "preparing", "ready"].includes(latestOrder.status);
+
+        if (isOngoing) {
+          const prevOrder = activeOrderRef.current;
+          if (
+            prevOrder &&
+            prevOrder.id === latestOrder.id &&
+            prevOrder.status !== latestOrder.status
+          ) {
+            playCustomerOrderChime();
+            const statusInfo = STATUS_DETAILS[latestOrder.status] || {
+              label: latestOrder.status,
+              message: `Your order status changed to ${latestOrder.status}.`,
+            };
+            setInAppToast({
+              title: statusInfo.label,
+              body: statusInfo.message,
+              status: latestOrder.status,
+            });
+            setTimeout(() => setInAppToast(null), 8000);
+          }
+
+          setActiveOrder(latestOrder as ActiveOrder);
+          try {
+            localStorage.setItem("marketnera_active_order_id", latestOrder.id);
+          } catch {
+            // ignore
+          }
+          return;
+        } else {
+          // Latest order is delivered or cancelled!
+          const prevOrder = activeOrderRef.current;
+          const wasActive =
+            prevOrder &&
+            prevOrder.id === latestOrder.id &&
+            ["pending", "accepted", "preparing", "ready"].includes(prevOrder.status);
+
+          if (wasActive) {
+            playCustomerOrderChime();
+            setInAppToast({
+              title: latestOrder.status === "delivered" ? "Order Delivered! 🎉" : "Order Cancelled",
+              body:
+                latestOrder.status === "delivered"
+                  ? "Your order has been safely delivered to your doorstep. Enjoy!"
+                  : "This order was cancelled by the store.",
+              status: latestOrder.status,
+            });
+            setTimeout(() => setInAppToast(null), 8000);
+          }
+
+          // Fully clear active order state and stored ID
+          setActiveOrder(null);
+          try {
+            localStorage.removeItem("marketnera_active_order_id");
+          } catch {
+            // ignore
+          }
+          return;
+        }
+      } else {
+        // No orders at all
+        setActiveOrder(null);
         try {
-          localStorage.setItem("marketnera_active_order_id", data.id);
+          localStorage.removeItem("marketnera_active_order_id");
         } catch {
           // ignore
         }
@@ -210,7 +274,7 @@ export default function CustomerOrderNotifier() {
       }
     }
 
-    // If guest or no user active order, check stored ID
+    // Guest customer without active session: check stored ID
     if (storedOrderId) {
       const { data } = await supabase
         .from("orders")
@@ -221,15 +285,48 @@ export default function CustomerOrderNotifier() {
       if (data) {
         if (["pending", "accepted", "preparing", "ready"].includes(data.status)) {
           setActiveOrder(data as ActiveOrder);
-        } else if (data.status === "delivered" || data.status === "cancelled") {
-          // Keep showing for a short while, then remove
-          setActiveOrder(data as ActiveOrder);
+        } else {
+          // Delivered or cancelled
+          const prevOrder = activeOrderRef.current;
+          const wasActive =
+            prevOrder &&
+            prevOrder.id === data.id &&
+            ["pending", "accepted", "preparing", "ready"].includes(prevOrder.status);
+
+          if (wasActive) {
+            playCustomerOrderChime();
+            setInAppToast({
+              title: data.status === "delivered" ? "Order Delivered! 🎉" : "Order Cancelled",
+              body:
+                data.status === "delivered"
+                  ? "Your order has been delivered! Enjoy your items."
+                  : "This order was cancelled.",
+              status: data.status,
+            });
+            setTimeout(() => setInAppToast(null), 8000);
+          }
+
+          setActiveOrder(null);
+          try {
+            localStorage.removeItem("marketnera_active_order_id");
+          } catch {
+            // ignore
+          }
+        }
+      } else {
+        setActiveOrder(null);
+        try {
+          localStorage.removeItem("marketnera_active_order_id");
+        } catch {
+          // ignore
         }
       }
+    } else {
+      setActiveOrder(null);
     }
   }, [isShopkeeperOrAdmin]);
 
-  // Listen for order placed event & 3.5s background auto-sync
+  // Listen for order placed/delivered events & 3.5s background auto-sync
   useEffect(() => {
     refreshActiveOrder();
 
@@ -256,16 +353,52 @@ export default function CustomerOrderNotifier() {
       refreshActiveOrder();
     };
 
+    const handleOrderDelivered = () => {
+      refreshActiveOrder();
+    };
+
     window.addEventListener("customer_order_placed", handleOrderPlaced);
+    window.addEventListener("customer_order_delivered", handleOrderDelivered);
     return () => {
       clearInterval(pollInterval);
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onFocus);
       window.removeEventListener("customer_order_placed", handleOrderPlaced);
+      window.removeEventListener("customer_order_delivered", handleOrderDelivered);
     };
   }, [refreshActiveOrder]);
 
-  // 3. Supabase Realtime subscription for customer's active order
+  // 3. Customer User-Level Realtime channel (listens to all orders belonging to this user)
+  useEffect(() => {
+    if (isShopkeeperOrAdmin) return;
+
+    let userChannel: any = null;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.user) return;
+
+      userChannel = supabase
+        .channel(`customer-user-orders-${session.user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "orders",
+            filter: `customer_id=eq.${session.user.id}`,
+          },
+          () => {
+            refreshActiveOrder();
+          }
+        )
+        .subscribe();
+    });
+
+    return () => {
+      if (userChannel) supabase.removeChannel(userChannel);
+    };
+  }, [isShopkeeperOrAdmin, refreshActiveOrder]);
+
+  // 4. Supabase Realtime subscription for customer's specific active order
   useEffect(() => {
     if (!activeOrder?.id || isShopkeeperOrAdmin) return;
 
@@ -283,29 +416,88 @@ export default function CustomerOrderNotifier() {
           const updated = payload.new as ActiveOrder;
           if (!updated) return;
 
-          const oldStatus = activeOrder.status;
+          const oldStatus = activeOrderRef.current?.status;
           const newStatus = updated.status;
 
+          // If delivered or cancelled: notify, clear local state, and dismiss bar immediately!
+          if (newStatus === "delivered" || newStatus === "cancelled") {
+            playCustomerOrderChime();
+
+            setInAppToast({
+              title: newStatus === "delivered" ? "Order Delivered! 🎉" : "Order Cancelled",
+              body:
+                newStatus === "delivered"
+                  ? "Your order has been safely delivered to your doorstep. Enjoy!"
+                  : "This order was cancelled by the store.",
+              status: newStatus,
+            });
+
+            // Native push notification
+            if (
+              typeof window !== "undefined" &&
+              "Notification" in window &&
+              Notification.permission === "granted"
+            ) {
+              try {
+                const notif = new Notification(
+                  `Order #${updated.id.slice(0, 8).toUpperCase()}: ${
+                    newStatus === "delivered" ? "Delivered! 🎉" : "Cancelled"
+                  }`,
+                  {
+                    body:
+                      newStatus === "delivered"
+                        ? "Your order has arrived! Enjoy your items."
+                        : "This order was cancelled.",
+                    icon: "/favicon.ico",
+                    tag: `cust-order-${updated.id}`,
+                  }
+                );
+                notif.onclick = () => {
+                  window.focus();
+                  router.push(ROUTES.CUSTOMER_ORDERS);
+                };
+              } catch {
+                // ignore
+              }
+            }
+
+            try {
+              localStorage.removeItem("marketnera_active_order_id");
+            } catch {
+              // ignore
+            }
+
+            // Immediately clear active order so bottom bar disappears
+            setActiveOrder(null);
+
+            // Notify rest of the app (dashboard, orders page)
+            window.dispatchEvent(
+              new CustomEvent("customer_order_delivered", { detail: updated })
+            );
+
+            setTimeout(() => {
+              setInAppToast(null);
+            }, 8000);
+            return;
+          }
+
+          // Active status advanced (pending -> accepted -> preparing -> ready)
           setActiveOrder(updated);
 
-          // If status advanced, notify customer!
           if (newStatus !== oldStatus) {
             const statusInfo = STATUS_DETAILS[newStatus] || {
               label: newStatus,
               message: `Your order status changed to ${newStatus}.`,
             };
 
-            // Play pleasant customer audio chime
             playCustomerOrderChime();
 
-            // Set in-app toast
             setInAppToast({
               title: statusInfo.label,
               body: statusInfo.message,
               status: newStatus,
             });
 
-            // Native push notification
             if (
               typeof window !== "undefined" &&
               "Notification" in window &&
@@ -329,7 +521,6 @@ export default function CustomerOrderNotifier() {
               }
             }
 
-            // Auto-dismiss in-app toast after 8 seconds
             setTimeout(() => {
               setInAppToast(null);
             }, 8000);
@@ -341,7 +532,7 @@ export default function CustomerOrderNotifier() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [activeOrder?.id, activeOrder?.status, isShopkeeperOrAdmin, router]);
+  }, [activeOrder?.id, isShopkeeperOrAdmin, router]);
 
   if (isShopkeeperOrAdmin) return null;
 
@@ -478,7 +669,8 @@ export default function CustomerOrderNotifier() {
       {/* ── 3. AUTOMATIC ACTIVE ORDER BOTTOM BAR ── */}
       {/* "when coustomer places order automatically a bar should come to see order and a bar order related query redirecting to a whatsapp number 8923678493" */}
       <AnimatePresence>
-        {activeOrder && activeOrder.status !== "delivered" && (
+        {activeOrder &&
+          ["pending", "accepted", "preparing", "ready"].includes(activeOrder.status) && (
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
