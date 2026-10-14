@@ -21,9 +21,10 @@ import { updateOrderStatus, Order } from "@/lib/services/orders";
 import {
   initAudioUnlock,
   playLoudBellSound,
-  startLoudBellRepeating,
+  startLoudBellNonStop,
   stopLoudBell,
   isBellRinging,
+  isAudioEngineUnlocked,
 } from "@/lib/audio-bell";
 
 interface IncomingOrderData {
@@ -42,6 +43,7 @@ export default function IncomingOrderAlert() {
   const [activeAlert, setActiveAlert] = useState<IncomingOrderData | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [bellTested, setBellTested] = useState(false);
   const audioUnlockedRef = useRef(false);
 
   // 1. Initial auth check & audio unlock listener
@@ -107,8 +109,8 @@ export default function IncomingOrderAlert() {
       setActiveAlert(orderData);
       setIsMuted(false);
 
-      // Start loud bell chime loop
-      startLoudBellRepeating(3800);
+      // Start loud bell chime loop non-stop until accepted or declined
+      startLoudBellNonStop();
 
       // Trigger native browser notification
       triggerPushNotification(orderData);
@@ -235,6 +237,28 @@ export default function IncomingOrderAlert() {
 
   return (
     <>
+      {/* Sound test button for shopkeeper to confirm audio and unlock browser autoplay */}
+      {!bellTested && !activeAlert && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed top-3 right-4 md:right-48 z-40"
+        >
+          <button
+            type="button"
+            onClick={() => {
+              playLoudBellSound();
+              setBellTested(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-md shadow-emerald-700/20 active:scale-95 transition-all cursor-pointer border border-emerald-400"
+            title="Click to test loud order bell sound"
+          >
+            <BellRing className="w-3.5 h-3.5 animate-bounce" />
+            <span>Test Order Bell 🔊</span>
+          </button>
+        </motion.div>
+      )}
+
       <AnimatePresence>
         {activeAlert && (
           <motion.div

@@ -246,6 +246,7 @@ export default function ShopkeeperOrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<OrderStatus | "all">("pending");
+    const [bellPlaying, setBellPlaying] = useState(false);
 
     // Auth session
     useEffect(() => {
@@ -334,12 +335,20 @@ export default function ShopkeeperOrdersPage() {
                         {/* Loud Bell Sound Test Button */}
                         <button
                             type="button"
-                            onClick={() => playLoudBellSound()}
+                            onClick={() => {
+                                setBellPlaying(true);
+                                playLoudBellSound();
+                                setTimeout(() => setBellPlaying(false), 2200);
+                            }}
                             title="Test loud service bell sound"
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-emerald-50 hover:border-emerald-300 text-slate-700 hover:text-emerald-700 text-xs font-bold transition-all shadow-xs cursor-pointer"
+                            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition-all shadow-xs cursor-pointer ${
+                                bellPlaying
+                                    ? "bg-emerald-600 text-white border-emerald-600 animate-pulse shadow-md shadow-emerald-600/30"
+                                    : "bg-white hover:bg-emerald-50 hover:border-emerald-300 text-slate-700 hover:text-emerald-700 border-slate-200"
+                            }`}
                         >
-                            <Bell className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>Test Bell</span>
+                            <Bell className={`w-3.5 h-3.5 ${bellPlaying ? "animate-bounce text-white" : "text-emerald-600"}`} />
+                            <span>{bellPlaying ? "Ringing Bell 🔔..." : "Test Bell 🔊"}</span>
                         </button>
 
                         {/* Manual Refresh */}
