@@ -34,6 +34,7 @@ import {
     Truck,
     Package,
     ShieldCheck,
+    MessageCircle,
 } from "lucide-react";
 
 // ── Skeleton Loader ──
@@ -261,6 +262,19 @@ function OrderCard({
                             </div>
                         </div>
                     )}
+
+                    {/* Order Query via WhatsApp */}
+                    <a
+                        href={`https://wa.me/918923678493?text=${encodeURIComponent(
+                            `Hi MarketNera Support, I have an order related query regarding order #${order.id.slice(0, 8).toUpperCase()} (₹${order.total_amount}).`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2.5 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 text-emerald-900 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <MessageCircle className="w-4 h-4 text-[#25D366] fill-[#25D366]" />
+                        <span>Order Query on WhatsApp (8923678493)</span>
+                    </a>
 
                     {/* Cancel action (only for pending) */}
                     {order.status === "pending" && (

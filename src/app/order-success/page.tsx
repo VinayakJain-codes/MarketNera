@@ -6,7 +6,7 @@ import CustomerNavbar from "@/components/layout/CustomerNavbar";
 import Footer from "@/components/layout/Footer";
 import CustomerBottomNav from "@/components/layout/CustomerBottomNav";
 import Link from "next/link";
-import { CheckCircle2, Clock, MapPin, Store, ShoppingBag, ArrowRight, ShieldCheck, UserPlus } from "lucide-react";
+import { CheckCircle2, Clock, MapPin, Store, ShoppingBag, ArrowRight, ShieldCheck, UserPlus, MessageCircle, Eye, BellRing } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 
 function OrderSuccessContent() {
@@ -22,6 +22,14 @@ function OrderSuccessContent() {
             setLoading(false);
             setError("No order ID was found in the link.");
             return;
+        }
+
+        if (typeof window !== "undefined") {
+            try {
+                localStorage.setItem("marketnera_active_order_id", orderId);
+            } catch {
+                // ignore
+            }
         }
 
         async function fetchOrder() {
@@ -158,6 +166,29 @@ function OrderSuccessContent() {
                                 <span>Total Paid</span>
                                 <span className="text-base text-emerald-800">₹{order.total_amount}</span>
                             </div>
+                        </div>
+
+                        {/* ── Order Action Bars: See Order & WhatsApp Query (8923678493) ── */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <Link
+                                href={ROUTES.CUSTOMER_ORDERS}
+                                className="py-3 px-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-700/20 active:scale-95 transition-all"
+                            >
+                                <Eye className="w-4 h-4" />
+                                <span>See Order &amp; Live Tracking</span>
+                            </Link>
+
+                            <a
+                                href={`https://wa.me/918923678493?text=${encodeURIComponent(
+                                    `Hi MarketNera Support, I have an order related query regarding my order #${order.id.slice(0, 8).toUpperCase()} (₹${order.total_amount}).`
+                                )}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="py-3 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-[#25D366]/20 active:scale-95 transition-all"
+                            >
+                                <MessageCircle className="w-4 h-4 fill-slate-950 text-slate-950" />
+                                <span>Order Query (WhatsApp: 8923678493)</span>
+                            </a>
                         </div>
 
                         {/* Guest Account Optional Callout */}

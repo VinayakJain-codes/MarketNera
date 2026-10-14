@@ -177,3 +177,42 @@ export function stopLoudBell(): void {
 export function isBellRinging(): boolean {
   return isAlertActive;
 }
+
+/**
+ * Plays a warm, cheerful ascending 3-note chime (C5 -> E5 -> G5)
+ * for customer-facing order updates (accepted, out for delivery, etc.)
+ */
+export function playCustomerOrderChime(): void {
+  const ctx = getOrCreateAudioContext();
+  if (!ctx) return;
+
+  if (ctx.state === "suspended") {
+    ctx.resume().catch(() => {});
+  }
+
+  const notes = [
+    { freq: 523.25, time: 0 },    // C5
+    { freq: 659.25, time: 0.12 }, // E5
+    { freq: 783.99, time: 0.24 }, // G5
+  ];
+
+  const now = ctx.currentTime;
+  notes.forEach(({ freq, time }) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, now + time);
+
+    gain.gain.setValueAtTime(0.0001, now + time);
+    gain.gain.linearRampToValueAtTime(0.18, now + time + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + time + 0.6);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now + time);
+    osc.stop(now + time + 0.6);
+  });
+}
+

@@ -429,6 +429,11 @@ export default function CartPage() {
                             } else {
                                 clearGuestCart();
                             }
+
+                            if (typeof window !== "undefined") {
+                                localStorage.setItem("marketnera_active_order_id", createdOrder.id);
+                                window.dispatchEvent(new CustomEvent("customer_order_placed", { detail: createdOrder }));
+                            }
                             router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${createdOrder.id}&payment=success`);
                         } catch (err: any) {
                             setPlaceError(err.message || "Payment verification failed. Please contact support.");
