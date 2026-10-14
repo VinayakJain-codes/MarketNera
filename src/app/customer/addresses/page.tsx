@@ -220,32 +220,34 @@ export default function AddressesPage() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={handleDetectCurrentLocation}
-                            disabled={detecting}
-                            className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 hover:text-emerald-700 text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer"
-                        >
-                            <LocateFixed className={`w-4 h-4 text-emerald-600 ${detecting ? "animate-spin" : ""}`} />
-                            <span>{detecting ? "Locating..." : "Use Current GPS"}</span>
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => setShowMapPicker(true)}
-                            className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 hover:text-emerald-700 text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer"
-                        >
-                            <MapPin className="w-4 h-4 text-emerald-600" />
-                            <span>Pick on Map</span>
-                        </button>
-
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
                         <button
                             onClick={() => setShowAddForm(!showAddForm)}
-                            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+                            className="order-1 sm:order-3 w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
                         >
                             <Plus className="w-4 h-4" />
-                            <span>Add Address</span>
+                            <span>Add New Address</span>
                         </button>
+
+                        <div className="order-2 grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center">
+                            <button
+                                type="button"
+                                onClick={() => setShowMapPicker(true)}
+                                className="px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 hover:text-emerald-700 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95"
+                            >
+                                <MapPin className="w-4 h-4 text-emerald-600" />
+                                <span>Pick on Map</span>
+                            </button>
+
+                            <button
+                                onClick={handleDetectCurrentLocation}
+                                disabled={detecting}
+                                className="px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 hover:text-emerald-700 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95"
+                            >
+                                <LocateFixed className={`w-4 h-4 text-emerald-600 ${detecting ? "animate-spin" : ""}`} />
+                                <span>{detecting ? "Locating..." : "Use GPS"}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -439,20 +441,23 @@ export default function AddressesPage() {
                 )}
             </main>
 
-            {/* GPS Confirm Modal */}
+            {/* GPS Confirm Modal (Bottom sheet on phone, centered on desktop) */}
             {showConfirmModal && detectedAddr && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-scale-in">
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/75 backdrop-blur-xs animate-fade-in">
+                    <div className="bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-md w-full space-y-4 shadow-2xl animate-scale-in pb-8 sm:pb-6">
+                        <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto -mt-1 mb-1 sm:hidden" />
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <LocateFixed className="w-5 h-5 text-emerald-600" />
-                                <h3 className="font-black text-slate-900 text-base">Confirm Detected Address</h3>
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                    <LocateFixed className="w-4 h-4" />
+                                </div>
+                                <h3 className="font-black text-slate-900 text-base">Confirm GPS Address</h3>
                             </div>
                             <button
                                 onClick={() => setShowConfirmModal(false)}
-                                className="p-1 rounded-full text-slate-400 hover:bg-slate-100"
+                                className="w-8 h-8 rounded-full text-slate-400 hover:bg-slate-100 flex items-center justify-center cursor-pointer"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-4 h-4" />
                             </button>
                         </div>
 
@@ -460,8 +465,8 @@ export default function AddressesPage() {
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                                 Address Line
                             </span>
-                            <p className="font-semibold">{detectedAddr.addressLine}</p>
-                            <p className="text-slate-400">
+                            <p className="font-bold text-slate-900 text-xs sm:text-sm">{detectedAddr.addressLine}</p>
+                            <p className="text-slate-500 font-medium text-xs">
                                 {detectedAddr.city} - {detectedAddr.pincode}
                             </p>
                         </div>
@@ -470,15 +475,15 @@ export default function AddressesPage() {
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
                                 Save Label
                             </span>
-                            <div className="flex gap-2">
+                            <div className="grid grid-cols-3 gap-2">
                                 {["Home", "Work", "GPS Pin"].map((lbl) => (
                                     <button
                                         key={lbl}
                                         type="button"
                                         onClick={() => setConfirmLabel(lbl)}
-                                        className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${
+                                        className={`h-10 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center ${
                                             confirmLabel === lbl
-                                                ? "bg-emerald-50 border-emerald-500 text-emerald-700"
+                                                ? "bg-emerald-50 border-emerald-500 text-emerald-700 shadow-xs"
                                                 : "bg-white border-slate-200 text-slate-600"
                                         }`}
                                     >
@@ -488,27 +493,27 @@ export default function AddressesPage() {
                             </div>
                         </div>
 
-                        <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                        <label className="flex items-center gap-2.5 text-xs font-bold text-slate-700 cursor-pointer pt-1">
                             <input
                                 type="checkbox"
                                 checked={confirmIsDefault}
                                 onChange={(e) => setConfirmIsDefault(e.target.checked)}
-                                className="rounded text-emerald-600 border-slate-300 focus:ring-emerald-600 h-4 w-4"
+                                className="rounded-md text-emerald-600 border-slate-300 focus:ring-emerald-600 h-4 w-4"
                             />
                             <span>Set as default address</span>
                         </label>
 
-                        <div className="flex justify-end gap-2 pt-2">
+                        <div className="flex items-center gap-2.5 pt-2">
                             <button
                                 onClick={() => setShowConfirmModal(false)}
-                                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl"
+                                className="flex-1 h-12 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleSaveDetected}
                                 disabled={savingDetected}
-                                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
+                                className="flex-2 h-12 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md transition-all cursor-pointer"
                             >
                                 {savingDetected ? "Saving..." : "Save Address"}
                             </button>

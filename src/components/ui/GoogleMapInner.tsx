@@ -11,10 +11,11 @@ import {
     ArrowRight,
     Search,
     X,
-    MousePointer,
     Crosshair,
     AlertCircle,
-    KeyRound
+    KeyRound,
+    Navigation,
+    CheckCircle2
 } from "lucide-react";
 
 export interface LocationDetails {
@@ -160,7 +161,6 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
                     return;
                 }
             } catch (clientErr) {
-                // Client-side geocoding failed or blocked; fall through to server route
                 console.warn("Client geocoder fallback to server:", clientErr);
             }
         }
@@ -193,7 +193,6 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
 
     // Debounced reverse geocoding to prevent rapid API calls while user moves the pin
     const triggerDebouncedReverseGeocode = useCallback((newLat: number, newLng: number) => {
-        // Distance check: ignore movements under ~10 meters (approx 0.0001 deg)
         const dLat = Math.abs(newLat - lastReverseCoordsRef.current.lat);
         const dLng = Math.abs(newLng - lastReverseCoordsRef.current.lng);
         if (dLat < 0.0001 && dLng < 0.0001) {
@@ -217,12 +216,11 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
 
         const centerLatLng = { lat: initLat, lng: initLng };
 
-        // Create Map
         const map = new window.google.maps.Map(mapContainerRef.current, {
             center: centerLatLng,
             zoom: 16,
             disableDefaultUI: true,
-            zoomControl: true,
+            zoomControl: false, // Handled via touch pinch & zoom on mobile
             mapTypeControl: false,
             streetViewControl: false,
             fullscreenControl: false,
@@ -230,7 +228,6 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
             gestureHandling: "greedy",
         });
 
-        // Create Custom Marker (Emerald theme)
         const marker = new window.google.maps.Marker({
             position: centerLatLng,
             map,
@@ -239,7 +236,6 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
             title: "Drag to set delivery location",
         });
 
-        // On Marker Drag
         marker.addListener("dragend", () => {
             const pos = marker.getPosition();
             if (pos) {
@@ -252,7 +248,6 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
             }
         });
 
-        // On Map Click (move marker to clicked spot)
         map.addListener("click", (e: any) => {
             if (e.latLng) {
                 marker.setPosition(e.latLng);
@@ -293,7 +288,6 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
             .then(() => {
                 if (!isMounted) return;
 
-                // Attempt GPS location
                 if (typeof navigator !== "undefined" && navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                         (pos) => {
@@ -418,185 +412,206 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
     // Step 2: Form to fill House No, Building, Landmark, Save As
     if (step === "details") {
         return (
-            <div className="p-6 bg-white flex flex-col gap-4 overflow-y-auto max-h-[75vh]">
-                <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
-                    <button
-                        onClick={() => setStep("map")}
-                        className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors cursor-pointer"
-                        aria-label="Back to map"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </button>
-                    <div>
-                        <h4 className="text-base font-bold text-slate-900">Complete Address Details</h4>
-                        <p className="text-xs text-slate-500">Provide flat / house number for accurate doorstep delivery</p>
-                    </div>
-                </div>
-
-                {/* Selected Location Pill */}
-                <div className="flex items-start gap-3 bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-100">
-                    <MapPin className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
-                    <div className="min-w-0 flex-1">
-                        <p className="text-[11px] font-bold text-emerald-950 uppercase tracking-wide">Selected Location</p>
-                        <p className="text-xs text-emerald-800 leading-relaxed font-medium mt-0.5">{detectedArea}</p>
-                    </div>
-                    <button
-                        onClick={() => setStep("map")}
-                        className="text-xs font-bold text-emerald-700 hover:underline shrink-0 cursor-pointer"
-                    >
-                        Change
-                    </button>
-                </div>
-
-                <div className="space-y-3 mt-1">
-                    <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                            <span>House / Flat / Block No. <span className="text-red-500">*</span></span>
-                            {houseNo && <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded">Pinpoint Matched</span>}
-                        </label>
-                        <input
-                            type="text"
-                            value={houseNo}
-                            onChange={(e) => setHouseNo(e.target.value)}
-                            placeholder="e.g. Flat 302, House No. 14-B, Plot 5"
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                            Building / Apartment / Society Name <span className="text-slate-400 font-normal">(Optional)</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={building}
-                            onChange={(e) => setBuilding(e.target.value)}
-                            placeholder="e.g. Surya Enclave, Galaxy Heights"
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                            Street / Road / Lane <span className="text-slate-400 font-normal">(Optional)</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={street}
-                            onChange={(e) => setStreet(e.target.value)}
-                            placeholder="e.g. Baghpat Road, Lane 4, Main Market Street"
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                            Nearby Landmark <span className="text-slate-400 font-normal">(Optional)</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={landmark}
-                            onChange={(e) => setLandmark(e.target.value)}
-                            placeholder="e.g. Near Shiv Mandir, Behind Metro Hospital"
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
-                        />
-                    </div>
-
-                    {/* City & Pincode */}
-                    <div className="grid grid-cols-2 gap-3">
+            <div className="h-full flex flex-col bg-white overflow-hidden">
+                {/* Step Header */}
+                <div className="px-4 sm:px-6 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setStep("map")}
+                            className="w-9 h-9 rounded-xl hover:bg-slate-100 active:bg-slate-200 flex items-center justify-center text-slate-700 transition-colors cursor-pointer -ml-1"
+                            aria-label="Back to map"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                        </button>
                         <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1">
-                                City <span className="text-red-500">*</span>
+                            <h4 className="text-base font-black text-slate-900 tracking-tight">Complete Address</h4>
+                            <p className="text-[11px] text-slate-500 font-medium">House / flat number for accurate delivery</p>
+                        </div>
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full">
+                        Step 2 of 2
+                    </span>
+                </div>
+
+                {/* Form Body - Smooth Touch Scrolling */}
+                <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
+                    {/* Selected Location Pill */}
+                    <div className="flex items-start gap-3 bg-emerald-50/80 p-3.5 rounded-2xl border border-emerald-200/80">
+                        <MapPin className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                                <p className="text-[10px] font-bold text-emerald-950 uppercase tracking-wide">Selected Location</p>
+                                <span className="text-[9px] font-black uppercase px-1.5 py-0.2 bg-emerald-200 text-emerald-900 rounded">
+                                    Pin Latched
+                                </span>
+                            </div>
+                            <p className="text-xs text-emerald-900 leading-snug font-bold mt-0.5 line-clamp-2">{detectedArea}</p>
+                        </div>
+                        <button
+                            onClick={() => setStep("map")}
+                            className="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline shrink-0 cursor-pointer pt-0.5"
+                        >
+                            Change
+                        </button>
+                    </div>
+
+                    <div className="space-y-3.5">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                                <span>House / Flat / Block No. <span className="text-red-500">*</span></span>
+                                {houseNo && (
+                                    <span className="text-[10px] text-emerald-700 font-bold bg-emerald-100/70 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                        <CheckCircle2 className="w-3 h-3" /> Auto-detected
+                                    </span>
+                                )}
                             </label>
                             <input
                                 type="text"
-                                value={city}
-                                onChange={(e) => setCity(e.target.value)}
-                                placeholder="City"
-                                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
+                                value={houseNo}
+                                onChange={(e) => setHouseNo(e.target.value)}
+                                placeholder="e.g. Flat 302, House 14-B, Floor 2"
+                                className="w-full h-12 px-4 rounded-xl border border-slate-200 text-base sm:text-sm font-semibold focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal bg-white"
                             />
                         </div>
+
                         <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1">
-                                Pincode <span className="text-red-500">*</span>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                Building / Apartment / Society Name <span className="text-slate-400 font-normal">(Optional)</span>
                             </label>
                             <input
                                 type="text"
-                                maxLength={6}
-                                value={pincode}
-                                onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                                placeholder="6-digit pincode"
-                                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/20 outline-none"
+                                value={building}
+                                onChange={(e) => setBuilding(e.target.value)}
+                                placeholder="e.g. Surya Enclave, Galaxy Heights"
+                                className="w-full h-12 px-4 rounded-xl border border-slate-200 text-base sm:text-sm font-semibold focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal bg-white"
                             />
                         </div>
-                    </div>
 
-                    {/* Save as Label */}
-                    <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Save As</label>
-                        <div className="flex gap-2">
-                            {(["Home", "Work", "Other"] as const).map((l) => (
-                                <button
-                                    key={l}
-                                    type="button"
-                                    onClick={() => setLabel(l)}
-                                    className={`flex-1 py-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                                        label === l
-                                            ? "border-emerald-600 bg-emerald-50 text-emerald-800"
-                                            : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                                    }`}
-                                >
-                                    {l === "Home" && <Home className="w-4 h-4" />}
-                                    {l === "Work" && <Briefcase className="w-4 h-4" />}
-                                    {l === "Other" && <MapPin className="w-4 h-4" />}
-                                    {l}
-                                </button>
-                            ))}
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                Street / Road / Lane <span className="text-slate-400 font-normal">(Optional)</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={street}
+                                onChange={(e) => setStreet(e.target.value)}
+                                placeholder="e.g. Baghpat Road, Lane 4, Main Market Road"
+                                className="w-full h-12 px-4 rounded-xl border border-slate-200 text-base sm:text-sm font-semibold focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal bg-white"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                Nearby Landmark <span className="text-slate-400 font-normal">(Optional)</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={landmark}
+                                onChange={(e) => setLandmark(e.target.value)}
+                                placeholder="e.g. Near Shiv Mandir, Behind Metro Hospital"
+                                className="w-full h-12 px-4 rounded-xl border border-slate-200 text-base sm:text-sm font-semibold focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal bg-white"
+                            />
+                        </div>
+
+                        {/* City & Pincode */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                    City <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={city}
+                                    onChange={(e) => setCity(e.target.value)}
+                                    placeholder="City"
+                                    className="w-full h-12 px-4 rounded-xl border border-slate-200 text-base sm:text-sm font-semibold focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15 outline-none transition-all placeholder:text-slate-400 bg-white"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                    Pincode <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    maxLength={6}
+                                    inputMode="numeric"
+                                    value={pincode}
+                                    onChange={(e) => setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                                    placeholder="6-digit pincode"
+                                    className="w-full h-12 px-4 rounded-xl border border-slate-200 text-base sm:text-sm font-semibold focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15 outline-none transition-all placeholder:text-slate-400 bg-white"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Save as Label */}
+                        <div className="pt-1">
+                            <label className="block text-xs font-bold text-slate-700 mb-2">Save Address As</label>
+                            <div className="grid grid-cols-3 gap-2.5">
+                                {(["Home", "Work", "Other"] as const).map((l) => (
+                                    <button
+                                        key={l}
+                                        type="button"
+                                        onClick={() => setLabel(l)}
+                                        className={`h-11 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+                                            label === l
+                                                ? "border-emerald-600 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-600/20 shadow-xs"
+                                                : "border-slate-200 text-slate-600 hover:bg-slate-50 bg-white"
+                                        }`}
+                                    >
+                                        {l === "Home" && <Home className="w-4 h-4 text-emerald-600" />}
+                                        {l === "Work" && <Briefcase className="w-4 h-4 text-emerald-600" />}
+                                        {l === "Other" && <MapPin className="w-4 h-4 text-emerald-600" />}
+                                        {l}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <button
-                    onClick={() => {
-                        if (!houseNo.trim()) {
-                            toast.error("Please enter house/flat number for accurate delivery");
-                            return;
-                        }
-                        if (!city.trim()) {
-                            toast.error("Please enter a city name");
-                            return;
-                        }
+                {/* Sticky Mobile Bottom Confirmation CTA */}
+                <div className="p-4 sm:p-5 border-t border-slate-100 bg-white/95 backdrop-blur-md shrink-0">
+                    <button
+                        onClick={() => {
+                            if (!houseNo.trim()) {
+                                toast.error("Please enter house/flat number for accurate delivery");
+                                return;
+                            }
+                            if (!city.trim()) {
+                                toast.error("Please enter a city name");
+                                return;
+                            }
 
-                        // Assemble precise pinpoint delivery address
-                        const addressParts = [
-                            houseNo.trim(),
-                            building.trim(),
-                            street.trim(),
-                            landmark.trim() ? `Near ${landmark.trim()}` : "",
-                            detectedArea.trim(),
-                            `${city.trim()} - ${pincode.trim()}`,
-                        ].filter(Boolean);
+                            const addressParts = [
+                                houseNo.trim(),
+                                building.trim(),
+                                street.trim(),
+                                landmark.trim() ? `Near ${landmark.trim()}` : "",
+                                detectedArea.trim(),
+                                `${city.trim()} - ${pincode.trim()}`,
+                            ].filter(Boolean);
 
-                        const composedAddress = [...new Set(addressParts)].join(", ");
+                            const composedAddress = [...new Set(addressParts)].join(", ");
 
-                        onLocationSelected({
-                            addressLine: composedAddress,
-                            houseNo: houseNo.trim(),
-                            building: building.trim(),
-                            street: street.trim(),
-                            landmark: landmark.trim(),
-                            label,
-                            city: city.trim(),
-                            pincode: pincode.trim(),
-                            lat,
-                            lng,
-                        });
-                    }}
-                    className="w-full py-3.5 mt-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                >
-                    <span>Save &amp; Confirm Location</span>
-                    <ArrowRight className="w-4 h-4" />
-                </button>
+                            onLocationSelected({
+                                addressLine: composedAddress,
+                                houseNo: houseNo.trim(),
+                                building: building.trim(),
+                                street: street.trim(),
+                                landmark: landmark.trim(),
+                                label,
+                                city: city.trim(),
+                                pincode: pincode.trim(),
+                                lat,
+                                lng,
+                            });
+                        }}
+                        className="w-full h-13 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-sm font-black uppercase tracking-wider transition-all shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <span>Save &amp; Deliver to this Address</span>
+                        <ArrowRight className="w-4 h-4" />
+                    </button>
+                </div>
             </div>
         );
     }
@@ -604,22 +619,22 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
     // Missing API Key Notification Screen
     if (loadError) {
         return (
-            <div className="p-6 bg-slate-50 flex flex-col items-center justify-center text-center space-y-4 min-h-[380px]">
-                <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center shadow-xs">
-                    <KeyRound className="w-6 h-6" />
+            <div className="p-6 bg-slate-50 flex flex-col items-center justify-center text-center space-y-4 h-full">
+                <div className="w-14 h-14 bg-amber-100 text-amber-700 rounded-3xl flex items-center justify-center shadow-xs">
+                    <KeyRound className="w-7 h-7" />
                 </div>
                 <div className="max-w-md space-y-2">
                     <h4 className="text-base font-black text-slate-900">Google Maps Key Required</h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
                         To display interactive Google Maps, please add your Google Maps API key to your <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-800">.env.local</code> file:
                     </p>
-                    <div className="bg-slate-900 text-emerald-400 font-mono text-[11px] p-2.5 rounded-xl text-left select-all overflow-x-auto">
+                    <div className="bg-slate-900 text-emerald-400 font-mono text-[11px] p-3 rounded-xl text-left select-all overflow-x-auto">
                         NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSy...your_key_here
                     </div>
                 </div>
                 <button
                     onClick={() => setStep("details")}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    className="w-full sm:w-auto px-6 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center"
                 >
                     Enter Address Manually
                 </button>
@@ -627,23 +642,23 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
         );
     }
 
-    // Step 1: Interactive Map Screen
+    // Step 1: Interactive Map Screen (Mobile-First Layout)
     return (
-        <div className="flex flex-col">
-            {/* Top Search Bar */}
-            <div className="p-3 bg-white border-b border-slate-100 relative z-20">
+        <div className="h-full w-full flex flex-col relative overflow-hidden bg-slate-100">
+            {/* Floating Top Search Bar */}
+            <div className="absolute top-3 left-3 right-3 z-30">
                 <div className="relative">
-                    <div className="flex items-center px-3 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700">
-                        <Search className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+                    <div className="flex items-center px-3.5 h-12 rounded-2xl bg-white/95 backdrop-blur-md shadow-lg border border-slate-200/90 text-slate-700">
+                        <Search className="w-4 h-4 text-slate-400 mr-2.5 shrink-0" />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => handleSearchChange(e.target.value)}
-                            placeholder="Search area, landmark, or street in Google Maps..."
-                            className="bg-transparent border-none outline-none text-xs w-full font-medium placeholder:text-slate-400"
+                            placeholder="Search area, landmark, or street..."
+                            className="bg-transparent border-none outline-none text-base sm:text-xs w-full font-medium placeholder:text-slate-400"
                         />
                         {isSearching && (
-                            <Loader2 className="w-3.5 h-3.5 text-slate-400 animate-spin shrink-0" />
+                            <Loader2 className="w-4 h-4 text-emerald-600 animate-spin shrink-0" />
                         )}
                         {searchQuery && !isSearching && (
                             <button
@@ -652,27 +667,28 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
                                     setSearchResults([]);
                                     setShowResultsDropdown(false);
                                 }}
-                                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                                className="w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 cursor-pointer"
                             >
-                                <X className="w-3.5 h-3.5" />
+                                <X className="w-4 h-4" />
                             </button>
                         )}
                     </div>
 
                     {/* Autocomplete Dropdown */}
                     {showResultsDropdown && searchResults.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-slate-200 z-50 max-h-52 overflow-y-auto divide-y divide-slate-100">
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 max-h-56 overflow-y-auto divide-y divide-slate-100">
                             {searchResults.map((res, i) => (
                                 <button
                                     key={i}
                                     type="button"
                                     onClick={() => handleSelectSearchResult(res)}
-                                    className="w-full text-left p-3 hover:bg-slate-50 transition-colors flex items-start gap-2.5 cursor-pointer"
+                                    className="w-full text-left p-3.5 hover:bg-slate-50 active:bg-slate-100 transition-colors flex items-start gap-3 cursor-pointer"
                                 >
                                     <MapPin className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                                    <span className="text-xs font-semibold text-slate-800 line-clamp-2">
-                                        {res.displayName}
-                                    </span>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-xs font-bold text-slate-800 line-clamp-1">{res.displayName}</p>
+                                        <p className="text-[10px] text-slate-400 font-medium">{res.city} {res.pincode}</p>
+                                    </div>
                                 </button>
                             ))}
                         </div>
@@ -680,8 +696,8 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
                 </div>
             </div>
 
-            {/* Google Map Container */}
-            <div className="relative bg-slate-100" style={{ height: "380px" }}>
+            {/* Map Canvas (Fills entire upper space dynamically on mobile) */}
+            <div className="flex-1 w-full relative min-h-0">
                 <div
                     ref={mapContainerRef}
                     className="w-full h-full"
@@ -693,92 +709,99 @@ export default function GoogleMapInner({ onLocationSelected }: GoogleMapInnerPro
                         <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
                         <div>
                             <p className="text-sm font-bold text-slate-800">Loading Google Maps...</p>
-                            <p className="text-xs text-slate-400 mt-0.5">Fetching neighborhood map and positioning pin</p>
+                            <p className="text-xs text-slate-400 mt-0.5">Fetching neighborhood map</p>
                         </div>
                     </div>
                 )}
 
+                {/* Google Auth Failure Overlay */}
                 {authFailed && (
                     <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xs text-white flex flex-col items-center justify-center p-6 text-center z-30 space-y-3">
-                        <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
                             <AlertCircle className="w-6 h-6" />
                         </div>
                         <div className="max-w-md space-y-1.5">
-                            <p className="text-sm font-bold text-white">Google Cloud Configuration Needed</p>
+                            <p className="text-sm font-bold text-white">Google Cloud Authorization Required</p>
                             <p className="text-xs text-slate-300 leading-relaxed">
-                                Google rejected the map request. In your Google Cloud Console:
+                                In your Google Cloud Console (Keys and credentials):
                             </p>
-                            <ul className="text-[11px] text-slate-300 text-left list-disc pl-5 space-y-1 bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                            <ul className="text-[11px] text-slate-300 text-left list-disc pl-5 space-y-1 bg-slate-900 p-3 rounded-xl border border-slate-800">
+                                <li>Set Application restrictions to <strong>None</strong> (or add <code className="text-emerald-400">https://www.marketnera.com/*</code>)</li>
                                 <li>Enable <strong>Maps JavaScript API</strong></li>
-                                <li>In Key Restrictions, add <code className="text-emerald-400">http://localhost:*</code> to Website Restrictions (or set to None)</li>
-                                <li>Verify a <strong>Billing Account</strong> is linked to the project</li>
+                                <li>Verify a <strong>Billing Account</strong> is linked</li>
                             </ul>
                         </div>
                         <button
                             type="button"
                             onClick={() => setStep("details")}
-                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md"
+                            className="w-full sm:w-auto px-5 h-12 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md flex items-center justify-center"
                         >
-                            Confirm &amp; Complete Address Manually →
+                            Enter Doorstep Details Manually →
                         </button>
                     </div>
                 )}
 
-                {/* Floating Map Hint */}
+                {/* Floating "Drag Pin" Badge */}
                 {isMapReady && !authFailed && (
-                    <div className="absolute top-3 right-3 z-10 bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-1.5 pointer-events-none">
-                        <MousePointer className="w-3.5 h-3.5 text-slate-500" />
-                        <span className="text-[10px] font-bold text-slate-600">Drag pin or click map to reposition</span>
+                    <div className="absolute top-18 left-1/2 -translate-x-1/2 z-10 bg-slate-900/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-md backdrop-blur-xs pointer-events-none flex items-center gap-1.5 whitespace-nowrap">
+                        <Navigation className="w-3 h-3 text-emerald-400" />
+                        <span>Drag pin or map to adjust location</span>
                     </div>
                 )}
+
+                {/* Floating Recenter GPS FAB Button */}
+                <button
+                    type="button"
+                    onClick={handleRecenterGPS}
+                    className="absolute bottom-4 right-4 z-20 w-12 h-12 rounded-full bg-white text-emerald-600 shadow-xl border border-slate-200 flex items-center justify-center active:scale-95 transition-all cursor-pointer hover:bg-emerald-50"
+                    title="Recenter GPS"
+                    aria-label="Recenter GPS"
+                >
+                    <Crosshair className={`w-5 h-5 ${isFetching ? "animate-spin" : ""}`} />
+                </button>
             </div>
 
-            {/* Bottom Confirmation Strip */}
-            <div className="p-4 bg-white border-t border-slate-100 flex flex-col gap-3">
-                <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-2.5 flex-1 min-w-0">
-                        <MapPin className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Pinpoint Location</p>
-                                {houseNo && (
-                                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded">
-                                        House/Street Detected
-                                    </span>
-                                )}
-                            </div>
-                            {isFetching ? (
-                                <div className="h-4 bg-slate-200 rounded animate-pulse w-3/4 mt-1" />
-                            ) : (
-                                <div>
-                                    <p className="text-xs font-black text-slate-900 leading-snug line-clamp-1 mt-0.5">
-                                        {[houseNo, building, street].filter(Boolean).join(", ") || detectedArea}
-                                    </p>
-                                    <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mt-0.5">
-                                        {[detectedArea !== street ? detectedArea : "", city, pincode].filter(Boolean).join(" · ")}
-                                    </p>
-                                </div>
+            {/* Bottom Drawer Card (Zepto/Swiggy Mobile Style) */}
+            <div className="bg-white rounded-t-3xl sm:rounded-none shadow-2xl border-t border-slate-100 p-4 sm:p-5 flex flex-col gap-3 shrink-0 z-20">
+                {/* Pull Bar */}
+                <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto -mt-1 sm:hidden" />
+
+                <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                        <MapPin className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Delivery Location</p>
+                            {houseNo && (
+                                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded">
+                                    House Detected
+                                </span>
                             )}
                         </div>
+                        {isFetching ? (
+                            <div className="h-4 bg-slate-200 rounded animate-pulse w-3/4 mt-1.5" />
+                        ) : (
+                            <div className="mt-0.5">
+                                <p className="text-sm font-black text-slate-900 leading-snug line-clamp-1">
+                                    {[houseNo, building, street].filter(Boolean).join(", ") || detectedArea}
+                                </p>
+                                <p className="text-xs text-slate-500 font-medium line-clamp-1 mt-0.5">
+                                    {[detectedArea !== street ? detectedArea : "", city, pincode].filter(Boolean).join(" · ")}
+                                </p>
+                            </div>
+                        )}
                     </div>
-
-                    <button
-                        type="button"
-                        onClick={handleRecenterGPS}
-                        className="px-3 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors shrink-0 flex items-center gap-1 cursor-pointer"
-                    >
-                        <Crosshair className="w-3.5 h-3.5" />
-                        <span>Recenter GPS</span>
-                    </button>
                 </div>
 
                 <button
                     type="button"
                     onClick={() => setStep("details")}
                     disabled={isFetching}
-                    className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                    className="w-full h-13 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-xs sm:text-sm font-black uppercase tracking-wider transition-all shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
-                    <span>Confirm this location →</span>
+                    <span>Confirm Location &amp; Enter House No.</span>
+                    <ArrowRight className="w-4 h-4" />
                 </button>
             </div>
         </div>
