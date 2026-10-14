@@ -25,6 +25,7 @@ import {
   stopLoudBell,
   isBellRinging,
   isAudioEngineUnlocked,
+  isAudioBlocked,
 } from "@/lib/audio-bell";
 
 interface IncomingOrderData {
@@ -41,10 +42,15 @@ export default function IncomingOrderAlert() {
   const router = useRouter();
   const [shopkeeperId, setShopkeeperId] = useState<string | null>(null);
   const [activeAlert, setActiveAlert] = useState<IncomingOrderData | null>(null);
+  const activeAlertRef = useRef<IncomingOrderData | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [bellTested, setBellTested] = useState(false);
-  const audioUnlockedRef = useRef(false);
+  const [audioNeedsTap, setAudioNeedsTap] = useState(false);
+
+  useEffect(() => {
+    activeAlertRef.current = activeAlert;
+  }, [activeAlert]);
 
   // 1. Initial auth check & audio unlock listener
   useEffect(() => {
@@ -62,7 +68,6 @@ export default function IncomingOrderAlert() {
 
     // Unlock AudioContext on first touch/click
     initAudioUnlock();
-    audioUnlockedRef.current = true;
 
     // Request desktop/mobile push notification permissions
     if (typeof window !== "undefined" && "Notification" in window) {
@@ -112,6 +117,11 @@ export default function IncomingOrderAlert() {
       // Start loud bell chime loop non-stop until accepted or declined
       startLoudBellNonStop();
 
+      // Check if browser blocked autoplay (requires tap)
+      if (isAudioBlocked()) {
+        setAudioNeedsTap(true);
+      }
+
       // Trigger native browser notification
       triggerPushNotification(orderData);
 
@@ -125,7 +135,68 @@ export default function IncomingOrderAlert() {
     [triggerPushNotification]
   );
 
-  // 4. Supabase Realtime subscription across the entire shopkeeper dashboard
+  // 4. Check for active unaccepted pending orders from Supabase (runs on mount & every 2.5s)
+  const checkPendingOrders = useCallback(async () => {
+    if (!shopkeeperId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select(
+          "id, total_amount, payment_method, payment_status, delivery_address, notes, created_at, status"
+        )
+        .eq("shopkeeper_id", shopkeeperId)
+        .eq("status", "pending")
+        .or("payment_method.eq.cod,payment_status.eq.paid")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.warn("Error polling pending orders:", error);
+        return;
+      }
+
+      if (data) {
+        // Only trigger if not already alerting this exact order
+        if (!activeAlertRef.current || activeAlertRef.current.id !== data.id) {
+          handleNewOrderArrival(data as IncomingOrderData);
+        }
+      } else {
+        // No pending unaccepted orders
+        if (activeAlertRef.current) {
+          stopLoudBell();
+          setActiveAlert(null);
+        }
+      }
+    } catch (e) {
+      console.warn("Poll exception:", e);
+    }
+  }, [shopkeeperId, handleNewOrderArrival]);
+
+  // 5. Continuous 2.5s Background Polling + Focus + Mount Check
+  useEffect(() => {
+    if (!shopkeeperId) return;
+
+    // Check immediately on mount/auth
+    checkPendingOrders();
+
+    const pollInterval = setInterval(() => {
+      checkPendingOrders();
+    }, 2500);
+
+    const onFocus = () => checkPendingOrders();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+
+    return () => {
+      clearInterval(pollInterval);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [shopkeeperId, checkPendingOrders]);
+
+  // 6. Supabase Realtime subscription across the entire shopkeeper dashboard
   useEffect(() => {
     if (!shopkeeperId) return;
 
@@ -139,45 +210,16 @@ export default function IncomingOrderAlert() {
           table: "orders",
           filter: `shopkeeper_id=eq.${shopkeeperId}`,
         },
-        (payload) => {
-          const newOrder = payload.new as IncomingOrderData;
-          const oldOrder = payload.old as Partial<IncomingOrderData> | undefined;
-
-          if (!newOrder || !newOrder.id) return;
-
-          // Event A: New order inserted with pending status
-          // (either COD, or already marked as paid online)
-          if (payload.eventType === "INSERT") {
-            const isEligible =
-              newOrder.payment_method === "cod" ||
-              newOrder.payment_status === "paid";
-            if (isEligible) {
-              handleNewOrderArrival(newOrder);
-            }
-          }
-
-          // Event B: Online payment completes: payment_status changes from pending -> paid
-          // while order status is pending
-          if (payload.eventType === "UPDATE") {
-            const wasPaidJustNow =
-              newOrder.payment_status === "paid" &&
-              oldOrder?.payment_status !== "paid";
-            if (wasPaidJustNow) {
-              handleNewOrderArrival(newOrder);
-            }
-          }
+        () => {
+          checkPendingOrders();
         }
       )
-      .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          console.log("Realtime shopkeeper order alert channel active");
-        }
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [shopkeeperId, handleNewOrderArrival]);
+  }, [shopkeeperId, checkPendingOrders]);
 
   // Silence bell
   const handleSilence = () => {
@@ -238,7 +280,7 @@ export default function IncomingOrderAlert() {
   return (
     <>
       {/* Sound test button for shopkeeper to confirm audio and unlock browser autoplay */}
-      {!bellTested && !activeAlert && (
+      {!activeAlert && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -247,14 +289,19 @@ export default function IncomingOrderAlert() {
           <button
             type="button"
             onClick={() => {
+              initAudioUnlock();
               playLoudBellSound();
               setBellTested(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-md shadow-emerald-700/20 active:scale-95 transition-all cursor-pointer border border-emerald-400"
-            title="Click to test loud order bell sound"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold shadow-md active:scale-95 transition-all cursor-pointer border ${
+              bellTested
+                ? "bg-emerald-600/90 text-white border-emerald-400 shadow-emerald-700/20"
+                : "bg-amber-500 hover:bg-amber-600 text-slate-950 border-amber-300 shadow-amber-500/20 animate-pulse"
+            }`}
+            title="Click to test loud order bell sound and ensure browser audio is active"
           >
-            <BellRing className="w-3.5 h-3.5 animate-bounce" />
-            <span>Test Order Bell 🔊</span>
+            <BellRing className="w-3.5 h-3.5" />
+            <span>{bellTested ? "Order Bell Active ✓" : "Test Order Bell 🔊"}</span>
           </button>
         </motion.div>
       )}
@@ -312,6 +359,22 @@ export default function IncomingOrderAlert() {
                   )}
                 </button>
               </div>
+
+              {/* Autoplay bypass banner if browser silenced audio until interaction */}
+              {audioNeedsTap && !isMuted && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    initAudioUnlock();
+                    startLoudBellNonStop();
+                    setAudioNeedsTap(false);
+                  }}
+                  className="w-full my-2.5 py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs flex items-center justify-center gap-2 animate-bounce cursor-pointer shadow-lg transition-all"
+                >
+                  <Volume2 className="w-4 h-4" />
+                  <span>Browser Silenced Audio — Tap Here to Play Loud Bell! 🔊</span>
+                </button>
+              )}
 
               {/* Order Info Body */}
               <div className="py-3.5 space-y-2.5">

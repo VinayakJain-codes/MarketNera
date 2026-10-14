@@ -9,7 +9,7 @@
  * - Autoplay permission unlock on user gesture
  * - Safe Web Audio fallback that never throws AudioParam scheduling errors
  */
-
+1
 let globalAudioCtx: AudioContext | null = null;
 let bellAudioElement: HTMLAudioElement | null = null;
 let customerAudioElement: HTMLAudioElement | null = null;
@@ -182,6 +182,12 @@ export function playLoudBellSound(): void {
   }
 }
 
+let audioPlaybackBlocked: boolean = false;
+
+export function isAudioBlocked(): boolean {
+  return audioPlaybackBlocked;
+}
+
 /**
  * Starts continuous, NON-STOP bell ringing until stopLoudBell() is explicitly called!
  * (When shopkeeper accepts or declines order)
@@ -195,15 +201,24 @@ export function startLoudBellNonStop(): void {
     audio.loop = true;
     audio.currentTime = 0;
     audio.volume = 1.0;
-    audio.play().catch((err) => {
-      console.warn("Looping HTML5 audio play error:", err);
-    });
+    const p = audio.play();
+    if (p !== undefined) {
+      p.then(() => {
+        audioPlaybackBlocked = false;
+      }).catch((err) => {
+        console.warn("Looping HTML5 audio play blocked/error:", err);
+        audioPlaybackBlocked = true;
+        playWebAudioBellChime();
+      });
+    }
+  } else {
+    playWebAudioBellChime();
   }
 
-  // Also synthesize initial bell chime
+  // Also synthesize initial bell chime via Web Audio API
   playWebAudioBellChime();
 
-  // Run periodic loop every 2.2 seconds to ensure bell rings non-stop even if audio looped
+  // Run periodic loop every 2.0 seconds to guarantee non-stop ringing
   repeatIntervalTimer = setInterval(() => {
     if (!isAlertActive) {
       stopLoudBell();
@@ -214,12 +229,17 @@ export function startLoudBellNonStop(): void {
     if (currentAudio) {
       if (currentAudio.paused) {
         currentAudio.currentTime = 0;
-        currentAudio.play().catch(() => {});
+        currentAudio.play().then(() => {
+          audioPlaybackBlocked = false;
+        }).catch(() => {
+          playWebAudioBellChime();
+        });
       }
-    } else {
-      playWebAudioBellChime();
     }
-  }, 2200);
+
+    // Always synthesize Web Audio chime in loop for guaranteed sound
+    playWebAudioBellChime();
+  }, 2000);
 }
 
 /**
