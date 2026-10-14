@@ -54,12 +54,12 @@ export async function POST(request: Request) {
 
     // 3. Handle Webhook Events
     if (event === "payment.captured" || event === "order.paid") {
-      // Update order status to paid and accepted in Supabase
+      // Update order payment status to paid in Supabase (status stays pending for shopkeeper manual acceptance)
       const { data, error } = await supabaseServer
         .from("orders")
         .update({
           payment_status: "paid",
-          status: "accepted",
+          // status remains "pending" for manual shopkeeper action
           razorpay_payment_id: razorpayPaymentId,
         })
         .eq("razorpay_order_id", razorpayOrderId);

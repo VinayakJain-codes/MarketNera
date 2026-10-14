@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Search, Bell, Download, ChevronDown, User } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { getShopkeeperProfile, ShopkeeperProfile } from '@/lib/services/shopkeeper';
+import { playLoudBellSound } from '@/lib/audio-bell';
 
 interface TopbarProps {
   title?: string;
@@ -71,13 +72,19 @@ export default function ShopkeeperTopbar({
           Export
         </motion.button>
 
-        {/* Notification */}
+        {/* Notification Bell with Sound Test */}
         <motion.button
           whileHover={{ scale: 1.05 }}
-          className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:text-emerald-700 transition-colors shadow-xs"
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            playLoudBellSound();
+          }}
+          title="Audio alerts active — click to test loud bell sound"
+          className="relative flex h-10 items-center gap-1.5 px-3 rounded-xl border border-slate-200 bg-white text-slate-700 hover:text-emerald-700 hover:border-emerald-300 transition-all shadow-xs cursor-pointer group"
         >
-          <Bell className="h-4 w-4" />
-          <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-emerald-600 ring-2 ring-white" />
+          <Bell className="h-4 w-4 text-emerald-600 group-hover:animate-bounce" />
+          <span className="hidden sm:inline text-xs font-bold text-slate-600 group-hover:text-emerald-700">Test Bell</span>
+          <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
         </motion.button>
 
         {/* Avatar */}

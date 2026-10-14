@@ -51,12 +51,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Signature is valid: Update order in database to paid and accepted
+    // 2. Signature is valid: Update order in database to paid (status stays pending for shopkeeper manual acceptance)
     const { data: updatedOrder, error: updateError } = await supabaseServer
       .from("orders")
       .update({
         payment_status: "paid",
-        status: "accepted", // Order moves to accepted once paid
+        // status remains "pending" so the shopkeeper manually accepts or declines
         razorpay_payment_id,
         razorpay_signature,
       })
