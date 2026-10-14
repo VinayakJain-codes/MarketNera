@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
-import LeafletLocationPicker from '@/components/ui/LeafletLocationPicker';
+import GoogleLocationPicker from '@/components/ui/GoogleLocationPicker';
 import {
   User,
   Store,
@@ -438,7 +438,7 @@ export default function SettingsPage() {
         )}
       </div>
 
-      <LeafletLocationPicker
+      <GoogleLocationPicker
         isOpen={showMapplsPicker}
         onClose={() => setShowMapplsPicker(false)}
         onLocationSelected={(loc) => {

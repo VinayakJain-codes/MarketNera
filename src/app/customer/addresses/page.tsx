@@ -11,7 +11,7 @@ import Link from "next/link";
 import CustomerNavbar from "@/components/layout/CustomerNavbar";
 import CustomerBottomNav from "@/components/layout/CustomerBottomNav";
 import Footer from "@/components/layout/Footer";
-import LeafletLocationPicker from "@/components/ui/LeafletLocationPicker";
+import GoogleLocationPicker from "@/components/ui/GoogleLocationPicker";
 import {
     MapPin,
     Home,
@@ -228,6 +228,15 @@ export default function AddressesPage() {
                         >
                             <LocateFixed className={`w-4 h-4 text-emerald-600 ${detecting ? "animate-spin" : ""}`} />
                             <span>{detecting ? "Locating..." : "Use Current GPS"}</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => setShowMapPicker(true)}
+                            className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 hover:text-emerald-700 text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+                        >
+                            <MapPin className="w-4 h-4 text-emerald-600" />
+                            <span>Pick on Map</span>
                         </button>
 
                         <button
@@ -507,6 +516,20 @@ export default function AddressesPage() {
                     </div>
                 </div>
             )}
+
+            {/* Google Maps Location Picker Modal */}
+            <GoogleLocationPicker
+                isOpen={showMapPicker}
+                onClose={() => setShowMapPicker(false)}
+                onLocationSelected={(loc) => {
+                    setShowMapPicker(false);
+                    setAddressLine(loc.addressLine);
+                    setCity(loc.city);
+                    setPincode(loc.pincode);
+                    if (loc.label) setLabel(loc.label);
+                    setShowAddForm(true);
+                }}
+            />
 
             {/* Bottom Nav & Modern Footer */}
             <Footer />

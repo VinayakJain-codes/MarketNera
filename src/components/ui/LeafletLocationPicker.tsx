@@ -1,60 +1,13 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { Loader2, X } from "lucide-react";
+import GoogleLocationPicker, { GoogleLocationPickerProps } from "./GoogleLocationPicker";
 
-// CRITICAL: must be dynamic with ssr: false
-const LeafletMap = dynamic(() => import("./LeafletMapInner"), {
-    ssr: false,
-    loading: () => (
-        <div className="w-full h-[400px] bg-slate-100 animate-pulse flex flex-col items-center justify-center">
-            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-2" />
-            <p className="text-sm font-semibold text-slate-600">Loading Map...</p>
-        </div>
-    ),
-});
+export type LeafletLocationPickerProps = GoogleLocationPickerProps;
 
-interface LeafletLocationPickerProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onLocationSelected: (locationDetails: {
-        addressLine: string;
-        houseNo: string;
-        building?: string;
-        landmark?: string;
-        label?: "Home" | "Work" | "Other";
-        city: string;
-        pincode: string;
-        lat: number;
-        lng: number;
-    }) => void;
-    title?: string;
-}
-
-export default function LeafletLocationPicker({
-    isOpen,
-    onClose,
-    onLocationSelected,
-    title = "Search / Choose Location"
-}: LeafletLocationPickerProps) {
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
-            <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                    <h3 className="text-lg font-bold text-slate-900">{title}</h3>
-                    <button
-                        onClick={onClose}
-                        className="w-8 h-8 rounded-full hover:bg-slate-100 transition-colors flex items-center justify-center text-slate-500"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
-
-                <LeafletMap onLocationSelected={onLocationSelected} />
-            </div>
-        </div>
-    );
+/**
+ * Drop-in Google Maps replacement for LeafletLocationPicker.
+ * Renders the new Google Maps location picker with built-in rate limiting and caching.
+ */
+export default function LeafletLocationPicker(props: LeafletLocationPickerProps) {
+    return <GoogleLocationPicker {...props} />;
 }

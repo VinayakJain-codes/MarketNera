@@ -8,7 +8,7 @@ import { ROUTES } from "@/constants/routes";
 import Button from "@/components/ui/Button";
 import Logo from "@/components/layout/Logo";
 import toast from "react-hot-toast";
-import LeafletLocationPicker from "@/components/ui/LeafletLocationPicker";
+import GoogleLocationPicker from "@/components/ui/GoogleLocationPicker";
 import { MapPin, Navigation, Image as ImageIcon, Camera, X, ChevronDown } from "lucide-react";
 
 export default function ShopkeeperSetupPage() {
@@ -336,8 +336,8 @@ export default function ShopkeeperSetupPage() {
                 </div>
             </div>
 
-            {/* Mappls Location Picker */}
-            <LeafletLocationPicker
+            {/* Google Maps Location Picker */}
+            <GoogleLocationPicker
                 isOpen={showMapplsPicker}
                 onClose={() => setShowMapplsPicker(false)}
                 onLocationSelected={(locationDetails) => {
