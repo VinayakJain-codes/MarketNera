@@ -203,7 +203,11 @@ export default function CustomerOrderNotifier() {
         .maybeSingle();
 
       if (latestOrder) {
-        const isOngoing = ["pending", "accepted", "preparing", "ready"].includes(latestOrder.status);
+        // Only consider orders placed within the last 24 hours as live ongoing orders
+        const isFresh =
+          Date.now() - new Date(latestOrder.created_at).getTime() < 24 * 60 * 60 * 1000;
+        const isOngoing =
+          ["pending", "accepted", "preparing", "ready"].includes(latestOrder.status) && isFresh;
 
         if (isOngoing) {
           const prevOrder = activeOrderRef.current;
@@ -283,7 +287,9 @@ export default function CustomerOrderNotifier() {
         .maybeSingle();
 
       if (data) {
-        if (["pending", "accepted", "preparing", "ready"].includes(data.status)) {
+        const isFresh =
+          Date.now() - new Date(data.created_at).getTime() < 24 * 60 * 60 * 1000;
+        if (["pending", "accepted", "preparing", "ready"].includes(data.status) && isFresh) {
           setActiveOrder(data as ActiveOrder);
         } else {
           // Delivered or cancelled
