@@ -112,10 +112,98 @@ export default function CustomerNavbar({
     ];
 
     return (
-        <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-200/90 shadow-2xs backdrop-blur-md">
+        <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
             {/* Upper Quick-Commerce Utility Bar */}
-            <div className="container mx-auto px-4 sm:px-6 lg:px-10">
-                <div className="flex h-18 sm:h-20 items-center justify-between gap-3 sm:gap-6">
+            <div className="container mx-auto px-3 sm:px-6 lg:px-10">
+                {/* ── MOBILE NAVBAR (Phone Viewport: 2 Clean Rows) ── */}
+                <div className="md:hidden pt-2.5 pb-2 space-y-2">
+                    {/* Row 1: Logo, Location Button, Cart, Menu */}
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <Link href={ROUTES.HOME} aria-label="MarketNera Home" className="shrink-0 flex items-center">
+                                <Logo />
+                            </Link>
+
+                            {/* Mobile Location Selector Pill */}
+                            <button
+                                onClick={() => setIsAddressDropdownOpen(!isAddressDropdownOpen)}
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200/80 active:bg-slate-200 text-slate-800 text-[11px] font-bold border border-slate-200/60 transition-colors shrink min-w-0 max-w-[170px]"
+                                aria-label="Select delivery address"
+                            >
+                                <MapPin className="w-3 h-3 text-emerald-700 shrink-0" />
+                                <span className="truncate">{selectedAddress.split(",")[0] || "Meerut"}</span>
+                                <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
+                            </button>
+                        </div>
+
+                        {/* Right: Cart & Menu */}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                            {user ? (
+                                <Link
+                                    href={ROUTES.CUSTOMER_PROFILE}
+                                    className="p-2 rounded-xl text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+                                    aria-label="My Account"
+                                >
+                                    <UserIcon className="w-4 h-4 text-slate-600" />
+                                </Link>
+                            ) : (
+                                <Link
+                                    href={ROUTES.LOGIN_CUSTOMER}
+                                    className="px-2.5 py-1 text-xs font-bold text-slate-800 hover:text-emerald-700 transition-colors"
+                                >
+                                    Login
+                                </Link>
+                            )}
+
+                            {/* Mobile Cart Button */}
+                            <Link
+                                href={ROUTES.CUSTOMER_CART}
+                                className="relative flex items-center justify-center p-2 rounded-xl bg-emerald-700 text-white font-bold shadow-xs active:scale-95 transition-all"
+                                aria-label="View Shopping Cart"
+                            >
+                                <ShoppingCart className="w-4 h-4" />
+                                {cartCount > 0 && (
+                                    <span className="absolute -top-1.5 -right-1.5 bg-emerald-950 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full ring-2 ring-white">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </Link>
+
+                            {/* Mobile Drawer Button */}
+                            <button
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 active:scale-95"
+                                aria-label="Toggle Navigation"
+                            >
+                                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Row 2: Full-Width Search Input */}
+                    <div className="relative w-full">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => onSearchChange?.(e.target.value)}
+                            placeholder="Search products, groceries, or local stores..."
+                            className="w-full h-10 pl-9 pr-9 rounded-xl bg-slate-100 border border-slate-200/90 text-slate-900 text-xs font-semibold placeholder:text-slate-400 placeholder:font-normal focus:bg-white focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 focus:outline-none transition-all shadow-inner"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => onSearchChange?.("")}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 active:scale-90"
+                                aria-label="Clear search"
+                            >
+                                <X className="w-3.5 h-3.5" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* ── DESKTOP & TABLET NAVBAR (Spacious Single Row) ── */}
+                <div className="hidden md:flex h-18 sm:h-20 items-center justify-between gap-4 lg:gap-6">
                     {/* Left: Brand Logo & Location Pill */}
                     <div className="flex items-center gap-4 sm:gap-6 shrink-0">
                         <Link href={ROUTES.HOME} aria-label="MarketNera Home" className="flex items-center">
@@ -123,7 +211,7 @@ export default function CustomerNavbar({
                         </Link>
 
                         {/* Location Selector */}
-                        <div className="relative hidden md:block">
+                        <div className="relative">
                             <button
                                 onClick={() => setIsAddressDropdownOpen(!isAddressDropdownOpen)}
                                 className="flex flex-col text-left group hover:bg-slate-50 px-3 py-1.5 rounded-xl border border-transparent hover:border-slate-200 transition-all cursor-pointer"
@@ -139,86 +227,11 @@ export default function CustomerNavbar({
                                     <ChevronDown className="w-3 h-3 text-slate-400 group-hover:translate-y-0.5 transition-transform" />
                                 </div>
                             </button>
-
-                            {/* Dropdown for location change */}
-                            {isAddressDropdownOpen && (
-                                <div className="absolute left-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 p-3 z-50 animate-scale-in">
-                                    <div className="flex items-center justify-between px-2 py-1">
-                                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                            {savedAddresses.length > 0 ? "Your Saved Addresses" : "Delivery Neighborhood"}
-                                        </p>
-                                    </div>
-
-                                    <div className="space-y-1 mt-1 max-h-56 overflow-y-auto">
-                                        {savedAddresses.length > 0 ? (
-                                            savedAddresses.map((addr) => {
-                                                const full = `${addr.address_line}${addr.city ? `, ${addr.city}` : ""}`;
-                                                const isSelected = selectedAddress === full;
-                                                return (
-                                                    <button
-                                                        key={addr.id}
-                                                        onClick={() => {
-                                                            setSelectedAddress(full);
-                                                            setIsAddressDropdownOpen(false);
-                                                        }}
-                                                        className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${
-                                                            isSelected
-                                                                ? "bg-emerald-50 text-emerald-800 font-bold"
-                                                                : "text-slate-700 hover:bg-slate-50"
-                                                        }`}
-                                                    >
-                                                        <div>
-                                                            <p className="font-semibold text-slate-900">{addr.label}</p>
-                                                            <p className="text-[11px] text-slate-500 truncate max-w-[220px]">
-                                                                {full}
-                                                            </p>
-                                                        </div>
-                                                        {isSelected && (
-                                                            <span className="w-2 h-2 rounded-full bg-emerald-600" />
-                                                        )}
-                                                    </button>
-                                                );
-                                            })
-                                        ) : (
-                                            ["Civil Lines, Meerut", "Shastri Nagar, Meerut", "Saket, Meerut", "Baghpat Road, Meerut"].map((loc) => (
-                                                <button
-                                                    key={loc}
-                                                    onClick={() => {
-                                                        setSelectedAddress(loc);
-                                                        setIsAddressDropdownOpen(false);
-                                                    }}
-                                                    className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between ${
-                                                        selectedAddress.includes(loc)
-                                                            ? "bg-emerald-50 text-emerald-800 font-bold"
-                                                            : "text-slate-700 hover:bg-slate-50"
-                                                    }`}
-                                                >
-                                                    <span>{loc}</span>
-                                                    {selectedAddress.includes(loc) && (
-                                                        <span className="w-2 h-2 rounded-full bg-emerald-600" />
-                                                    )}
-                                                </button>
-                                            ))
-                                        )}
-                                    </div>
-
-                                    <div className="mt-2 pt-2 border-t border-slate-100 px-2">
-                                        <Link
-                                            href={ROUTES.CUSTOMER_ADDRESSES}
-                                            onClick={() => setIsAddressDropdownOpen(false)}
-                                            className="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1"
-                                        >
-                                            <Plus className="w-3.5 h-3.5" />
-                                            <span>Add New Address</span>
-                                        </Link>
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     </div>
 
                     {/* Center: Search Bar */}
-                    <div className="flex-1 max-w-2xl min-w-[170px]">
+                    <div className="flex-1 max-w-2xl min-w-[200px]">
                         <div className="relative w-full">
                             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                             <input
@@ -226,8 +239,17 @@ export default function CustomerNavbar({
                                 value={searchQuery}
                                 onChange={(e) => onSearchChange?.(e.target.value)}
                                 placeholder="Search products, groceries, or local stores..."
-                                className="w-full h-10 sm:h-11 pl-10 pr-4 rounded-xl bg-slate-100/90 border border-slate-200/80 text-slate-900 text-xs sm:text-sm font-medium placeholder:text-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 focus:outline-none transition-all"
+                                className="w-full h-11 pl-10 pr-9 rounded-xl bg-slate-100/90 border border-slate-200/80 text-slate-900 text-sm font-medium placeholder:text-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 focus:outline-none transition-all"
                             />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => onSearchChange?.("")}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
+                                    aria-label="Clear search"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -236,7 +258,7 @@ export default function CustomerNavbar({
                         {user ? (
                             <Link
                                 href={ROUTES.CUSTOMER_PROFILE}
-                                className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
                             >
                                 <UserIcon className="w-4 h-4 text-slate-500" />
                                 <span className="truncate max-w-[100px]">
@@ -246,7 +268,7 @@ export default function CustomerNavbar({
                         ) : (
                             <Link
                                 href={ROUTES.LOGIN_CUSTOMER}
-                                className="hidden sm:inline-block px-3.5 py-2 text-xs font-bold text-slate-800 hover:text-emerald-700 transition-colors"
+                                className="px-3.5 py-2 text-xs font-bold text-slate-800 hover:text-emerald-700 transition-colors"
                             >
                                 Login
                             </Link>
@@ -255,28 +277,101 @@ export default function CustomerNavbar({
                         {/* Cart Button */}
                         <Link
                             href={ROUTES.CUSTOMER_CART}
-                            className="flex items-center gap-2 px-3.5 sm:px-4 h-10 sm:h-11 rounded-xl bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-xs hover:bg-emerald-800 active:scale-95 transition-all"
+                            className="flex items-center gap-2 px-4 h-11 rounded-xl bg-emerald-700 text-white font-bold text-sm shadow-xs hover:bg-emerald-800 active:scale-95 transition-all"
                         >
                             <ShoppingCart className="w-4 h-4" />
-                            <span className="hidden xs:inline">Cart</span>
+                            <span>Cart</span>
                             {cartCount > 0 && (
                                 <span className="bg-emerald-900 text-emerald-100 px-1.5 py-0.5 rounded text-[11px] font-extrabold">
                                     {cartCount}
                                 </span>
                             )}
                         </Link>
-
-                        {/* Mobile Menu Button */}
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 lg:hidden"
-                            aria-label="Toggle Navigation"
-                        >
-                            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                        </button>
                     </div>
                 </div>
             </div>
+
+            {/* Address Selection Dropdown / Mobile Sheet */}
+            {isAddressDropdownOpen && (
+                <div className="fixed inset-0 z-[100] md:absolute md:inset-auto md:left-24 lg:left-36 md:top-18 flex items-end md:items-start justify-center md:justify-start bg-slate-900/40 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none p-3 md:p-0">
+                    <div className="w-full sm:max-w-sm md:w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 z-50 animate-scale-in">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                            <p className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                                <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                                <span>{savedAddresses.length > 0 ? "Saved Addresses" : "Delivery Neighborhood"}</span>
+                            </p>
+                            <button
+                                onClick={() => setIsAddressDropdownOpen(false)}
+                                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-1 mt-2 max-h-60 overflow-y-auto">
+                            {savedAddresses.length > 0 ? (
+                                savedAddresses.map((addr) => {
+                                    const full = `${addr.address_line}${addr.city ? `, ${addr.city}` : ""}`;
+                                    const isSelected = selectedAddress === full;
+                                    return (
+                                        <button
+                                            key={addr.id}
+                                            onClick={() => {
+                                                setSelectedAddress(full);
+                                                setIsAddressDropdownOpen(false);
+                                            }}
+                                            className={`w-full text-left px-3 py-2.5 rounded-xl text-xs flex items-center justify-between transition-colors ${
+                                                isSelected
+                                                    ? "bg-emerald-50 text-emerald-800 font-bold border border-emerald-200"
+                                                    : "text-slate-700 hover:bg-slate-50 border border-transparent"
+                                            }`}
+                                        >
+                                            <div className="min-w-0 pr-2">
+                                                <p className="font-bold text-slate-900">{addr.label}</p>
+                                                <p className="text-[11px] text-slate-500 truncate">{full}</p>
+                                            </div>
+                                            {isSelected && (
+                                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 shrink-0" />
+                                            )}
+                                        </button>
+                                    );
+                                })
+                            ) : (
+                                ["Civil Lines, Meerut", "Shastri Nagar, Meerut", "Saket, Meerut", "Baghpat Road, Meerut"].map((loc) => (
+                                    <button
+                                        key={loc}
+                                        onClick={() => {
+                                            setSelectedAddress(loc);
+                                            setIsAddressDropdownOpen(false);
+                                        }}
+                                        className={`w-full text-left px-3 py-2.5 rounded-xl text-xs flex items-center justify-between ${
+                                            selectedAddress.includes(loc)
+                                                ? "bg-emerald-50 text-emerald-800 font-bold border border-emerald-200"
+                                                : "text-slate-700 hover:bg-slate-50"
+                                        }`}
+                                    >
+                                        <span>{loc}</span>
+                                        {selectedAddress.includes(loc) && (
+                                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
+                                        )}
+                                    </button>
+                                ))
+                            )}
+                        </div>
+
+                        <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                            <Link
+                                href={ROUTES.CUSTOMER_ADDRESSES}
+                                onClick={() => setIsAddressDropdownOpen(false)}
+                                className="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1"
+                            >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>Manage Addresses</span>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Lower Navigation Links Bar */}
             <div className="border-t border-slate-100 bg-slate-50/80 hidden lg:block">

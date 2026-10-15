@@ -35,6 +35,8 @@ import {
     Package,
     ShieldCheck,
     MessageCircle,
+    AlertCircle,
+    RefreshCw,
 } from "lucide-react";
 
 // ── Skeleton Loader ──
@@ -167,12 +169,16 @@ function OrderCard({
     order,
     onCancel,
     onReorder,
+    onVerifyPayment,
     reorderingId,
+    verifyingId,
 }: {
     order: Order;
     onCancel: (id: string) => void;
     onReorder: (order: Order) => void;
+    onVerifyPayment: (orderId: string) => void;
     reorderingId: string | null;
+    verifyingId: string | null;
 }) {
     const [expanded, setExpanded] = useState(false);
     const date = new Date(order.created_at).toLocaleDateString("en-IN", {
@@ -184,6 +190,8 @@ function OrderCard({
     });
     const itemCount = order.order_items?.reduce((s, i) => s + i.quantity, 0) ?? 0;
     const isPastOrder = order.status === "delivered" || order.status === "cancelled";
+    const isPaid = order.payment_status === "paid";
+    const isFailed = order.payment_status === "failed";
 
     return (
         <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden hover:border-slate-300 transition-all">
@@ -195,13 +203,33 @@ function OrderCard({
             >
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
                             <span className="text-xs font-black text-slate-900 tracking-tight font-mono">
                                 #{order.id.slice(0, 8).toUpperCase()}
                             </span>
                             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                                 · {date}
                             </span>
+                            {isPaid ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                                    Payment Complete
+                                </span>
+                            ) : isFailed ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
+                                    <XCircle className="w-3 h-3 text-rose-600" />
+                                    Payment Failed
+                                </span>
+                            ) : order.payment_method === "cod" ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                                    COD
+                                </span>
+                            ) : (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                                    <Clock className="w-3 h-3 text-amber-600" />
+                                    Payment Incomplete
+                                </span>
+                            )}
                         </div>
                         <p className="text-sm font-bold text-slate-700 mt-1">
                             {itemCount} item{itemCount !== 1 ? "s" : ""} ·{" "}
@@ -225,8 +253,22 @@ function OrderCard({
                     </div>
                 </div>
 
-                {/* Live Progress Bar */}
-                <StatusProgress status={order.status} />
+                {/* Live Progress Bar or Unpaid Notice */}
+                {!isPaid && order.payment_method !== "cod" ? (
+                    <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-900 text-xs flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                            <span>
+                                <strong>Payment Pending:</strong> Order is on hold until payment is completed.
+                            </span>
+                        </div>
+                        <span className="text-[10px] font-black text-emerald-800 bg-white px-2 py-1 rounded-md border border-amber-300 shrink-0">
+                            Check Status ↓
+                        </span>
+                    </div>
+                ) : (
+                    <StatusProgress status={order.status} />
+                )}
             </button>
 
             {/* Expanded items */}
@@ -263,10 +305,28 @@ function OrderCard({
                         </div>
                     )}
 
+                    {/* Payment incomplete action bar */}
+                    {!isPaid && order.payment_method !== "cod" && (
+                        <div className="p-3 bg-amber-50 rounded-xl border border-amber-200/80 space-y-2">
+                            <p className="text-xs text-amber-800 font-medium">
+                                Payment has not been completed. The shopkeeper will receive and prepare your order once payment is verified.
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => onVerifyPayment(order.id)}
+                                disabled={verifyingId === order.id}
+                                className="w-full py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+                            >
+                                <RefreshCw className={`w-3.5 h-3.5 ${verifyingId === order.id ? "animate-spin" : ""}`} />
+                                <span>{verifyingId === order.id ? "Checking Payment..." : "Check / Verify Payment Status"}</span>
+                            </button>
+                        </div>
+                    )}
+
                     {/* Order Query via WhatsApp */}
                     <a
                         href={`https://wa.me/918923678493?text=${encodeURIComponent(
-                            `Hi MarketNera Support, I have an order related query regarding order #${order.id.slice(0, 8).toUpperCase()} (₹${order.total_amount}).`
+                            `Hi MarketNera Support, I have an order query regarding order #${order.id.slice(0, 8).toUpperCase()} (₹${order.total_amount}, Payment: ${order.payment_status || "pending"}).`
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -320,6 +380,32 @@ export default function CustomerOrdersPage() {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<"active" | "past">("active");
     const [reorderingId, setReorderingId] = useState<string | null>(null);
+    const [verifyingId, setVerifyingId] = useState<string | null>(null);
+
+    const handleVerifyPayment = async (orderId: string) => {
+        setVerifyingId(orderId);
+        try {
+            const res = await fetch("/api/payments/razorpay/check-status", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderId }),
+            });
+            const data = await res.json();
+            if (data.isComplete || data.paymentStatus === "paid") {
+                toast.success("Payment verified and completed!");
+                fetchOrders(true);
+            } else if (data.paymentStatus === "failed") {
+                toast.error("Payment failed. Please retry payment.");
+                fetchOrders(true);
+            } else {
+                toast("Payment is still pending with your bank.", { icon: "⏳" });
+            }
+        } catch (e) {
+            toast.error("Failed to check payment status.");
+        } finally {
+            setVerifyingId(null);
+        }
+    };
 
     const handleReorder = async (order: Order) => {
         if (!user || reorderingId) return;
@@ -426,7 +512,7 @@ export default function CustomerOrdersPage() {
     const activeCount = orders.filter((o) => ACTIVE_STATUSES.includes(o.status)).length;
 
     return (
-        <div className="min-h-screen bg-slate-50/70 flex flex-col justify-between font-sans text-slate-900">
+        <div className="min-h-screen bg-slate-50/70 flex flex-col justify-between font-sans text-slate-900 pb-28 lg:pb-0">
             {/* Top Navigation */}
             <CustomerNavbar />
 
@@ -520,7 +606,9 @@ export default function CustomerOrdersPage() {
                                 order={order}
                                 onCancel={handleCancel}
                                 onReorder={handleReorder}
+                                onVerifyPayment={handleVerifyPayment}
                                 reorderingId={reorderingId}
+                                verifyingId={verifyingId}
                             />
                         ))
                     )}

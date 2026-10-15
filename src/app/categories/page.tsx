@@ -56,7 +56,7 @@ export default function CategoriesPage() {
         : products;
 
     return (
-        <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between pb-16 lg:pb-0">
+        <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between pb-28 lg:pb-0">
             <CustomerNavbar />
 
             <main className="container mx-auto px-4 sm:px-6 lg:px-10 py-8 space-y-8 max-w-7xl">

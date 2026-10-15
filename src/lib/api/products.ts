@@ -24,6 +24,7 @@ export interface Product {
   is_featured: boolean;
   hide_from_search: boolean;
   restock_notification: boolean;
+  product_media?: ProductMedia[];
   created_at: string;
   updated_at: string;
 }
@@ -45,7 +46,7 @@ export interface ProductMedia {
 export interface ProductFilters {
   search?: string;
   category?: string;
-  status?: 'published' | 'draft' | 'low_stock' | 'out_of_stock';
+  status?: 'published' | 'draft' | 'low_stock' | 'out_of_stock' | 'in_stock';
 }
 
 // ── CRUD Methods ──
@@ -88,9 +89,11 @@ export async function getProducts(shopId: string, filters?: ProductFilters): Pro
 
   let results = data as Product[];
 
-  // Post-process low_stock filter if requested
+  // Post-process low_stock & in_stock filters if requested
   if (filters?.status === 'low_stock') {
-    results = results.filter(p => p.stock_quantity > 0 && p.stock_quantity <= p.low_stock_threshold);
+    results = results.filter(p => p.stock_quantity > 0 && p.stock_quantity <= (p.low_stock_threshold || 5));
+  } else if (filters?.status === 'in_stock') {
+    results = results.filter(p => p.stock_quantity > (p.low_stock_threshold || 5));
   }
 
   return results;
@@ -218,6 +221,56 @@ export async function bulkUpdateVisibility(ids: string[], isPublished: boolean):
 
   if (error) throw error;
 }
+
+// ── Stock Management Methods ──
+
+/**
+ * Quick inline stock update for a single product with bounds safety.
+ */
+export async function quickUpdateStock(id: string, stockQuantity: number): Promise<Product> {
+  const safeStock = Math.max(0, Math.floor(stockQuantity));
+  const { data, error } = await supabase
+    .from('shopkeeper_products')
+    .update({ 
+      stock_quantity: safeStock,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Product;
+}
+
+/**
+ * Bulk set exact stock quantity for selected products (e.g. mark out of stock or reset).
+ */
+export async function bulkSetStock(ids: string[], stockQuantity: number): Promise<void> {
+  const safeStock = Math.max(0, Math.floor(stockQuantity));
+  const { error } = await supabase
+    .from('shopkeeper_products')
+    .update({
+      stock_quantity: safeStock,
+      updated_at: new Date().toISOString()
+    })
+    .in('id', ids);
+
+  if (error) throw error;
+}
+
+/**
+ * Bulk adjust stock quantity by delta (e.g. +10 restock) for selected products.
+ */
+export async function bulkAdjustStock(products: { id: string; stock_quantity: number }[], delta: number): Promise<void> {
+  await Promise.all(
+    products.map(p => {
+      const newStock = Math.max(0, (p.stock_quantity || 0) + delta);
+      return quickUpdateStock(p.id, newStock);
+    })
+  );
+}
+
 
 // ── Media Methods ──
 

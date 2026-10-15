@@ -18,8 +18,16 @@ export default function ShopkeeperLoginPage() {
     const [isDev, setIsDev] = useState(false);
 
     useEffect(() => {
-        if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
-            setIsDev(true);
+        if (typeof window !== "undefined") {
+            if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+                setIsDev(true);
+            }
+            const params = new URLSearchParams(window.location.search);
+            const err = params.get("error") || params.get("error_description");
+            if (err) {
+                setMessage(decodeURIComponent(err));
+                setIsError(true);
+            }
         }
     }, []);
 

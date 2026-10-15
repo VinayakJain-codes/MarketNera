@@ -196,7 +196,7 @@ export default function CustomerOrderNotifier() {
       // Query customer's single latest order overall
       const { data: latestOrder } = await supabase
         .from("orders")
-        .select("id, status, total_amount, delivery_address, shopkeeper_id, created_at")
+        .select("id, status, payment_status, total_amount, delivery_address, shopkeeper_id, created_at")
         .eq("customer_id", session.user.id)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -206,8 +206,11 @@ export default function CustomerOrderNotifier() {
         // Only consider orders placed within the last 24 hours as live ongoing orders
         const isFresh =
           Date.now() - new Date(latestOrder.created_at).getTime() < 24 * 60 * 60 * 1000;
+        const isPaid = latestOrder.payment_status === "paid";
         const isOngoing =
-          ["pending", "accepted", "preparing", "ready"].includes(latestOrder.status) && isFresh;
+          isPaid &&
+          ["pending", "accepted", "preparing", "ready"].includes(latestOrder.status) &&
+          isFresh;
 
         if (isOngoing) {
           const prevOrder = activeOrderRef.current;
@@ -237,14 +240,14 @@ export default function CustomerOrderNotifier() {
           }
           return;
         } else {
-          // Latest order is delivered or cancelled!
+          // Latest order is delivered, cancelled, or unpaid!
           const prevOrder = activeOrderRef.current;
           const wasActive =
             prevOrder &&
             prevOrder.id === latestOrder.id &&
             ["pending", "accepted", "preparing", "ready"].includes(prevOrder.status);
 
-          if (wasActive) {
+          if (wasActive && isPaid) {
             playCustomerOrderChime();
             setInAppToast({
               title: latestOrder.status === "delivered" ? "Order Delivered! 🎉" : "Order Cancelled",
@@ -282,14 +285,15 @@ export default function CustomerOrderNotifier() {
     if (storedOrderId) {
       const { data } = await supabase
         .from("orders")
-        .select("id, status, total_amount, delivery_address, shopkeeper_id, created_at")
+        .select("id, status, payment_status, total_amount, delivery_address, shopkeeper_id, created_at")
         .eq("id", storedOrderId)
         .maybeSingle();
 
       if (data) {
         const isFresh =
           Date.now() - new Date(data.created_at).getTime() < 24 * 60 * 60 * 1000;
-        if (["pending", "accepted", "preparing", "ready"].includes(data.status) && isFresh) {
+        const isPaid = data.payment_status === "paid";
+        if (isPaid && ["pending", "accepted", "preparing", "ready"].includes(data.status) && isFresh) {
           setActiveOrder(data as ActiveOrder);
         } else {
           // Delivered or cancelled
@@ -299,7 +303,7 @@ export default function CustomerOrderNotifier() {
             prevOrder.id === data.id &&
             ["pending", "accepted", "preparing", "ready"].includes(prevOrder.status);
 
-          if (wasActive) {
+          if (wasActive && isPaid) {
             playCustomerOrderChime();
             setInAppToast({
               title: data.status === "delivered" ? "Order Delivered! 🎉" : "Order Cancelled",
@@ -682,7 +686,7 @@ export default function CustomerOrderNotifier() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ type: "spring", stiffness: 350, damping: 25 }}
-            className="fixed bottom-16 sm:bottom-5 left-3 right-3 sm:left-auto sm:right-6 sm:w-[440px] z-40"
+            className="fixed bottom-[calc(4.2rem+env(safe-area-inset-bottom,0px))] sm:bottom-5 left-3 right-3 sm:left-auto sm:right-6 sm:w-[440px] z-40"
           >
             <div className="rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-emerald-500/40 p-3.5 sm:p-4 text-white shadow-2xl shadow-slate-950/40 ring-1 ring-white/10">
               {/* Header: Order ID & Live Pulse Status */}

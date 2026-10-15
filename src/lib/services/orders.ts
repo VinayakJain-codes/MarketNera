@@ -181,6 +181,22 @@ export async function updateOrderStatus(
         return { success: false, error: "Not authenticated" };
     }
 
+    // Verify payment is complete before advancing (unless COD or declining/cancelling)
+    if (newStatus !== "cancelled") {
+        const { data: orderData } = await supabase
+            .from("orders")
+            .select("payment_status, payment_method")
+            .eq("id", orderId)
+            .single();
+
+        if (orderData && orderData.payment_status !== "paid" && orderData.payment_method !== "cod") {
+            return {
+                success: false,
+                error: "Cannot process order: Payment has not been completed.",
+            };
+        }
+    }
+
     const { error } = await supabase
         .from("orders")
         .update({ status: newStatus })

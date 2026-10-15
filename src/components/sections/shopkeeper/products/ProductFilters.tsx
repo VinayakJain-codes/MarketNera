@@ -11,10 +11,11 @@ interface ProductFiltersProps {
 const CATEGORIES = ['All', 'Electronics', 'Clothing', 'Home', 'Beauty', 'Food', 'Grocery'];
 const STATUSES = [
   { value: '', label: 'All Status' },
-  { value: 'published', label: 'Published' },
-  { value: 'draft', label: 'Draft / Hidden' },
-  { value: 'low_stock', label: 'Low Stock' },
-  { value: 'out_of_stock', label: 'Out of Stock' },
+  { value: 'in_stock', label: 'Healthy Stock' },
+  { value: 'low_stock', label: 'Low Stock Alert' },
+  { value: 'out_of_stock', label: 'Out of Stock (0)' },
+  { value: 'published', label: 'Published Only' },
+  { value: 'draft', label: 'Draft / Hidden Only' },
 ];
 
 export default function ProductFilters({ filters, onFilterChange }: ProductFiltersProps) {

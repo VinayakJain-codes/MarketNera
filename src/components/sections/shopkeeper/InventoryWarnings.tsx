@@ -18,14 +18,22 @@ export default function InventoryWarnings({ warnings = [] }: { warnings?: Warnin
       transition={{ delay: 0.75 }}
       className="dash-glass p-5 border-[var(--brand-orange)]/30"
     >
-      <div className="flex items-center gap-2 mb-3">
-        <motion.div
-          animate={warnings.length > 0 ? { scale: [1, 1.15, 1] } : {}}
-          transition={{ repeat: Infinity, duration: 2 }}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <motion.div
+            animate={warnings.length > 0 ? { scale: [1, 1.15, 1] } : {}}
+            transition={{ repeat: Infinity, duration: 2 }}
+          >
+            <AlertTriangle className="h-5 w-5 text-[var(--brand-orange)]" />
+          </motion.div>
+          <h3 className="text-sm font-semibold text-[var(--dash-text)]">Attention Required</h3>
+        </div>
+        <a
+          href="/shopkeeper/products"
+          className="text-xs font-bold text-[var(--brand-green)] hover:underline flex items-center gap-0.5"
         >
-          <AlertTriangle className="h-5 w-5 text-[var(--brand-orange)]" />
-        </motion.div>
-        <h3 className="text-sm font-semibold text-[var(--dash-text)]">Attention Required</h3>
+          Manage Stock &rarr;
+        </a>
       </div>
       
       {warnings.length === 0 ? (

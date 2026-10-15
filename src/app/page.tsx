@@ -111,19 +111,14 @@ function CustomerHomePageContent() {
     };
 
     return (
-        <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900 pb-16 lg:pb-0">
+        <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900 pb-28 lg:pb-0">
             {/* Top Customer Navigation Bar */}
             <CustomerNavbar
                 searchQuery={searchQuery}
-                onSearchChange={(q) => {
-                    setSearchQuery(q);
-                    if (q.trim() && catalogRef.current) {
-                        scrollToCatalog();
-                    }
-                }}
+                onSearchChange={(q) => setSearchQuery(q)}
             />
 
-            <main className="container mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 space-y-8 sm:space-y-10 max-w-7xl">
+            <main className="container mx-auto px-4 sm:px-6 lg:px-10 py-4 sm:py-8 space-y-6 sm:space-y-10 max-w-7xl">
                 {/* 1. Production Quick-Commerce Hero Banner */}
                 <CustomerHeroBanner
                     onShopNowClick={scrollToCatalog}
@@ -135,10 +130,7 @@ function CustomerHomePageContent() {
                 <CustomerCategoryStrip
                     categories={categories}
                     selectedCategory={selectedCategory}
-                    onSelectCategory={(cat) => {
-                        setSelectedCategory(cat);
-                        scrollToCatalog();
-                    }}
+                    onSelectCategory={(cat) => setSelectedCategory(cat)}
                     loading={loadingData}
                 />
 

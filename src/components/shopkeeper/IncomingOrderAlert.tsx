@@ -13,6 +13,7 @@ import {
   MapPin,
   CreditCard,
   Banknote,
+  Clock,
   ArrowRight,
   ExternalLink,
 } from "lucide-react";
@@ -88,10 +89,17 @@ export default function IncomingOrderAlert() {
 
     if (Notification.permission === "granted") {
       try {
+        const isPaid = order.payment_status === "paid";
+        const paymentLabel = isPaid
+          ? "Payment Complete · Paid Online"
+          : order.payment_method === "cod"
+          ? "Cash on Delivery"
+          : "Payment Incomplete";
+
         const notif = new Notification("🚨 NEW ORDER RECEIVED! 🛒", {
           body: `Order #${order.id.slice(0, 8).toUpperCase()} for ₹${order.total_amount.toFixed(
             2
-          )} (${order.payment_method === "cod" ? "Cash on Delivery" : "Paid Online"}). Tap to view.`,
+          )} (${paymentLabel}). Tap to view.`,
           icon: "/favicon.ico",
           tag: `order-${order.id}`,
           requireInteraction: true,
@@ -158,6 +166,11 @@ export default function IncomingOrderAlert() {
       }
 
       if (data) {
+        // Enforce payment completion check: order must be marked "paid" (or "cod")
+        if (data.payment_status !== "paid" && data.payment_method !== "cod") {
+          return;
+        }
+
         // Only trigger if not already alerting this exact order
         if (!activeAlertRef.current || activeAlertRef.current.id !== data.id) {
           handleNewOrderArrival(data as IncomingOrderData);
@@ -230,6 +243,10 @@ export default function IncomingOrderAlert() {
   // Accept order
   const handleAccept = async () => {
     if (!activeAlert) return;
+    if (activeAlert.payment_status !== "paid" && activeAlert.payment_method !== "cod") {
+      alert("Cannot accept order: Payment is not completed yet.");
+      return;
+    }
     setIsProcessing(true);
     stopLoudBell();
 
@@ -389,15 +406,20 @@ export default function IncomingOrderAlert() {
 
                 <div className="flex items-center gap-2 text-xs">
                   <span className="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700/80 font-bold flex items-center gap-1.5 text-slate-200">
-                    {activeAlert.payment_method === "cod" ? (
+                    {activeAlert.payment_status === "paid" ? (
+                      <>
+                        <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-emerald-400">Payment Complete · Paid Online</span>
+                      </>
+                    ) : activeAlert.payment_method === "cod" ? (
                       <>
                         <Banknote className="w-3.5 h-3.5 text-amber-400" />
                         Cash on Delivery
                       </>
                     ) : (
                       <>
-                        <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
-                        Paid Online (Razorpay)
+                        <Clock className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="text-amber-400">Payment Incomplete</span>
                       </>
                     )}
                   </span>

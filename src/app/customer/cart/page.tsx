@@ -420,8 +420,8 @@ export default function CartPage() {
                             });
 
                             const verifyResult = await verifyResponse.json();
-                            if (!verifyResponse.ok || !verifyResult.success) {
-                                throw new Error(verifyResult.error || "Payment verification failed.");
+                            if (!verifyResponse.ok || !verifyResult.success || !verifyResult.isComplete) {
+                                throw new Error(verifyResult.error || "Payment was not completed. Please try again.");
                             }
 
                             if (user) {
@@ -451,9 +451,18 @@ export default function CartPage() {
                     modal: {
                         ondismiss: async () => {
                             setPlacing(false);
-                            setPlaceError("Payment cancelled.");
+                            setPlaceError("Payment was cancelled or closed before completion.");
                             if (user) {
                                 await cancelOrder(createdOrder.id, user.id);
+                            } else {
+                                // For guest orders, mark failed in database
+                                try {
+                                    await fetch("/api/payments/razorpay/check-status", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ orderId: createdOrder.id }),
+                                    });
+                                } catch {}
                             }
                         },
                     },

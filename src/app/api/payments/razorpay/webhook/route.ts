@@ -36,32 +36,37 @@ export async function POST(request: Request) {
     const payload = JSON.parse(rawBody);
     const event = payload.event;
     const paymentEntity = payload.payload?.payment?.entity;
-    
-    if (!paymentEntity) {
-      return NextResponse.json({ error: "Invalid payload data" }, { status: 400 });
-    }
+    const orderEntity = payload.payload?.order?.entity;
 
-    const razorpayOrderId = paymentEntity.order_id;
-    const razorpayPaymentId = paymentEntity.id;
+    const razorpayOrderId = paymentEntity?.order_id || orderEntity?.id;
+    const razorpayPaymentId = paymentEntity?.id || null;
 
     if (!razorpayOrderId) {
-      // Direct payments not linked to an order
-      console.log("No linked razorpayOrderId found in webhook entity:", razorpayPaymentId);
-      return NextResponse.json({ success: true, message: "Ignored direct payment" });
+      console.log("No linked razorpayOrderId found in webhook entity:", event);
+      return NextResponse.json({ success: true, message: "Ignored event without order ID" });
     }
 
     console.log(`Processing webhook event ${event} for order ${razorpayOrderId}`);
 
-    // 3. Handle Webhook Events
+    // 3. Handle Webhook Events - Check payment completion
     if (event === "payment.captured" || event === "order.paid") {
-      // Update order payment status to paid in Supabase (status stays pending for shopkeeper manual acceptance)
+      // Check that payment status is captured if entity is provided
+      if (paymentEntity && paymentEntity.status && paymentEntity.status !== "captured") {
+        console.warn(`Payment ${paymentEntity.id} has status ${paymentEntity.status}, not captured.`);
+        return NextResponse.json({ success: true, message: "Payment not captured yet" });
+      }
+
+      // Update order payment status to paid in Supabase
+      const updateData: Record<string, any> = {
+        payment_status: "paid",
+      };
+      if (razorpayPaymentId) {
+        updateData.razorpay_payment_id = razorpayPaymentId;
+      }
+
       const { data, error } = await supabaseServer
         .from("orders")
-        .update({
-          payment_status: "paid",
-          // status remains "pending" for manual shopkeeper action
-          razorpay_payment_id: razorpayPaymentId,
-        })
+        .update(updateData)
         .eq("razorpay_order_id", razorpayOrderId);
 
       if (error) {

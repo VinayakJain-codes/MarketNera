@@ -94,30 +94,33 @@ export default function CustomerBottomNav() {
     return (
         <nav
             aria-label="Mobile Bottom Navigation"
-            className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-lg lg:hidden"
+            className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] lg:hidden pb-[max(env(safe-area-inset-bottom),0.4rem)] pt-1.5"
         >
-            <div className="grid grid-cols-5 h-15 max-w-md mx-auto">
+            <div className="grid grid-cols-5 h-14 max-w-md mx-auto items-center">
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     return (
                         <Link
                             key={item.label}
                             href={item.href}
-                            className={`relative flex flex-col items-center justify-center gap-0.5 transition-colors ${
+                            className={`relative flex flex-col items-center justify-center gap-1 transition-all active:scale-95 py-1 ${
                                 item.isActive
-                                    ? "text-emerald-700 font-bold"
+                                    ? "text-emerald-700 font-extrabold"
                                     : "text-slate-500 hover:text-slate-900 font-medium"
                             }`}
                         >
                             <div className="relative">
-                                <Icon className={`w-5 h-5 ${item.isActive ? "stroke-[2.5]" : "stroke-[1.8]"}`} />
+                                <Icon className={`w-5 h-5 transition-transform ${item.isActive ? "stroke-[2.4] scale-110" : "stroke-[1.8]"}`} />
                                 {item.badge && (
-                                    <span className="absolute -top-1.5 -right-2 bg-emerald-700 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full leading-tight">
+                                    <span className="absolute -top-1.5 -right-2.5 bg-emerald-700 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full leading-tight shadow-xs ring-2 ring-white">
                                         {item.badge}
                                     </span>
                                 )}
                             </div>
                             <span className="text-[10px] tracking-tight">{item.label}</span>
+                            {item.isActive && (
+                                <span className="absolute bottom-0 w-3 h-0.5 rounded-full bg-emerald-600" />
+                            )}
                         </Link>
                     );
                 })}

@@ -136,7 +136,7 @@ export default function ShopDetailPage({
     const bannerImage = shop.banner_url || photoUrl;
 
     return (
-        <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900 pb-16 lg:pb-0">
+        <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900 pb-28 lg:pb-0">
             {/* Top Customer Navigation Bar */}
             <CustomerNavbar />
 

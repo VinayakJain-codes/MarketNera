@@ -1,12 +1,27 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import CustomerNavbar from "@/components/layout/CustomerNavbar";
 import Footer from "@/components/layout/Footer";
 import CustomerBottomNav from "@/components/layout/CustomerBottomNav";
 import Link from "next/link";
-import { CheckCircle2, Clock, MapPin, Store, ShoppingBag, ArrowRight, ShieldCheck, UserPlus, MessageCircle, Eye, BellRing } from "lucide-react";
+import {
+    CheckCircle2,
+    Clock,
+    MapPin,
+    Store,
+    ShoppingBag,
+    ArrowRight,
+    ShieldCheck,
+    UserPlus,
+    MessageCircle,
+    Eye,
+    BellRing,
+    AlertCircle,
+    XCircle,
+    RefreshCw,
+} from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 
 function OrderSuccessContent() {
@@ -16,6 +31,31 @@ function OrderSuccessContent() {
     const [order, setOrder] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [verifyingPayment, setVerifyingPayment] = useState(false);
+
+    const checkPaymentCompletion = useCallback(async (currentOrderId: string) => {
+        setVerifyingPayment(true);
+        try {
+            const res = await fetch("/api/payments/razorpay/check-status", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderId: currentOrderId }),
+            });
+            const data = await res.json();
+            if (res.ok && data.success && data.order) {
+                setOrder((prev: any) => ({
+                    ...prev,
+                    ...data.order,
+                    payment_status: data.paymentStatus,
+                    is_payment_complete: data.isComplete,
+                }));
+            }
+        } catch (e) {
+            console.warn("Error checking payment status:", e);
+        } finally {
+            setVerifyingPayment(false);
+        }
+    }, []);
 
     useEffect(() => {
         if (!orderId) {
@@ -38,6 +78,11 @@ function OrderSuccessContent() {
                 const data = await res.json();
                 if (res.ok && data.success && data.order) {
                     setOrder(data.order);
+
+                    // If order payment is pending, trigger status check with Razorpay
+                    if (data.order.payment_status === "pending") {
+                        checkPaymentCompletion(orderId!);
+                    }
                 } else {
                     setError(data.error || "Could not retrieve order details.");
                 }
@@ -49,7 +94,11 @@ function OrderSuccessContent() {
         }
 
         fetchOrder();
-    }, [orderId]);
+    }, [orderId, checkPaymentCompletion]);
+
+    const isPaid = order?.payment_status === "paid";
+    const isFailed = order?.payment_status === "failed";
+    const isPending = !isPaid && !isFailed;
 
     return (
         <div className="min-h-screen bg-[#fafaf9] text-slate-900 font-display flex flex-col justify-between pb-16 lg:pb-0">
@@ -81,40 +130,118 @@ function OrderSuccessContent() {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        {/* Success Banner */}
-                        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm text-center space-y-4">
-                            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
-                                <CheckCircle2 className="w-10 h-10 stroke-[2]" />
-                            </div>
-
-                            <div className="space-y-1">
-                                <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider">
-                                    Order Confirmed
-                                </span>
-                                <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
-                                    Thank you for your order!
-                                </h1>
-                                <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                                    Your order has been sent to the store and will arrive in 15–30 minutes.
-                                </p>
-                            </div>
-
-                            {/* Estimated Delivery Card */}
-                            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-left">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2.5 rounded-xl bg-emerald-700 text-white">
-                                        <Clock className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-bold text-slate-900">Estimated Delivery</p>
-                                        <p className="text-[11px] text-slate-500 font-medium">Within 15 to 30 mins</p>
-                                    </div>
+                        {/* ── Payment & Order Status Header Banner ── */}
+                        {isPaid ? (
+                            /* Success Banner: Payment Complete */
+                            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-emerald-200/90 shadow-sm text-center space-y-4">
+                                <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto ring-8 ring-emerald-50/50">
+                                    <CheckCircle2 className="w-10 h-10 stroke-[2.5]" />
                                 </div>
-                                <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg">
-                                    Fast Delivery ⚡
-                                </span>
+
+                                <div className="space-y-1">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider">
+                                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+                                        Payment Completed &amp; Order Confirmed
+                                    </span>
+                                    <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+                                        Thank you for your order!
+                                    </h1>
+                                    <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                                        Payment is verified. Your order has been sent to the store and will arrive in 15–30 minutes.
+                                    </p>
+                                </div>
+
+                                {/* Estimated Delivery Card */}
+                                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-emerald-50/50 border border-emerald-100 text-left">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2.5 rounded-xl bg-emerald-700 text-white">
+                                            <Clock className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold text-slate-900">Estimated Delivery</p>
+                                            <p className="text-[11px] text-slate-500 font-medium">Within 15 to 30 mins</p>
+                                        </div>
+                                    </div>
+                                    <span className="text-xs font-black text-emerald-700 bg-white px-2.5 py-1 rounded-lg border border-emerald-200/80 shadow-2xs">
+                                        Fast Delivery ⚡
+                                    </span>
+                                </div>
                             </div>
-                        </div>
+                        ) : isFailed ? (
+                            /* Failed Banner: Payment Incomplete */
+                            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-rose-200 shadow-sm text-center space-y-4">
+                                <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto ring-8 ring-rose-50/50">
+                                    <XCircle className="w-10 h-10 stroke-[2.5]" />
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-bold uppercase tracking-wider">
+                                        Payment Incomplete / Failed
+                                    </span>
+                                    <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+                                        Payment Was Not Completed
+                                    </h1>
+                                    <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-md mx-auto">
+                                        The transaction could not be completed. Your order was <strong>NOT sent to the store</strong> and will not be prepared until payment is verified.
+                                    </p>
+                                </div>
+
+                                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                                    <Link
+                                        href={ROUTES.CUSTOMER_CART}
+                                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition-all"
+                                    >
+                                        Return to Cart &amp; Retry Payment
+                                    </Link>
+                                    <button
+                                        onClick={() => checkPaymentCompletion(order.id)}
+                                        disabled={verifyingPayment}
+                                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <RefreshCw className={`w-3.5 h-3.5 ${verifyingPayment ? "animate-spin" : ""}`} />
+                                        <span>Check Payment Status</span>
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            /* Pending Banner: Payment Pending Verification */
+                            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-amber-200 shadow-sm text-center space-y-4">
+                                <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto ring-8 ring-amber-50/50">
+                                    <Clock className="w-10 h-10 stroke-[2.5] animate-pulse" />
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-wider">
+                                        <AlertCircle className="w-3.5 h-3.5 text-amber-700" />
+                                        Payment Pending Verification
+                                    </span>
+                                    <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+                                        Checking Payment Status...
+                                    </h1>
+                                    <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-md mx-auto">
+                                        We are waiting for payment confirmation from your bank/UPI. The merchant store will begin preparing your order once payment is confirmed as complete.
+                                    </p>
+                                </div>
+
+                                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                                    <button
+                                        onClick={() => checkPaymentCompletion(order.id)}
+                                        disabled={verifyingPayment}
+                                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                                    >
+                                        <RefreshCw className={`w-3.5 h-3.5 ${verifyingPayment ? "animate-spin" : ""}`} />
+                                        <span>{verifyingPayment ? "Checking Payment..." : "Check Payment Status"}</span>
+                                    </button>
+
+                                    <Link
+                                        href={ROUTES.CUSTOMER_CART}
+                                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all text-center"
+                                    >
+                                        Retry Payment
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Order Summary Card */}
                         <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-4 text-xs">
@@ -139,10 +266,23 @@ function OrderSuccessContent() {
                             </div>
 
                             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                                <span className="text-slate-400 font-semibold">Payment</span>
-                                <span className="font-bold text-slate-800 uppercase">
-                                    Paid Online (Razorpay)
-                                </span>
+                                <span className="text-slate-400 font-semibold">Payment Status</span>
+                                {isPaid ? (
+                                    <span className="font-bold text-emerald-700 uppercase flex items-center gap-1">
+                                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                                        Paid Online (Razorpay Completed)
+                                    </span>
+                                ) : isFailed ? (
+                                    <span className="font-bold text-rose-700 uppercase flex items-center gap-1">
+                                        <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                                        Payment Failed
+                                    </span>
+                                ) : (
+                                    <span className="font-bold text-amber-700 uppercase flex items-center gap-1">
+                                        <Clock className="w-3.5 h-3.5 text-amber-600" />
+                                        Payment Pending Verification
+                                    </span>
+                                )}
                             </div>
 
                             {/* Items List */}
@@ -163,7 +303,7 @@ function OrderSuccessContent() {
                             </div>
 
                             <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-sm font-black text-slate-950">
-                                <span>Total Paid</span>
+                                <span>Total {isPaid ? "Paid" : "Amount"}</span>
                                 <span className="text-base text-emerald-800">₹{order.total_amount}</span>
                             </div>
                         </div>
@@ -175,12 +315,12 @@ function OrderSuccessContent() {
                                 className="py-3 px-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-700/20 active:scale-95 transition-all"
                             >
                                 <Eye className="w-4 h-4" />
-                                <span>See Order &amp; Live Tracking</span>
+                                <span>See Orders &amp; Live Tracking</span>
                             </Link>
 
                             <a
                                 href={`https://wa.me/918923678493?text=${encodeURIComponent(
-                                    `Hi MarketNera Support, I have an order related query regarding my order #${order.id.slice(0, 8).toUpperCase()} (₹${order.total_amount}).`
+                                    `Hi MarketNera Support, I have an order query regarding order #${order.id.slice(0, 8).toUpperCase()} (₹${order.total_amount}, Payment: ${order.payment_status || "pending"}).`
                                 )}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -235,3 +375,4 @@ export default function OrderSuccessPage() {
         </Suspense>
     );
 }
+

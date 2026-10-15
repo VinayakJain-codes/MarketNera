@@ -18,22 +18,13 @@ export default function CustomerHeroBanner({
 }: CustomerHeroBannerProps) {
     return (
         <section className="relative w-full space-y-3">
-            {/* Clickable Showcase Promotional Banner */}
+            {/* Promotional Showcase Banner */}
             <div
-                role="button"
-                tabIndex={0}
-                onClick={onShopNowClick}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        onShopNowClick?.();
-                    }
-                }}
-                className="group relative w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-100/80 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer bg-emerald-950/5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                aria-label="Fresh Groceries From Your Nearby Stores - Click to browse catalogue"
+                className="group relative w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-100/80 shadow-md transition-all duration-300 bg-emerald-950/5"
+                aria-label="Fresh Groceries From Your Nearby Stores"
             >
-                {/* Responsive 3:2 Promotional Poster Image */}
-                <div className="relative w-full aspect-[3/2] overflow-hidden">
+                {/* Responsive Promotional Poster Image */}
+                <div className="relative w-full aspect-[16/10] sm:aspect-[2/1] md:aspect-[2.3/1] max-h-[340px] overflow-hidden">
                     <Image
                         src="/posters/fresh-groceries-nearby-stores.png"
                         alt="MarketNera - Fresh Groceries From Your Nearby Stores. Fast & Reliable Hyperlocal Delivery in Meerut"
@@ -44,7 +35,7 @@ export default function CustomerHeroBanner({
                     />
 
                     {/* Subtle hover gradient depth */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
                     {/* Floating Quick Action CTA Button */}
                     <div className="absolute bottom-3 right-3 sm:bottom-5 sm:right-5 z-10">
@@ -54,15 +45,15 @@ export default function CustomerHeroBanner({
                                 e.stopPropagation();
                                 onShopNowClick?.();
                             }}
-                            className="inline-flex items-center gap-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-950/30 transition-all transform group-hover:scale-105 active:scale-95 cursor-pointer"
+                            className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-950/40 transition-all transform active:scale-95 cursor-pointer"
                         >
                             <span>Browse Catalogue</span>
                             <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-0.5 transition-transform" />
                         </button>
                     </div>
 
-                    {/* Floating Live Badge (desktop & tablet) */}
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-white/60 shadow-xs text-xs font-bold text-slate-800">
+                    {/* Floating Live Badge */}
+                    <div className="absolute top-2.5 left-2.5 sm:top-4 sm:right-4 sm:left-auto z-10 flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-white/95 backdrop-blur-md border border-white/60 shadow-xs text-[11px] sm:text-xs font-bold text-slate-800">
                         <span className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
